@@ -14,19 +14,18 @@ typedef enum {
 
   // BITWISE
   DONSUS_AMPERSAND,       // &
-  DONSUS_AMPERSAND_EQUAl, // &=
+  DONSUS_AMPERSAND_EQUAL, // &=
   DONSUS_PIPE,            // |
   DONSUS_PIPE_EQUAL,      // |=
   DONSUS_CARET,           // ^
   DONSUS_CARET_EQUAL,     // ^=
 
   // BITSHIFT
-  DONSUS_LARROW2,          // <<
-  DONSUS_LARROW2_EQUAL,    // <<=
-  DONSUS_RARROW2           // >>
-      DONSUS_RARROW2_EQUAL // >>=
-
-          DONSUS_LPAR,  // (
+  DONSUS_LARROW2,       // <<
+  DONSUS_LARROW2_EQUAL, // <<=
+  DONSUS_RARROW2,       // >>
+  DONSUS_RARROW2_EQUAL, // >>=
+  DONSUS_LPAR,          // (
   DONSUS_RPAR,          // )
   DONSUS_LSQB,          // [
   DONSUS_RSQB,          // ]
@@ -102,16 +101,16 @@ typedef enum {
   DONSUS_TYPE_KW,      // type
   DONSUS_ALIAS_KW,     // alias
   DONSUS_TYPECLASS_KW, // typeclass
-  DONSUS_INSTANCE_KW   // instance
+  DONSUS_INSTANCE_KW,  // instance
 
-      DONSUS_CONTINUE_KW, // Continue
-  DONSUS_BREAK_KW,        // break
-  DONSUS_FALLTHROUGH_KW,  // fallthrough
-  DONSUS_CASE_KW,         // case
-  DONSUS_DO_KW,           // do
-  DONSUS_OF_KW,           // of
-  DONSUS_OTHERWISE_KW,    // otherwise
-  DONSUS_AS_KW            // as
+  DONSUS_CONTINUE_KW,    // Continue
+  DONSUS_BREAK_KW,       // break
+  DONSUS_FALLTHROUGH_KW, // fallthrough
+  DONSUS_CASE_KW,        // case
+  DONSUS_DO_KW,          // do
+  DONSUS_OF_KW,          // of
+  DONSUS_OTHERWISE_KW,   // otherwise
+  DONSUS_AS_KW           // as
 } donsus_token_kind;
 
 struct token {

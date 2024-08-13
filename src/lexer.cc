@@ -11,217 +11,224 @@
 #include <iostream>
 
 // implement map for Tomi so this dependency can be ignored
-std::map<std::string, donsus_token_kind> TYPES_FOR_LEXER {
-  {"int", DONSUS_BASIC_INT}, {"int8", DONSUS_I8}, {"int16", DONSUS_I16},
-      {"int32", DONSUS_I32}, {"int64", DONSUS_I64}, {"u32", DONSUS_U32},
-      {"u64", DONSUS_U64}, {"f32", DONSUS_F32}, {"f64", DONSUS_F64},
-      {"bool", DONSUS_BOOL}, {"void", DONSUS_VOID},
-      {"string", DONSUS_STRING_TYPE}, {
-    "char", DONSUS_CHAR
-  }
-}
+std::map<std::string, donsus_token_kind> TYPES_FOR_LEXER{
+    {"int", DONSUS_BASIC_INT}, {"int8", DONSUS_I8},
+    {"int16", DONSUS_I16},     {"int32", DONSUS_I32},
+    {"int64", DONSUS_I64},     {"u32", DONSUS_U32},
+    {"u64", DONSUS_U64},       {"f32", DONSUS_F32},
+    {"f64", DONSUS_F64},       {"bool", DONSUS_BOOL},
+    {"void", DONSUS_VOID},     {"string", DONSUS_STRING_TYPE},
+    {"char", DONSUS_CHAR}};
 
 // implement map for TOmi so this dependency can be ignored
-std::map<std::string, Donsus::donsus_token_kind> DONSUS_KEYWORDS {
-  {"def", DONSUS_FUNCTION_DEFINITION_KW}, {"if", DONSUS_IF_KW},
-      {"elif", DONSUS_ELIF_KW}, {"else", DONSUS_ELSE_KW},
-      {"return", DONSUS_RETURN_KW}, {"printf", DONSUS_PRINT_KW},
-      {"true", DONSUS_TRUE_KW}, {"false", DONSUS_FALSE_KW},
-      {"while", DONSUS_WHILE_KW}, {"for", DONSUS_FOR_KW},
-      {"abstract", DONSUS_ABSTRACT_KW}, {"final", DONSUS_FINAL_KW},
-      {"class", DONSUS_CLASS_KW}, {"type", DONSUS_TYPE_KW},
-      {"alias", DONSUS_ALIAS_KW}, {"typeclass", DONSUS_TYPECLASS_KW},
-      {"instance", DONSUS_INSTANCE_KW}, {"continue", DONSUS_CONTINUE_KW},
-      {"break", DONSUS_BREAK_KW}, {"fallthrough", DONSUS_FALLTHROUGH_KW},
-      {"case", DONSUS_CASE_KW}, {"do", DONSUS_DO_KW}, {"of", DONSUS_OF_KW},
-      {"otherwise", DONSUS_OTHERWISE_KW}, {
-    "as", DONSUS_AS_KW
-  }
-}
+std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
+    {"def", DONSUS_FUNCTION_DEFINITION_KW},
+    {"if", DONSUS_IF_KW},
+    {"elif", DONSUS_ELIF_KW},
+    {"else", DONSUS_ELSE_KW},
+    {"return", DONSUS_RETURN_KW},
+    {"printf", DONSUS_PRINT_KW},
+    {"true", DONSUS_TRUE_KW},
+    {"false", DONSUS_FALSE_KW},
+    {"while", DONSUS_WHILE_KW},
+    {"for", DONSUS_FOR_KW},
+    {"abstract", DONSUS_ABSTRACT_KW},
+    {"final", DONSUS_FINAL_KW},
+    {"class", DONSUS_CLASS_KW},
+    {"type", DONSUS_TYPE_KW},
+    {"alias", DONSUS_ALIAS_KW},
+    {"typeclass", DONSUS_TYPECLASS_KW},
+    {"instance", DONSUS_INSTANCE_KW},
+    {"continue", DONSUS_CONTINUE_KW},
+    {"break", DONSUS_BREAK_KW},
+    {"fallthrough", DONSUS_FALLTHROUGH_KW},
+    {"case", DONSUS_CASE_KW},
+    {"do", DONSUS_DO_KW},
+    {"of", DONSUS_OF_KW},
+    {"otherwise", DONSUS_OTHERWISE_KW},
+    {"as", DONSUS_AS_KW}};
 
-std::string de_get_name_from_token(Donsus::donsus_token_kind kind) {
+std::string de_get_name_from_token(donsus_token_kind kind) {
   switch (kind) {
-  case Donsus::DONSUS_IDENTIFIER:
+  case DONSUS_IDENTIFIER:
     return "DONSUS_IDENTIFIER";
-  case Donsus::DONSUS_END:
+  case DONSUS_END:
     return "DONSUS_END";
-  case Donsus::DONSUS_NUMBER:
+  case DONSUS_NUMBER:
     return "DONSUS_NUMBER";
-  case Donsus::DONSUS_FLOAT:
+  case DONSUS_FLOAT:
     return "DONSUS_FLOAT";
-  case Donsus::DONSUS_STRING:
+  case DONSUS_STRING:
     return "DONSUS_STRING";
-  case Donsus::DONSUS_NEWLINE:
+  case DONSUS_NEWLINE:
     return "DONSUS_NEWLINE";
-  case Donsus::DONSUS_AMPERSAND:
+  case DONSUS_AMPERSAND:
     return "DONSUS_AMPERSAND";
-  case Donsus::DONSUS_AMPERSAND_EQUAl:
-    return "DONSUS_AMPERSAND_EQUAl";
-  case Donsus::DONSUS_PIPE:
+  case DONSUS_AMPERSAND_EQUAL:
+    return "DONSUS_AMPERSAND_EQUAL";
+  case DONSUS_PIPE:
     return "DONSUS_PIPE";
-  case Donsus::DONSUS_PIPE_EQUAL:
+  case DONSUS_PIPE_EQUAL:
     return "DONSUS_PIPE_EQUAL";
-  case Donsus::DONSUS_CARET:
+  case DONSUS_CARET:
     return "DONSUS_CARET";
-  case Donsus::DONSUS_CARET_EQUAL:
+  case DONSUS_CARET_EQUAL:
     return "DONSUS_CARET_EQUAL";
-  case Donsus::DONSUS_LARROW2:
+  case DONSUS_LARROW2:
     return "DONSUS_LARROW2";
-  case Donsus::DONSUS_LARROW2_EQUAL:
+  case DONSUS_LARROW2_EQUAL:
     return "DONSUS_LARROW2_EQUAL";
-  case Donsus::DONSUS_RARROW2:
+  case DONSUS_RARROW2:
     return "DONSUS_RARROW2";
-  case Donsus::DONSUS_RARROW2_EQUAL:
+  case DONSUS_RARROW2_EQUAL:
     return "DONSUS_RARROW2_EQUAL";
-  case Donsus::DONSUS_LPAR:
+  case DONSUS_LPAR:
     return "DONSUS_LPAR";
-  case Donsus::DONSUS_RPAR:
+  case DONSUS_RPAR:
     return "DONSUS_RPAR";
-  case Donsus::DONSUS_LSQB:
+  case DONSUS_LSQB:
     return "DONSUS_LSQB";
-  case Donsus::DONSUS_RSQB:
+  case DONSUS_RSQB:
     return "DONSUS_RSQB";
-  case Donsus::DONSUS_COLO:
+  case DONSUS_COLO:
     return "DONSUS_COLO";
-  case Donsus::DONSUS_COMM:
+  case DONSUS_COMM:
     return "DONSUS_COMM";
-  case Donsus::DONSUS_SEMICOLON:
+  case DONSUS_SEMICOLON:
     return "DONSUS_SEMICOLON";
-  case Donsus::DONSUS_PLUS:
+  case DONSUS_PLUS:
     return "DONSUS_PLUS";
-  case Donsus::DONSUS_PLUS_EQUAL:
+  case DONSUS_PLUS_EQUAL:
     return "DONSUS_PLUS_EQUAL";
-  case Donsus::DONSUS_MINUS:
+  case DONSUS_MINUS:
     return "DONSUS_MINUS";
-  case Donsus::DONSUS_MINUS_EQUAL:
+  case DONSUS_MINUS_EQUAL:
     return "DONSUS_MINUS_EQUAL";
-  case Donsus::DONSUS_STAR:
+  case DONSUS_STAR:
     return "DONSUS_STAR";
-  case Donsus::DONSUS_STAR_EQUAL:
+  case DONSUS_STAR_EQUAL:
     return "DONSUS_STAR_EQUAL";
-  case Donsus::DONSUS_BACK_SLASH:
+  case DONSUS_BACK_SLASH:
     return "DONSUS_BACK_SLASH";
-  case Donsus::DONSUS_SLASH:
+  case DONSUS_SLASH:
     return "DONSUS_SLASH";
-  case Donsus::DONSUS_SLASH_EQUAL:
+  case DONSUS_SLASH_EQUAL:
     return "DONSUS_SLASH_EQUAL";
-  case Donsus::DONSUS_LESS:
+  case DONSUS_LESS:
     return "DONSUS_LESS";
-  case Donsus::DONSUS_LESS_EQUAL:
+  case DONSUS_LESS_EQUAL:
     return "DONSUS_LESS_EQUAL";
-  case Donsus::DONSUS_GREATER:
+  case DONSUS_GREATER:
     return "DONSUS_GREATER";
-  case Donsus::DONSUS_GREATER_EQUAL:
+  case DONSUS_GREATER_EQUAL:
     return "DONSUS_GREATER_EQUAL";
-  case Donsus::DONSUS_EQUAL:
+  case DONSUS_EQUAL:
     return "DONSUS_EQUAL";
-  case Donsus::DONSUS_DOUBLE_EQUAL:
+  case DONSUS_DOUBLE_EQUAL:
     return "DONSUS_DOUBLE_EQUAL";
-  case Donsus::DONSUS_NOT_EQUAL:
+  case DONSUS_NOT_EQUAL:
     return "DONSUS_NOT_EQUAL";
-  case Donsus::DONSUS_DOT:
+  case DONSUS_DOT:
     return "DONSUS_DOT";
-  case Donsus::DONSUS_DOUBLE_DOT:
+  case DONSUS_DOUBLE_DOT:
     return "DONSUS_DOUBLE_DOT";
-  case Donsus::DONSUS_PERCENT:
+  case DONSUS_PERCENT:
     return "DONSUS_PERCENT";
-  case Donsus::DONSUS_LBRACE:
+  case DONSUS_LBRACE:
     return "DONSUS_LBRACE";
-  case Donsus::DONSUS_RBRACE:
+  case DONSUS_RBRACE:
     return "DONSUS_RBRACE";
-  case Donsus::DONSUS_CIRCUMFLEX:
-    return "DONSUS_CIRCUMFLEX";
-  case Donsus::DONSUS_EXCLAMATION:
+  case DONSUS_EXCLAMATION:
     return "DONSUS_EXCLAMATION";
-  case Donsus::DONSUS_COMMENT:
+  case DONSUS_COMMENT:
     return "DONSUS_COMMENT";
-  case Donsus::DONSUS_SINGLE_QUOTE:
+  case DONSUS_SINGLE_QUOTE:
     return "DONSUS_SINGLE_QUOTE";
-  case Donsus::DONSUS_THREE_DOTS:
+  case DONSUS_THREE_DOTS:
     return "DONSUS_THREE_DOTS";
-  case Donsus::DONSUS_TWO_DOTS:
+  case DONSUS_TWO_DOTS:
     return "DONSUS_TWO_DOTS";
-  case Donsus::DONSUS_NULL_VALUE:
+  case DONSUS_NULL_VALUE:
     return "DONSUS_NULL_VALUE";
-  case Donsus::DONSUS_BASIC_INT:
+  case DONSUS_BASIC_INT:
     return "DONSUS_BASIC_INT";
-  case Donsus::DONSUS_I8:
+  case DONSUS_I8:
     return "DONSUS_I8";
-  case Donsus::DONSUS_I16:
+  case DONSUS_I16:
     return "DONSUS_I16";
-  case Donsus::DONSUS_I32:
+  case DONSUS_I32:
     return "DONSUS_I32";
-  case Donsus::DONSUS_I64:
+  case DONSUS_I64:
     return "DONSUS_I64";
-  case Donsus::DONSUS_U32:
+  case DONSUS_U32:
     return "DONSUS_U32";
-  case Donsus::DONSUS_U64:
+  case DONSUS_U64:
     return "DONSUS_U64";
-  case Donsus::DONSUS_UNDERSCORE:
+  case DONSUS_UNDERSCORE:
     return "DONSUS_UNDERSCORE";
-  case Donsus::DONSUS_F32:
+  case DONSUS_F32:
     return "DONSUS_F32";
-  case Donsus::DONSUS_F64:
+  case DONSUS_F64:
     return "DONSUS_F64";
-  case Donsus::DONSUS_BOOL:
+  case DONSUS_BOOL:
     return "DONSUS_BOOL";
-  case Donsus::DONSUS_VOID:
+  case DONSUS_VOID:
     return "DONSUS_VOID";
-  case Donsus::DONSUS_ARROW:
+  case DONSUS_ARROW:
     return "DONSUS_ARROW";
-  case Donsus::DONSUS_STRING_TYPE:
+  case DONSUS_STRING_TYPE:
     return "DONSUS_STRING_TYPE";
-  case Donsus::DONSUS_CHAR:
+  case DONSUS_CHAR:
     return "DONSUS_CHAR";
-  case Donsus::DONSUS_FUNCTION_DEFINITION_KW:
+  case DONSUS_FUNCTION_DEFINITION_KW:
     return "DONSUS_FUNCTION_DEFINITION_KW";
-  case Donsus::DONSUS_IF_KW:
+  case DONSUS_IF_KW:
     return "DONSUS_IF_KW";
-  case Donsus::DONSUS_ELIF_KW:
+  case DONSUS_ELIF_KW:
     return "DONSUS_ELIF_KW";
-  case Donsus::DONSUS_ELSE_KW:
+  case DONSUS_ELSE_KW:
     return "DONSUS_ELSE_KW";
-  case Donsus::DONSUS_RETURN_KW:
+  case DONSUS_RETURN_KW:
     return "DONSUS_RETURN_KW";
-  case Donsus::DONSUS_PRINT_KW:
+  case DONSUS_PRINT_KW:
     return "DONSUS_PRINT_KW";
-  case Donsus::DONSUS_TRUE_KW:
+  case DONSUS_TRUE_KW:
     return "DONSUS_TRUE_KW";
-  case Donsus::DONSUS_FALSE_KW:
+  case DONSUS_FALSE_KW:
     return "DONSUS_FALSE_KW";
-  case Donsus::DONSUS_WHILE_KW:
+  case DONSUS_WHILE_KW:
     return "DONSUS_WHILE_KW";
-  case Donsus::DONSUS_FOR_KW:
+  case DONSUS_FOR_KW:
     return "DONSUS_FOR_KW";
-  case Donsus::DONSUS_ABSTRACT_KW:
+  case DONSUS_ABSTRACT_KW:
     return "DONSUS_ABSTRACT_KW";
-  case Donsus::DONSUS_FINAL_KW:
+  case DONSUS_FINAL_KW:
     return "DONSUS_FINAL_KW";
-  case Donsus::DONSUS_CLASS_KW:
+  case DONSUS_CLASS_KW:
     return "DONSUS_CLASS_KW";
-  case Donsus::DONSUS_TYPE_KW:
+  case DONSUS_TYPE_KW:
     return "DONSUS_TYPE_KW";
-  case Donsus::DONSUS_ALIAS_KW:
+  case DONSUS_ALIAS_KW:
     return "DONSUS_ALIAS_KW";
-  case Donsus::DONSUS_TYPECLASS_KW:
+  case DONSUS_TYPECLASS_KW:
     return "DONSUS_TYPECLASS_KW";
-  case Donsus::DONSUS_INSTANCE_KW:
+  case DONSUS_INSTANCE_KW:
     return "DONSUS_INSTANCE_KW";
-  case Donsus::DONSUS_CONTINUE_KW:
+  case DONSUS_CONTINUE_KW:
     return "DONSUS_CONTINUE_KW";
-  case Donsus::DONSUS_BREAK_KW:
+  case DONSUS_BREAK_KW:
     return "DONSUS_BREAK_KW";
-  case Donsus::DONSUS_FALLTHROUGH_KW:
+  case DONSUS_FALLTHROUGH_KW:
     return "DONSUS_FALLTHROUGH_KW";
-  case Donsus::DONSUS_CASE_KW:
+  case DONSUS_CASE_KW:
     return "DONSUS_CASE_KW";
-  case Donsus::DONSUS_DO_KW:
+  case DONSUS_DO_KW:
     return "DONSUS_DO_KW";
-  case Donsus::DONSUS_OF_KW:
+  case DONSUS_OF_KW:
     return "DONSUS_OF_KW";
-  case Donsus::DONSUS_OTHERWISE_KW:
+  case DONSUS_OTHERWISE_KW:
     return "DONSUS_OTHERWISE_KW";
-  case Donsus::DONSUS_AS_KW:
+  case DONSUS_AS_KW:
     return "DONSUS_AS_KW";
   default:
     return "UNKNOWN_TOKEN";
@@ -302,7 +309,7 @@ static std::string get_rid_of_esc_seq(std::string &formal) {
   return formal;
 }
 
-static std::string next_number(Parser &parser, donsus_token token,
+static std::string next_number(Parser &parser, token token,
                                unsigned int start_pos) {
 
   // TBD: we are checking isdigit 2 times here. We can't eat.
@@ -317,8 +324,7 @@ static std::string next_number(Parser &parser, donsus_token token,
   return get_text_between_pos(parser, start_pos, parser.lexer.cur_pos);
 }
 
-std::string donsus_float(Parser &parser, donsus_token &token,
-                         unsigned int start_pos) {
+std::string donsus_float(Parser &parser, token &token, unsigned int start_pos) {
   std::string integer_part = next_number(parser, token, start_pos);
   std::string fractional_part{};
   if (parser.lexer.cur_char == '.' && peek_back_for_char(parser) != '.') {
@@ -328,13 +334,14 @@ std::string donsus_float(Parser &parser, donsus_token &token,
   return fractional_part;
 }
 
-static std::string next_identifier(Parser &parser, donsus_token &token,
+static std::string next_identifier(Parser &parser, token &token,
                                    unsigned int start_pos) {
   // Check if the current character is a continue identifier
   if (!iscontinue_identifier(parser.lexer.cur_char)) {
-    parser.donsus_syntax_error(
-        nullptr, parser.lexer.cur_column, parser.lexer.cur_line,
-        "Invalid identifier: '" + std::string(1, parser.lexer.cur_char) + "'");
+    /*    parser.donsus_syntax_error(
+            nullptr, parser.lexer.cur_column, parser.lexer.cur_line,
+            "Invalid identifier: '" + std::string(1, parser.lexer.cur_char) +
+       "'");*/
   }
 
   // Proceed with the while loop if the initial check passes
@@ -342,8 +349,8 @@ static std::string next_identifier(Parser &parser, donsus_token &token,
     token.length++;
     eat(parser);
   }
-  token.precedence =
-      0 return get_text_between_pos(parser, start_pos, parser.lexer.cur_pos);
+
+  return get_text_between_pos(parser, start_pos, parser.lexer.cur_pos);
 }
 
 static bool next_string(Parser &parser) {
@@ -357,16 +364,16 @@ static bool next_string(Parser &parser) {
   return false;
 }
 
-static donsus_token make_type(Parser &parser, std::string &value,
-                              unsigned int length) {
+static token make_type(Parser &parser, std::string &value,
+                       unsigned int length) {
 
   // construct type token
-  donsus_token token;
+  token token;
 
   token.line = parser.lexer.cur_line;
   token.column = parser.lexer.cur_column;
 
-  token.kind = DONSUS_TYPES_LEXER[value];
+  token.kind = TYPES_FOR_LEXER[value];
 
   token.length = length;
 
@@ -375,11 +382,11 @@ static donsus_token make_type(Parser &parser, std::string &value,
   return token;
 }
 
-static donsus_token make_keyword(Parser &parser, std::string &value,
-                                 unsigned int length) {
+static token make_keyword(Parser &parser, std::string &value,
+                          unsigned int length) {
 
   // construct keyword token
-  donsus_token token;
+  token token;
 
   token.line = parser.lexer.cur_line;
   token.column = parser.lexer.cur_column;
@@ -394,7 +401,7 @@ static donsus_token make_keyword(Parser &parser, std::string &value,
   return token;
 }
 
-void consume_spaces(DonsusParser &parser) {
+void consume_spaces(Parser &parser) {
   while (true) {
     switch (parser.lexer.cur_char) {
     case ' ': {
@@ -789,7 +796,7 @@ token donsus_lexer_next(Parser &parser) {
 
       return cur_token;
 
-    } else if (peek_for_char('>')) {
+    } else if (peek_for_char(parser) == '>') {
 
       cur_token.kind = DONSUS_RARROW2;
 
@@ -805,11 +812,11 @@ token donsus_lexer_next(Parser &parser) {
 
       eat(parser); // Consume the '=' character
       eat(parser); // Move to the next character
-      if (peek_for_char('=')) {
+      if (peek_for_char(parser) == '=') {
         cur_token.kind = DONSUS_RARROW2_EQUAL;
         cur_token.length = 3;
         cur_token.offset = parser.lexer.cur_pos;
-        cur_token.value = '>>=';
+        cur_token.value = ">>=";
         cur_token.precedence = 11;
         cur_token.line = parser.lexer.cur_line;
         cur_token.column = parser.lexer.cur_column;
@@ -860,7 +867,7 @@ token donsus_lexer_next(Parser &parser) {
 
     }
     // BITSHIFT LEFT
-    else if (peek_for_char('<')) {
+    else if (peek_for_char(parser) == '<') {
       cur_token.kind = DONSUS_LARROW2;
 
       cur_token.length = 2; // Set length to 2 for +=
@@ -1125,7 +1132,7 @@ token donsus_lexer_next(Parser &parser) {
       cur_token.length = 2;
       cur_token.offset = parser.lexer.cur_pos;
 
-      cur_token.value "&=";
+      cur_token.value = "&=";
       cur_token.precedence = 11;
       cur_token.value = "&";
 
@@ -1182,7 +1189,7 @@ token donsus_lexer_next(Parser &parser) {
       return cur_token;
     }
   case '^': {
-    if (peek_for_char(parser) == "=") {
+    if (peek_for_char(parser) == '=') {
       cur_token.kind = DONSUS_CARET_EQUAL;
       cur_token.length = 2;
       cur_token.offset = parser.lexer.cur_pos;
@@ -1237,7 +1244,7 @@ token donsus_lexer_next(Parser &parser) {
     // identifiers
     if (isstart_identifier(parser.lexer.cur_char)) {
 
-      cur_token.kind = DONSUS_NAME;
+      cur_token.kind = DONSUS_IDENTIFIER;
 
       cur_token.length = 0; // will be changed during next_identifier
       std::string c_value =

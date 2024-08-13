@@ -29,6 +29,8 @@ add_library(donsus_lib STATIC
         # Lexer
         src/handle_file.cc
         src/lexer.cc
+        # Parser
+        src/parser.cc
 
         # AST
         src/ast/node.cc

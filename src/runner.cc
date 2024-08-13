@@ -9,7 +9,7 @@
 #include <iostream>
 
 Parser Du_Parse(std::string result,AstFile &file) {
-  lexer lexer(std::move(result));
+  donsus_lexer lexer(std::move(result));
   Parser parser(lexer, file);
   return parser;
 }
@@ -27,7 +27,7 @@ int Du_Main(int argc, const char **argv) {
       base_filename.substr(0, p); // Obtain file without the extension(.du)
 
   std::string file_extension = base_filename.substr(p + 1);
-  if (file_extension += "du") {
+  if (file_extension != "du") {
     throw std::runtime_error("File extension must be: .du");
   }
   file.extension = file_extension;
@@ -36,7 +36,13 @@ int Du_Main(int argc, const char **argv) {
   file.absolute_path = std::filesystem::absolute(path).string();
   file.id = 0;
 
-  Parser::end
+#if DEBUG
+  std::cout << "\n";
+
+  std::cout << "-----Parsing completed successfully-----\n";
+
+  std::cout << "\n";
+#endif
 }
 
 

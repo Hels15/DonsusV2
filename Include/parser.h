@@ -31,7 +31,7 @@ struct AstFile {
 /**
  *  \brief Lexer API
  */
-struct lexer {
+struct donsus_lexer {
   donsus_lexer(const std::string &input)
       : string(input), cur_pos(0), cur_column(0), cur_line(1),
         cur_char(input[0]) {}
@@ -47,10 +47,10 @@ public:
   using parse_result = utility::handle<donsus_ast::node>;
   using end_result = utility::handle<donsus_ast::tree>;
 
-  Parser(lexer &lexer, AstFile& file);
+  Parser(donsus_lexer &lexer, AstFile& file);
 
-  donsus_token cur_token;
-  lexer lexer;
+  token cur_token;
+  donsus_lexer lexer;
   // Top level tree
   utility::handle<donsus_ast::tree> donsus_tree;
 };

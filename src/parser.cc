@@ -3,7 +3,6 @@
 #include "../src/ast/node.h"
 #include "../src/utility/parser/print_ast.h"
 
-
 // Todo: Replace it when switching to multi-threading
 Tomi::Vector<AstFile *> global_files;
 
@@ -29,7 +28,7 @@ static std::ostream &operator<<(std::ostream &o, token &token) {
 }
 
 void Parser::print_token() {
-  while (cur_token.kind != donsus_token_kind::DONSUS_END) {
+  while (cur_token.kind != donsus_token_kind::END) {
     std::cout << cur_token << "\n";
     parser_next();
   }
@@ -45,7 +44,6 @@ token Parser::peek(int loop) {
   return result_main;
 }
 
-
 auto Parser::donsus_parse() -> end_result {
 #if DEBUG
   std::cout << "LEXER: "
@@ -60,7 +58,7 @@ auto Parser::donsus_parse() -> end_result {
   //           | selectionstatement
   //           | iterationstatement
   //           | classdeclstatement;
-  while (cur_token.kind != donsus_token_kind::DONSUS_END) {
+  while (cur_token.kind != donsus_token_kind::END) {
   }
   // return smt here
 }

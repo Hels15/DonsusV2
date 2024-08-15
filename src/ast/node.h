@@ -9,64 +9,66 @@
 #include <string>
 
 namespace donsus_ast {
-// Todo: use smart enum based on:
-// https://github.com/carbon-language/carbon-lang/blob/trunk/common/enum_base.h
-// Use it like this:
-// https://github.com/carbon-language/carbon-lang/blob/trunk/toolchain/lex/token_kind.h#L23-L109
+
+#define UNDERLYING_NODE_TYPES                                                  \
+  X(VARIABLE_DEFINITION, "VARIABLE_DEFINITION")                                \
+  X(FUNCTION_DECL, "FUNCTION_DECL")                                            \
+  X(FUNCTION_DEF, "FUNCTION_DEF")                                              \
+  X(IF_STATEMENT, "IF_STATEMENT")                                              \
+  X(ASSIGNMENT, "ASSIGNMENT")                                                  \
+  X(IDENTIFIER, "IDENTIFIER")                                                  \
+  X(INTEGER_EXPRESSION, "INTEGER_EXPRESSION")                                  \
+  X(FLOAT_EXPRESSION, "FLOAT_EXPRESSION")                                      \
+  X(BINARY_EXPRESSION, "BINARY_EXPRESSION")                                    \
+  X(OCTAL_EXPRESSION, "OCTAL_EXPRESSION")                                      \
+  X(HEX_EXPRESSION, "HEX_EXPRESSION")                                          \
+  X(EXPRESSION, "EXPRESSION")                                                  \
+  X(FUNCTION_CALL, "FUNCTION_CALL")                                            \
+  X(ELSE_STATEMENT, "ELSE_STATEMENT")                                          \
+  X(RETURN_STATEMENT, "RETURN_STATEMENT")                                      \
+  X(CONTINUE_STATEMENT, "CONTINUE_STATEMENT")                                  \
+  X(BREAK_STATEMENT, "BREAK_STATEMENT")                                        \
+  X(FALLTHROUGH_STATEMENT, "FALLTHROUGH_STATEMENT")                            \
+  X(CASE, "CASE")                                                              \
+  X(DO, "DO")                                                                  \
+  X(OF, "OF")                                                                  \
+  X(OTHERWISE_STATEMENT, "OTHERWISE_STATEMENT")                                \
+  X(AS_STATEMENT, "AS_STATEMENT")                                              \
+  X(TYPE_STATEMENT, "TYPE_STATEMENT")                                          \
+  X(ALIAS_STATEMENT, "ALIAS_STATEMENT")                                        \
+  X(TYPECLASS, "TYPECLASS")                                                    \
+  X(INSTANCE, "INSTANCE")                                                      \
+  X(CLASS, "CLASS")                                                            \
+  X(FINAL, "FINAL")                                                            \
+  X(ABSTRACT_STATEMENT, "ABSTRACT_STATEMENT")                                  \
+  X(BITSHIFT, "BITSHIFT")                                                      \
+  X(BITWISE, "BITWISE")                                                        \
+  X(ARRAY_DEFINITION, "ARRAY_DEFINITION")                                      \
+  X(ARRAY_DECLARATION, "ARRAY_DECLARATION")                                    \
+  X(STRING_EXPRESSION, "STRING_EXPRESSION")                                    \
+  X(BOOL_EXPRESSION, "BOOL_EXPRESSION")                                        \
+  X(UNARY_EXPRESSION, "UNARY_EXPRESSION")                                      \
+  X(PRINT_EXPRESSION, "PRINT_EXPRESSION")                                      \
+  X(ARRAY_ACCESS, "ARRAY_ACCESS")                                              \
+  X(FUNCTION_ARG, "FUNCTION_ARG")                                              \
+  X(WHILE_LOOP, "WHILE_LOOP")                                                  \
+  X(FOR_LOOP, "FOR_LOOP")                                                      \
+  X(RANGE_EXPRESSION, "RANGE_EXPRESSION")
 
 struct donsus_node_type {
   enum underlying : int {
-    DONSUS_VARIABLE_DEFINITION, // just the type of the node
-    DONSUS_FUNCTION_DECL,       // just the type of the node
-    DONSUS_FUNCTION_DEF,        // just the type of the node
-    DONSUS_IF_STATEMENT,        // just the type of the node
-    DONSUS_ASSIGNMENT,          // just the type of the node
-    DONSUS_IDENTIFIER,          // just the type of the node
-    DONSUS_INTEGER_EXPRESSION,  // just the type of the node
-    DONSUS_FLOAT_EXPRESSION,    // just the type of the node
-    DONSUS_BINARY_EXPRESSION,
-    DONSUS_OCTAL_EXPRESSION,
-    DONSUS_HEX_EXPRESSION,
-    DONSUS_EXPRESSION,            // just the type of the node
-    DONSUS_FUNCTION_CALL,         // just the type of the node
-    DONSUS_ELSE_STATEMENT,        // just the type of the node
-    DONSUS_RETURN_STATEMENT,      // just the type of the node
-    DONSUS_CONTINUE_STATEMENT,    // just the type of the node
-    DONSUS_BREAK_STATEMENT,       // just the type of the node
-    DONSUS_FALLTHROUGH_STATEMENT, // just the type of the node
-    DONSUS_CASE,                  // just the type of the node
-    DONSUS_DO,                    // just the type of the node
-    DONSUS_OF,                    // just the type of the node
-    DONSUS_OTHERWISE_STATEMENT,   // just the type of the node
-    DONSUS_AS_STATEMENT,          // just the type of the node
-    DONSUS_TYPE_STATEMENT,        // just the type of the node
-    DONSUS_ALIAS_STATEMENT,       // just the type of the node
-    DONSUS_TYPECLASS,             // just the type of the node
-    DONSUS_INSTANCE,              // just the type of the node
-    DONSUS_CLASS,                 // just the type of the node
-    DONSUS_FINAL,                 // just the type of the node
-    DONSUS_ABSTRACT_STATEMENT,    // just the type of the node
-    DONSUS_BITSHIFT,              // just the type of the node
-    DONSUS_BITWISE,               // just the type of the node
-    DONSUS_ARRAY_DEFINITION,      // just the type of the node
-    DONSUS_ARRAY_DECLARATION,     // just the type of the node
-
-    DONSUS_STRING_EXPRESSION, // just the type of the node
-    DONSUS_BOOL_EXPRESSION,   // just the type of the node
-    DONSUS_UNARY_EXPRESSION,  // just the type of the node
-    DONSUS_PRINT_EXPRESSION,  // just the type of the node
-    DONSUS_ARRAY_ACCESS,      // just the type of the node
-    DONSUS_FUNCTION_ARG,      // just the type of the node
-    DONSUS_WHILE_LOOP,        // just the type of the node
-    DONSUS_FOR_LOOP,          // just the type of the node
-    DONSUS_RANGE_EXPRESSION,  // just the type of the node
+#define X(name, text) name,
+    UNDERLYING_NODE_TYPES
+#undef X
   };
   donsus_node_type() = default;
   donsus_node_type(underlying type);
 
+  const char *type_name() const;
+  const char *type_name(underlying) const;
+
   underlying type;
 };
-std::string de_get_from_donsus_node_type(donsus_node_type type);
 
 struct node;
 struct variable_def {

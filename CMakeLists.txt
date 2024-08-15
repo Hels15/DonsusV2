@@ -29,12 +29,19 @@ add_library(donsus_lib STATIC
         # Lexer
         src/handle_file.cc
         src/lexer.cc
+        src/token.cc
+
         # Parser
         src/parser.cc
 
         # AST
         src/ast/node.cc
         src/ast/tree.cc
+
+        # utility
+        src/utility/memory_alloc.cc
+        src/utility/exception.cc
+        src/utility/parser/print_ast.cc
 )
 
 add_compile_options(-fsanitize=undefined) # ASAN

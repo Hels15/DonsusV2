@@ -1,5 +1,5 @@
-#ifndef UTILITY_HANDLE_H
-#define UTILITY_HANDLE_H
+#ifndef HANDLE_H
+#define HANDLE_H
 
 #include <cassert>
 

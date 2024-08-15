@@ -2,144 +2,124 @@
 #define TOKEN_H
 #include <iostream>
 
-typedef enum {
-  // Tokens
-  DONSUS_UNKNOWN,
-  DONSUS_IDENTIFIER, // IDENTIFIER
-  DONSUS_END,        // mark the end of the code
-  DONSUS_NUMBER,     // 69
-  DONSUS_FLOAT,      // 12.73
-  DONSUS_STRING,     // "hello world"
-  DONSUS_NEWLINE,    // \n
+#define DONSUS_TOKEN_TYPES                                                     \
+  X(DONSUS_UNKNOWN, "DONSUS_UNKNOWN")                                          \
+  X(DONSUS_IDENTIFIER, "DONSUS_IDENTIFIER")                                    \
+  X(DONSUS_END, "DONSUS_END")                                                  \
+  X(DONSUS_INT, "DONSUS_INT")                                                  \
+  X(DONSUS_FLOAT, "DONSUS_FLOAT")                                              \
+  X(DONSUS_BIN, "DONSUS_BIN")                                                  \
+  X(DONSUS_OCT, "DONSUS_OCT")                                                  \
+  X(DONSUS_HEX, "DONSUS_HEX")                                                  \
+  X(DONSUS_STRING, "DONSUS_STRING")                                            \
+  X(DONSUS_NEWLINE, "DONSUS_NEWLINE")                                          \
+  X(DONSUS_AMPERSAND, "DONSUS_AMPERSAND")                                      \
+  X(DONSUS_AMPERSAND_EQUAL, "DONSUS_AMPERSAND_EQUAL")                          \
+  X(DONSUS_PIPE, "DONSUS_PIPE")                                                \
+  X(DONSUS_PIPE_EQUAL, "DONSUS_PIPE_EQUAL")                                    \
+  X(DONSUS_CARET, "DONSUS_CARET")                                              \
+  X(DONSUS_CARET_EQUAL, "DONSUS_CARET_EQUAL")                                  \
+  X(DONSUS_LARROW2, "DONSUS_LARROW2")                                          \
+  X(DONSUS_LARROW2_EQUAL, "DONSUS_LARROW2_EQUAL")                              \
+  X(DONSUS_RARROW2, "DONSUS_RARROW2")                                          \
+  X(DONSUS_RARROW2_EQUAL, "DONSUS_RARROW2_EQUAL")                              \
+  X(DONSUS_LPAR, "DONSUS_LPAR")                                                \
+  X(DONSUS_RPAR, "DONSUS_RPAR")                                                \
+  X(DONSUS_LSQB, "DONSUS_LSQB")                                                \
+  X(DONSUS_RSQB, "DONSUS_RSQB")                                                \
+  X(DONSUS_COLO, "DONSUS_COLO")                                                \
+  X(DONSUS_COMM, "DONSUS_COMM")                                                \
+  X(DONSUS_SEMICOLON, "DONSUS_SEMICOLON")                                      \
+  X(DONSUS_PLUS, "DONSUS_PLUS")                                                \
+  X(DONSUS_PLUS_EQUAL, "DONSUS_PLUS_EQUAL")                                    \
+  X(DONSUS_MINUS, "DONSUS_MINUS")                                              \
+  X(DONSUS_MINUS_EQUAL, "DONSUS_MINUS_EQUAL")                                  \
+  X(DONSUS_STAR, "DONSUS_STAR")                                                \
+  X(DONSUS_STAR_EQUAL, "DONSUS_STAR_EQUAL")                                    \
+  X(DONSUS_BACK_SLASH, "DONSUS_BACK_SLASH")                                    \
+  X(DONSUS_SLASH, "DONSUS_SLASH")                                              \
+  X(DONSUS_SLASH_EQUAL, "DONSUS_SLASH_EQUAL")                                  \
+  X(DONSUS_LESS, "DONSUS_LESS")                                                \
+  X(DONSUS_LESS_EQUAL, "DONSUS_LESS_EQUAL")                                    \
+  X(DONSUS_GREATER, "DONSUS_GREATER")                                          \
+  X(DONSUS_GREATER_EQUAL, "DONSUS_GREATER_EQUAL")                              \
+  X(DONSUS_EQUAL, "DONSUS_EQUAL")                                              \
+  X(DONSUS_DOUBLE_EQUAL, "DONSUS_DOUBLE_EQUAL")                                \
+  X(DONSUS_NOT_EQUAL, "DONSUS_NOT_EQUAL")                                      \
+  X(DONSUS_DOT, "DONSUS_DOT")                                                  \
+  X(DONSUS_DOUBLE_DOT, "DONSUS_DOUBLE_DOT")                                    \
+  X(DONSUS_PERCENT, "DONSUS_PERCENT")                                          \
+  X(DONSUS_LBRACE, "DONSUS_LBRACE")                                            \
+  X(DONSUS_RBRACE, "DONSUS_RBRACE")                                            \
+  X(DONSUS_EXCLAMATION, "DONSUS_EXCLAMATION")                                  \
+  X(DONSUS_COMMENT, "DONSUS_COMMENT")                                          \
+  X(DONSUS_SINGLE_QUOTE, "DONSUS_SINGLE_QUOTE")                                \
+  X(DONSUS_THREE_DOTS, "DONSUS_THREE_DOTS")                                    \
+  X(DONSUS_TWO_DOTS, "DONSUS_TWO_DOTS")                                        \
+  X(DONSUS_NULL_VALUE, "DONSUS_NULL_VALUE")                                    \
+  X(DONSUS_BASIC_INT, "DONSUS_BASIC_INT")                                      \
+  X(DONSUS_I8, "DONSUS_I8")                                                    \
+  X(DONSUS_I16, "DONSUS_I16")                                                  \
+  X(DONSUS_I32, "DONSUS_I32")                                                  \
+  X(DONSUS_I64, "DONSUS_I64")                                                  \
+  X(DONSUS_U32, "DONSUS_U32")                                                  \
+  X(DONSUS_U64, "DONSUS_U64")                                                  \
+  X(DONSUS_UNDERSCORE, "DONSUS_UNDERSCORE")                                    \
+  X(DONSUS_F32, "DONSUS_F32")                                                  \
+  X(DONSUS_F64, "DONSUS_F64")                                                  \
+  X(DONSUS_BOOL, "DONSUS_BOOL")                                                \
+  X(DONSUS_VOID, "DONSUS_VOID")                                                \
+  X(DONSUS_ARROW, "DONSUS_ARROW")                                              \
+  X(DONSUS_STRING_TYPE, "DONSUS_STRING_TYPE")                                  \
+  X(DONSUS_CHAR, "DONSUS_CHAR")                                                \
+  X(DONSUS_FUNCTION_DEFINITION_KW, "DONSUS_FUNCTION_DEFINITION_KW")            \
+  X(DONSUS_IF_KW, "DONSUS_IF_KW")                                              \
+  X(DONSUS_ELIF_KW, "DONSUS_ELIF_KW")                                          \
+  X(DONSUS_ELSE_KW, "DONSUS_ELSE_KW")                                          \
+  X(DONSUS_RETURN_KW, "DONSUS_RETURN_KW")                                      \
+  X(DONSUS_PRINT_KW, "DONSUS_PRINT_KW")                                        \
+  X(DONSUS_TRUE_KW, "DONSUS_TRUE_KW")                                          \
+  X(DONSUS_FALSE_KW, "DONSUS_FALSE_KW")                                        \
+  X(DONSUS_WHILE_KW, "DONSUS_WHILE_KW")                                        \
+  X(DONSUS_FOR_KW, "DONSUS_FOR_KW")                                            \
+  X(DONSUS_ABSTRACT_KW, "DONSUS_ABSTRACT_KW")                                  \
+  X(DONSUS_FINAL_KW, "DONSUS_FINAL_KW")                                        \
+  X(DONSUS_CLASS_KW, "DONSUS_CLASS_KW")                                        \
+  X(DONSUS_TYPE_KW, "DONSUS_TYPE_KW")                                          \
+  X(DONSUS_ALIAS_KW, "DONSUS_ALIAS_KW")                                        \
+  X(DONSUS_TYPECLASS_KW, "DONSUS_TYPECLASS_KW")                                \
+  X(DONSUS_INSTANCE_KW, "DONSUS_INSTANCE_KW")                                  \
+  X(DONSUS_CONTINUE_KW, "DONSUS_CONTINUE_KW")                                  \
+  X(DONSUS_BREAK_KW, "DONSUS_BREAK_KW")                                        \
+  X(DONSUS_FALLTHROUGH_KW, "DONSUS_FALLTHROUGH_KW")                            \
+  X(DONSUS_CASE_KW, "DONSUS_CASE_KW")                                          \
+  X(DONSUS_DO_KW, "DONSUS_DO_KW")                                              \
+  X(DONSUS_OF_KW, "DONSUS_OF_KW")                                              \
+  X(DONSUS_OTHERWISE_KW, "DONSUS_OTHERWISE_KW")                                \
+  X(DONSUS_AS_KW, "DONSUS_AS_KW")
 
-  // BITWISE
-  DONSUS_AMPERSAND,       // &
-  DONSUS_AMPERSAND_EQUAL, // &=
-  DONSUS_PIPE,            // |
-  DONSUS_PIPE_EQUAL,      // |=
-  DONSUS_CARET,           // ^
-  DONSUS_CARET_EQUAL,     // ^=
+enum class donsus_token_kind {
+#define X(name, str) name,
+  DONSUS_TOKEN_TYPES
+#undef X
+};
 
-  // BITSHIFT
-  DONSUS_LARROW2,       // <<
-  DONSUS_LARROW2_EQUAL, // <<=
-  DONSUS_RARROW2,       // >>
-  DONSUS_RARROW2_EQUAL, // >>=
-  DONSUS_LPAR,          // (
-  DONSUS_RPAR,          // )
-  DONSUS_LSQB,          // [
-  DONSUS_RSQB,          // ]
-  DONSUS_COLO,          // :
-  DONSUS_COMM,          // ,
-  DONSUS_SEMICOLON,     // ;
-  DONSUS_PLUS,          // +
-  DONSUS_PLUS_EQUAL,    // +=
-  DONSUS_MINUS,         // -
-  DONSUS_MINUS_EQUAL,   // -=
-  DONSUS_STAR,          // *
-  DONSUS_STAR_EQUAL,    // *=
-  DONSUS_BACK_SLASH,    // -- \ -- /
-  DONSUS_SLASH,         // /
-  DONSUS_SLASH_EQUAL,   // /=
-  DONSUS_LESS,          // x < y
-  DONSUS_LESS_EQUAL,    // x <= y
-  DONSUS_GREATER,       // x > y
-  DONSUS_GREATER_EQUAL, // x >= y
-  DONSUS_EQUAL,         // =
-  DONSUS_DOUBLE_EQUAL,  // ==
-  DONSUS_NOT_EQUAL,     // !=
-  DONSUS_DOT,           // .
-  DONSUS_DOUBLE_DOT,    // ..
-
-  DONSUS_PERCENT,      // %
-  DONSUS_LBRACE,       // {
-  DONSUS_RBRACE,       // }
-  DONSUS_EXCLAMATION,  // !
-  DONSUS_COMMENT,      // #
-  DONSUS_SINGLE_QUOTE, // '
-  DONSUS_THREE_DOTS,   // ...
-  DONSUS_TWO_DOTS,     // ..
-  DONSUS_NULL_VALUE,
-
-  // INT
-  DONSUS_BASIC_INT, // int
-  DONSUS_I8,        // [FROM -(2^7) TO (2^7) -1]
-  DONSUS_I16,       // [FROM −(2^15) TO 2^15 − 1]
-  DONSUS_I32,       // [FROM 0 TO 2^32 -1]
-  DONSUS_I64,       // [FROM 0 TO 2^64 − 1]
-  DONSUS_U32,       // [FROM 0 TO 2^32 -1]
-  DONSUS_U64,       // [FROM 0 TO 2^64 − 1]
-
-  DONSUS_UNDERSCORE, // _
-
-  // FLOAT
-  DONSUS_F32, // float
-  DONSUS_F64,
-
-  DONSUS_BOOL,        // bool
-  DONSUS_VOID,        // void
-  DONSUS_ARROW,       // ->
-  DONSUS_STRING_TYPE, // string
-
-  // chars
-  DONSUS_CHAR, // char
-  // keywords
-  DONSUS_FUNCTION_DEFINITION_KW, // def
-  DONSUS_IF_KW,                  // if
-  DONSUS_ELIF_KW,                // elif
-  DONSUS_ELSE_KW,                // else
-  DONSUS_RETURN_KW,              // return
-  DONSUS_PRINT_KW,               // printf
-  DONSUS_TRUE_KW,                // true
-  DONSUS_FALSE_KW,               // false
-  DONSUS_WHILE_KW,               // while
-  DONSUS_FOR_KW,                 // for
-  DONSUS_ABSTRACT_KW,            // abstract
-  DONSUS_FINAL_KW,               // final
-  DONSUS_CLASS_KW,               // class
-
-  DONSUS_TYPE_KW,      // type
-  DONSUS_ALIAS_KW,     // alias
-  DONSUS_TYPECLASS_KW, // typeclass
-  DONSUS_INSTANCE_KW,  // instance
-
-  DONSUS_CONTINUE_KW,    // Continue
-  DONSUS_BREAK_KW,       // break
-  DONSUS_FALLTHROUGH_KW, // fallthrough
-  DONSUS_CASE_KW,        // case
-  DONSUS_DO_KW,          // do
-  DONSUS_OF_KW,          // of
-  DONSUS_OTHERWISE_KW,   // otherwise
-  DONSUS_AS_KW           // as
-} donsus_token_kind;
-
+// Todo: Make it smaller
 struct token {
   donsus_token_kind kind{};
   std::string value{};
   unsigned int length{};
   unsigned int line{};
   unsigned int column{};
-  /*
-   *1: (..), x, x()
-2: x.y x->y
-3: -x, ^x, &x, !x, *x, ~x
-4: as
-5: x << y, x >> y(new-one)
-6: x*y, x/y, x%y, x & y, x | y, x ^ y,
-7: x + y, x - y
-8:  x < y,  x <= y, x > y, x >= y (new-one)
-9: x == y, x != y,
-10: x && y, x || y
-11: [x += y, x-=y, x*=y, x /= y, x %= y, x >>= y, x <<= y, y ^= y, x &= y, x |=
-y]
-   * */
-  // ascending order, first one is the highest priority.
-  // precedence is zero if doesn't have correct precedence
-  // e.g keywords
+
+  // zero by default
   unsigned int precedence{};
 
-  // absolute offset from the beginning
-  // of the codebase
+  // absolute offset
   unsigned int offset{};
+
+  const char *type_name() const;
+  static const char *type_name(donsus_token_kind kind);
 };
+
 #endif

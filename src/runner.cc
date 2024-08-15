@@ -43,6 +43,7 @@ int Du_Main(int argc, const char **argv) {
 
   std::cout << "\n";
 #endif
+  return 0;
 }
 
 

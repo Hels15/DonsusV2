@@ -1,4 +1,6 @@
 // Small Standard Lib for the Donsus project(c++23)
+#ifndef TOMI_H
+#define TOMI_H
 
 #include <cassert>
 #include <initializer_list>
@@ -367,3 +369,4 @@ private:
 };
 
 } // namespace Tomi
+#endif

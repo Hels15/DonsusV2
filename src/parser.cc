@@ -152,7 +152,7 @@ auto Parser::parse() -> end_result {
   if (!file.error_count) {
     std::cout << "AST: "
               << "\n";
-    print_ast(tree);
+    print_ast(tree, file.source);
   }
 #endif
 

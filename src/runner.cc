@@ -8,7 +8,7 @@
 #include <filesystem>
 #include <iostream>
 
-Parser Du_Parse(std::string result,AstFile &file) {
+Parser Du_Parse(std::string result, AstFile &file) {
   donsus_lexer lexer(std::move(result));
   Parser parser(lexer, file);
   return parser;
@@ -35,6 +35,7 @@ int Du_Main(int argc, const char **argv) {
   file.fullpath = path;
   file.absolute_path = std::filesystem::absolute(path).string();
   file.id = 0;
+  file.source = result;
 
 #if DEBUG
   std::cout << "\n";
@@ -45,5 +46,3 @@ int Du_Main(int argc, const char **argv) {
 #endif
   return 0;
 }
-
-

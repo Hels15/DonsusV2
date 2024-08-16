@@ -21,6 +21,9 @@ struct AstFile {
   int id;
   int flags;
 
+  // source of the file
+  std::string source;
+
   std::string fullpath;
   std::string filename;
   std::string directory;

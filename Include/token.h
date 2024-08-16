@@ -27,7 +27,7 @@
   X(RPAR, "RPAR")                                                              \
   X(LSQB, "LSQB")                                                              \
   X(RSQB, "RSQB")                                                              \
-  X(COLON, "COLON")                                                              \
+  X(COLON, "COLON")                                                            \
   X(COMM, "COMM")                                                              \
   X(SEMICOLON, "SEMICOLON")                                                    \
   X(PLUS, "PLUS")                                                              \
@@ -113,7 +113,6 @@ enum class donsus_token_kind {
 // Todo: Get rid of value
 struct token {
   donsus_token_kind kind{};
-  std::string value{};
   unsigned int length{};
   unsigned int line{};
   unsigned int column{};

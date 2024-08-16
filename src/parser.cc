@@ -21,7 +21,8 @@ token Parser::parser_next() {
 }
 // Move it out from here
 static std::ostream &operator<<(std::ostream &o, token &token) {
-  o << "Value: " << token.value << "\n";
+  // Todo: reconstruct this with lexeme value static
+  /*  o << "Value: " << token << "\n";*/
   o << "Kind: " << token.type_name() << "\n";
   o << "Length: " << token.length << "\n";
   o << "Line: " << token.line << "\n";
@@ -100,7 +101,7 @@ auto Parser::parse() -> end_result {
         parse_result result = function_decl();
         result->get<donsus_ast::function_decl>().qualifiers = qualifier;
         tree->add_node(result);
-      } else if (peek().kind == donsus_token_kind::COLO) {
+      } else if (peek().kind == donsus_token_kind::COLON) {
         parse_result result = variable_def();
         result->get<donsus_ast::variable_def>().qualifiers = qualifier;
         tree->add_node(result);
@@ -133,16 +134,16 @@ auto Parser::parse() -> end_result {
       }
       tree->add_node(result);
     } else if (cur_token.kind == donsus_token_kind::CASE_KW) {
-      parser_result result = case_statement();
+      parse_result result = case_statement();
       tree->add_node(result);
     }
     // end/ selection statement
     //  start/iteration statement
     else if (cur_token.kind == donsus_token_kind::FOR_KW) {
-      parser_result result = for_loop();
+      parse_result result = for_loop();
       tree->add_node(result);
     } else if (cur_token.kind == donsus_token_kind::WHILE_KW) {
-      parser_result result = while_loop();
+      parse_result result = while_loop();
       tree->add_node(result);
     }
     parser_next();
@@ -167,3 +168,14 @@ auto Parser::assignments() -> parse_result {}
 
 auto Parser::variable_multi_def() -> parse_result {}
 auto Parser::function_def() -> parse_result {}
+auto Parser::instance() -> parse_result {}
+auto Parser::language_extension() -> parse_result {}
+auto Parser::typeclass() -> parse_result {}
+auto Parser::alias() -> parse_result {}
+auto Parser::generics_decl() -> parse_result {}
+auto Parser::array_decl() -> parse_result {}
+auto Parser::if_statement() -> parse_result {}
+auto Parser::case_statement() -> parse_result {}
+auto Parser::for_loop() -> parse_result {}
+auto Parser::while_loop() -> parse_result {}
+auto Parser::type_constructor() -> parse_result {}

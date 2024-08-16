@@ -1,5 +1,8 @@
 #include "print_ast.h"
 #include <iostream>
+
+std::string lexeme_value(token token_) { return "to be determined"; }
+
 inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
                            int indent_level);
 
@@ -37,7 +40,7 @@ inline void print_integer_expression(donsus_ast::integer_expr &num_expr,
                                      int indent_level) {
   print_with_newline("kind: " + std::string(num_expr.value.type_name()),
                      indent_level);
-  print_with_newline("value: " + num_expr.value.value, indent_level);
+  print_with_newline("value: " + lexeme_value(num_expr.value), indent_level);
   print_with_newline("length: " + std::to_string(num_expr.value.length),
                      indent_level);
   print_with_newline("line: " + std::to_string(num_expr.value.line),
@@ -50,7 +53,7 @@ inline void print_float_expression(donsus_ast::float_expr &float_expr,
                                    int indent_level) {
   print_with_newline("kind: " + std::string(float_expr.value.type_name()),
                      indent_level);
-  print_with_newline("value: " + float_expr.value.value, indent_level);
+  print_with_newline("value: " + lexeme_value(float_expr.value), indent_level);
   print_with_newline("length: " + std::to_string(float_expr.value.length),
                      indent_level);
   print_with_newline("line: " + std::to_string(float_expr.value.line),
@@ -64,7 +67,7 @@ inline void print_string_expression(donsus_ast::string_expr &string_expr,
                                     int indent_level) {
   print_with_newline("kind: " + std::string(string_expr.value.type_name()),
                      indent_level);
-  print_with_newline("value: " + string_expr.value.value, indent_level);
+  print_with_newline("value: " + lexeme_value(string_expr.value), indent_level);
   print_with_newline("length: " + std::to_string(string_expr.value.length),
                      indent_level);
   print_with_newline("line: " + std::to_string(string_expr.value.line),
@@ -78,7 +81,7 @@ inline void print_bool_expression(donsus_ast::bool_expr &bool_expr,
                                   int indent_level) {
   print_with_newline("kind: " + std::string(bool_expr.value.type_name()),
                      indent_level);
-  print_with_newline("value: " + bool_expr.value.value, indent_level);
+  print_with_newline("value: " + lexeme_value(bool_expr.value), indent_level);
   print_with_newline("length: " + std::to_string(bool_expr.value.length),
                      indent_level);
   print_with_newline("line: " + std::to_string(bool_expr.value.line),
@@ -174,7 +177,7 @@ inline void print_expression(donsus_ast::expression &expression,
                              int indent_level) {
   print_with_newline("kind: " + std::string(expression.value.type_name()),
                      indent_level);
-  print_with_newline("value: " + expression.value.value, indent_level);
+  print_with_newline("value: " + lexeme_value(expression.value), indent_level);
   print_with_newline("length: " + std::to_string(expression.value.length),
                      indent_level);
   print_with_newline("line: " + std::to_string(expression.value.line),

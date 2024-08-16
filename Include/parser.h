@@ -57,7 +57,7 @@ public:
   void parser_except(donsus_token_kind type);
   void donsus_parser_except_current(donsus_token_kind type);
 
-  auto donsus_parse() -> end_result;
+  auto parse() -> end_result;
   void print_token();
   token peek(int loop = 1);
 
@@ -65,7 +65,7 @@ public:
     if (this != &f) {
       cur_token = f.cur_token;
       lexer = f.lexer;
-      donsus_tree = f.donsus_tree;
+      tree = f.tree;
       allocator = f.allocator;
       file = f.file;
     }
@@ -74,53 +74,119 @@ public:
   token cur_token;
   donsus_lexer lexer;
   // Top level tree
-  utility::handle<donsus_ast::tree> donsus_tree;
+  utility::handle<donsus_ast::tree> tree;
   utility::DonsusAllocator allocator;
   // creating nodes
   auto create_expression(donsus_ast::donsus_node_type type,
                          std::uint64_t child_count) -> parse_result;
-  auto create_variable_definition(donsus_ast::donsus_node_type type,
-                                  uint64_t child_count) -> parse_result;
 
-  auto create_array_definition() -> parse_result;
+  auto create_variable_def() -> parse_result;
+  auto variable_def() -> parse_result;
 
-  auto create_array_declaration() -> parse_result;
+  auto create_variable_multi_def() -> parse_result;
+  auto variable_multi_def() -> parse_result;
+
+  auto create_array_def() -> parse_result;
+  auto array_def() -> parse_result;
+
+  auto create_array_decl() -> parse_result;
+  auto array_decl() -> parse_result;
 
   auto create_integer_expression() -> parse_result;
+  auto integer_expression() -> parse_result;
 
   auto create_while_loop() -> parse_result;
+  auto while_loop() -> parse_result;
 
   auto create_for_loop() -> parse_result;
+  auto for_loop() -> parse_result;
 
   auto create_range_expression() -> parse_result;
+  auto range_expression() -> parse_result;
 
   auto create_float_expression() -> parse_result;
+  auto float_expression() -> parse_result;
 
-  auto create_donsus_print() -> parse_result;
+  auto create_binary_expression() -> parse_result;
+  auto binary_expression() -> parse_result;
+
+  auto create_octal_expression() -> parse_result;
+  auto octal_expression() -> parse_result;
+
+  auto create_hex_expression() -> parse_result;
+  auto hex_expression() -> parse_result;
+
+  auto create_print() -> parse_result;
+  auto print() -> parse_result;
 
   auto create_function_decl() -> parse_result;
+  auto function_decl() -> parse_result;
 
   auto create_array_access() -> parse_result;
-
+  auto array_access() -> parse_result;
   auto create_string_expression() -> parse_result;
 
   auto create_bool_expression() -> parse_result;
 
   auto create_unary_expression() -> parse_result;
 
-  auto create_function_definition() -> parse_result;
+  auto create_function_def() -> parse_result;
+  auto function_def() -> parse_result;
+
+  auto create_continue_statement() -> parse_result;
+
+  auto create_break_statement() -> parse_result;
+
+  auto create_fallthrough_statement() -> parse_result;
 
   auto create_if_statement() -> parse_result;
+  auto if_statement() -> parse_result;
 
   auto create_else_statement() -> parse_result;
 
   auto create_assignments() -> parse_result;
+  auto assignments() -> parse_result;
+
+  auto create_case_statement() -> parse_result;
+  auto case_statement() -> parse_result;
+
+  auto create_do_statement() -> parse_result;
+  auto create_of_statement() -> parse_result;
+
+  auto create_otherwise_statement() -> parse_result;
+
+  auto create_as_statement() -> parse_result;
+  auto create_type_statement() -> parse_result;
+  auto create_alias() -> parse_result;
+  auto alias() -> parse_result;
+
+  auto create_typeclass() -> parse_result;
+  auto typeclass() -> parse_result;
+
+  auto create_class() -> parse_result;
+  auto create_final() -> parse_result;
+  auto create_abstract() -> parse_result;
+
+  auto create_bitshift() -> parse_result;
+  auto create_bitwise() -> parse_result;
+
+  auto create_type_constructor() -> parse_result;
+  auto type_constructor() -> parse_result;
+
+  auto create_instance() -> parse_result;
+  auto instance() -> parse_result;
+
+  auto create_language_extension() -> parse_result;
+  auto language_extension() -> parse_result;
 
   auto create_identifier() -> parse_result;
-
   auto create_function_call() -> parse_result;
 
+  auto create_generics_decl() -> parse_result;
+  auto generics_decl() -> parse_result;
   auto create_return_statement() -> parse_result;
+  // handle error
+  void display_error();
 
 private:
   DonsusParserError error;

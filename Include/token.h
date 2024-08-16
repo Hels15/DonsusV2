@@ -27,7 +27,7 @@
   X(RPAR, "RPAR")                                                              \
   X(LSQB, "LSQB")                                                              \
   X(RSQB, "RSQB")                                                              \
-  X(COLO, "COLO")                                                              \
+  X(COLON, "COLON")                                                              \
   X(COMM, "COMM")                                                              \
   X(SEMICOLON, "SEMICOLON")                                                    \
   X(PLUS, "PLUS")                                                              \
@@ -96,7 +96,13 @@
   X(DO_KW, "DO_KW")                                                            \
   X(OF_KW, "OF_KW")                                                            \
   X(OTHERWISE_KW, "OTHERWISE_KW")                                              \
-  X(AS_KW, "AS_KW")
+  X(AS_KW, "AS_KW")                                                            \
+  X(MUT_KW, "MUT_KW")                                                          \
+  X(PRIVATE_KW, "PRIVATE_KW")                                                  \
+  X(STATIC_KW, "STATIC_KW")                                                    \
+  X(COMPTIME_KW, "COMPTIME_KW")                                                \
+  X(THREAD_LOCAL_KW, "THREAD_LOCAL_KW")                                        \
+  X(AT, "AT")
 
 enum class donsus_token_kind {
 #define X(name, str) name,
@@ -104,7 +110,7 @@ enum class donsus_token_kind {
 #undef X
 };
 
-// Todo: Make it smaller
+// Todo: Get rid of value
 struct token {
   donsus_token_kind kind{};
   std::string value{};

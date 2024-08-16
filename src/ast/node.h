@@ -72,6 +72,7 @@ struct donsus_node_type {
 
 struct node;
 struct variable_def {
+  Tomi::Vector<token> qualifiers;
   donsus_token_kind identifier_type;
   std::string identifier_name;
   void *identifier_value;
@@ -112,6 +113,7 @@ struct array_def {
 };
 
 struct array_decl {
+  Tomi::Vector<token> qualifiers;
   ArrayType array_type;
   std::string identifier_name;
   donsus_token_kind type;
@@ -134,6 +136,7 @@ struct unary_expr {
   token op;
 };
 struct function_decl {
+  Tomi::Vector<token> qualifiers;
   Tomi::Vector<TYPE> return_type;
 
   // function signature
@@ -147,6 +150,7 @@ struct function_decl {
 };
 
 struct function_def {
+  Tomi::Vector<token> qualifiers;
   Tomi::Vector<TYPE> return_type; // the return type of the function
 
   // function signature
@@ -218,17 +222,15 @@ struct as_statement {
   utility::handle<donsus_ast::node> right;
 };
 
-/*
 struct type_statement {};
 
-struct alias_statement {};
+struct alias {};
 struct typeclass {};
 struct final {};
 
 struct abstract_statement {};
 
 struct bitshift {};
-*/
 
 struct node : utility::property<> {
   Tomi::Vector<utility::handle<donsus_ast::node>> children;

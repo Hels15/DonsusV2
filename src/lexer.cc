@@ -49,7 +49,13 @@ std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
     {"case", donsus_token_kind::CASE_KW},
     {"do", donsus_token_kind::DO_KW},
     {"of", donsus_token_kind::OF_KW},
+    {"mut", donsus_token_kind::MUT_KW},
+    {"private", donsus_token_kind::PRIVATE_KW},
+    {"static", donsus_token_kind::STATIC_KW},
     {"otherwise", donsus_token_kind::OTHERWISE_KW},
+    {"comptime", donsus_token_kind::COMPTIME_KW},
+    {"thread_local", donsus_token_kind::THREAD_LOCAL_KW},
+    {"alias", donsus_token_kind::ALIAS_KW},
     {"as", donsus_token_kind::AS_KW}};
 
 // Function to peek at the next character without consuming it
@@ -318,7 +324,16 @@ token donsus_lexer_next(Parser &parser) {
 
     return cur_token;
   }
-
+  case '@': {
+    cur_token.kind = donsus_token_kind::AT;
+    cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
+    cur_token.value = '@';
+    cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
+    eat(parser);
+    return cur_token;
+  }
   case '+': {
     // Check for +=
     if (peek_for_char(parser) == '=') {
@@ -596,7 +611,7 @@ token donsus_lexer_next(Parser &parser) {
   }
 
   case ':': {
-    cur_token.kind = donsus_token_kind::COLO;
+    cur_token.kind = donsus_token_kind::COLON;
 
     cur_token.length = 1;
     cur_token.offset = parser.lexer.cur_pos;
@@ -853,7 +868,7 @@ token donsus_lexer_next(Parser &parser) {
       cur_token.length = 2;
 
       cur_token.value = "..";
-      // Todo: It should be the highest one
+
       cur_token.precedence = 1;
       cur_token.line = parser.lexer.cur_line;
 

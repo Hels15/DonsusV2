@@ -42,6 +42,9 @@ add_library(donsus_lib STATIC
         src/utility/memory_alloc.cc
         src/utility/exception.cc
         src/utility/parser/print_ast.cc
+
+        # utility/parser
+        src/utility/parser/helpers.cc
 )
 
 add_compile_options(-fsanitize=undefined) # ASAN

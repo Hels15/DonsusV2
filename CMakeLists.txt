@@ -45,6 +45,8 @@ add_library(donsus_lib STATIC
 
         # utility/parser
         src/utility/parser/helpers.cc
+        # Internal
+        Include/Internal/type.cc
 )
 
 add_compile_options(-fsanitize=undefined) # ASAN

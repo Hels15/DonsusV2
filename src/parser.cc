@@ -19,10 +19,9 @@ token Parser::parser_next() {
   cur_token = donsus_lexer_next(*this);
   return cur_token;
 }
+// Todo: maybe print value here
 // Move it out from here
 static std::ostream &operator<<(std::ostream &o, token &token) {
-  // Todo: reconstruct this with lexeme value static
-  /*  o << "Value: " << token << "\n";*/
   o << "Kind: " << token.type_name() << "\n";
   o << "Length: " << token.length << "\n";
   o << "Line: " << token.line << "\n";
@@ -146,6 +145,15 @@ auto Parser::parse() -> end_result {
       parse_result result = while_loop();
       tree->add_node(result);
     }
+    // end/iteration statement
+    // start/classdecl statement
+    else if (is_class_decl(cur_token.kind) &&
+             peek().kind == donsus_token_kind::CLASS_KW) {
+      parse_result result = class_decl();
+      result->get<donsus_ast::class_decl>().qualifiers = qualifier;
+      tree->add_node(result);
+    }
+    // end/classdecl statement
     parser_next();
   }
 #if DEBUG
@@ -160,22 +168,163 @@ auto Parser::parse() -> end_result {
   // return smt here
 }
 
+auto Parser::create_function_decl() -> parse_result {
+  return tree->create_node<donsus_ast::function_decl>(
+      donsus_ast::donsus_node_type::FUNCTION_DECL);
+}
 auto Parser::function_decl() -> parse_result {}
 
-auto Parser::variable_def() -> parse_result {}
+auto Parser::create_variable_def() -> parse_result {
+  return tree->create_node<donsus_ast::variable_def>(
+      donsus_ast::donsus_node_type::VARIABLE_DEFINITION);
+}
+auto Parser::variable_def() -> parse_result {
+  parse_result definition = create_variable_def();
+  definition->first_token_in_ast = cur_token;
 
+  auto &body = definition->get<donsus_ast::variable_def>();
+  body.identifier_name = lexeme_value(cur_token, file.source);
+
+  return definition;
+}
+
+auto Parser::create_assignments() -> parse_result {
+  return tree->create_node<donsus_ast::assignment>(
+      donsus_ast::donsus_node_type::ASSIGNMENT);
+}
 auto Parser::assignments() -> parse_result {}
 
 auto Parser::variable_multi_def() -> parse_result {}
+
+auto Parser::create_function_def() -> parse_result {
+  return tree->create_node<donsus_ast::function_def>(
+      donsus_ast::donsus_node_type::FUNCTION_DEF);
+}
 auto Parser::function_def() -> parse_result {}
+
+auto Parser::create_instance() -> parse_result {
+  return tree->create_node<donsus_ast::instance>(
+      donsus_ast::donsus_node_type::INSTANCE);
+}
 auto Parser::instance() -> parse_result {}
+auto Parser::create_language_extension() -> parse_result {
+  return tree->create_node<donsus_ast::language_extension>(
+      donsus_ast::donsus_node_type::LANGUAGE_EXTENSION);
+}
+
 auto Parser::language_extension() -> parse_result {}
+auto Parser::create_typeclass() -> parse_result {
+  return tree->create_node<donsus_ast::typeclass>(
+      donsus_ast::donsus_node_type::TYPECLASS);
+}
+
 auto Parser::typeclass() -> parse_result {}
+auto Parser::create_alias() -> parse_result {
+  return tree->create_node<donsus_ast::alias>(
+      donsus_ast::donsus_node_type::ALIAS_STATEMENT);
+}
 auto Parser::alias() -> parse_result {}
+
+auto Parser::create_generics_decl() -> parse_result {
+  return tree->create_node<donsus_ast::generics_decl>(
+      donsus_ast::donsus_node_type::GENERICS_DECL);
+}
 auto Parser::generics_decl() -> parse_result {}
-auto Parser::array_decl() -> parse_result {}
+
+auto Parser::array_decl() -> parse_result {
+  return tree->create_node<donsus_ast::array_decl>(
+      donsus_ast::donsus_node_type::ARRAY_DECL);
+}
+auto Parser::create_if_statement() -> parse_result {
+  return tree->create_node<donsus_ast::if_statement>(
+      donsus_ast::donsus_node_type::IF_STATEMENT);
+}
 auto Parser::if_statement() -> parse_result {}
+auto Parser::create_case_statement() -> parse_result {
+  return tree->create_node<donsus_ast::case_expr>(
+      donsus_ast::donsus_node_type::CASE);
+}
 auto Parser::case_statement() -> parse_result {}
+
+auto Parser::create_for_loop() -> parse_result {
+  return tree->create_node<donsus_ast::for_loop>(
+      donsus_ast::donsus_node_type::FOR_LOOP);
+}
 auto Parser::for_loop() -> parse_result {}
+auto Parser::create_while_loop() -> parse_result {
+  return tree->create_node<donsus_ast::while_loop>(
+      donsus_ast::donsus_node_type::WHILE_LOOP);
+}
 auto Parser::while_loop() -> parse_result {}
+auto Parser::create_type_constructor() -> parse_result {
+  return tree->create_node<donsus_ast::type_constructor>(
+      donsus_ast::donsus_node_type::TYPE_CONSTRUCTOR);
+}
 auto Parser::type_constructor() -> parse_result {}
+
+auto Parser::create_class_decl() -> parse_result {
+  return tree->create_node<donsus_ast::class_decl>(
+      donsus_ast::donsus_node_type::CLASS);
+}
+auto Parser::class_decl() -> parse_result {}
+
+void Parser::parser_except(donsus_token_kind type) {
+  token a = parser_next();
+  if (a.kind != type) {
+    syntax_error(nullptr, cur_token,
+                 "Expected token:" + std::string(token::type_name(type)) +
+                     "got instead: " + std::string(token::type_name(cur_token.kind)) + "\n");
+  }
+}
+
+void Parser::parser_except_current(donsus_token_kind type) {
+  if (cur_token.kind != type) {
+    syntax_error(nullptr, cur_token,
+                 "Expected token:" + std::string(token::type_name(type)) +
+                     "Got instead: " + std::string(token::type_name(cur_token.kind)) + "\n");
+  }
+}
+
+// Error handling
+/*
+ * If nullptr is passed in, show_error_on_line doesn't apply
+ * */
+void Parser::syntax_error(Parser::parse_result *optional_node,
+                          token err_on_token, const std::string &message) {
+  error.print_meta_syntax(err_on_token, message, file.absolute_path);
+  if (!optional_node){
+      file.error_count += 1;
+      error.error_out_coloured("", rang::fg::reset);
+      return;
+  }
+
+  // reset
+  error.error_out_coloured("", rang::fg::reset);
+  file.error_count += 1;
+}
+
+void ParserError::error_out_coloured(const std::string &message,
+                                     rang::fg colour) {
+  std::cerr << rang::style::bold << colour << message << rang::style::reset
+            << rang::fg::reset;
+}
+
+void ParserError::print_meta_syntax(token err_on_token,
+                                    const std::string &message,
+                                    const std::string &full_path) {
+  std::string message_c = "(" + std::to_string(err_on_token.line) + "?" +
+                          std::to_string(err_on_token.column) + ") ";
+  if (Tomi::has_ansi_colours()) {
+    error_out_coloured(full_path, rang::fg::reset);
+    error_out_coloured(message_c, rang::fg::green);
+    error_out_coloured(" SYNTAX ERROR: ", rang::fg::red);
+    error_out_coloured(message, rang::fg::reset);
+    std::cout << "\n";
+  } else {
+    std::cout << full_path;
+    std::cout << "SYNTAX ERROR: ";
+    std::cout << message_c;
+    std::cout << message;
+    std::cout << "\n";
+  }
+}

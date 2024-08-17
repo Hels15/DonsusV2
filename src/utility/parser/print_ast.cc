@@ -349,13 +349,13 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
     break;
   }
 
-  case type::ARRAY_DECLARATION: {
+  case type::ARRAY_DECL: {
     print_type(ast_node->type, indent_level);
     print_array_decl(ast_node->get<donsus_ast::array_decl>(), indent_level);
     break;
   }
 
-  case type::ARRAY_DEFINITION: {
+  case type::ARRAY_DEF: {
     print_type(ast_node->type, indent_level);
     print_array_def(ast_node->get<donsus_ast::array_def>(), indent_level,
                     source);

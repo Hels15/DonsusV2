@@ -2,6 +2,63 @@
 #ifndef TOMI_H
 #define TOMI_H
 
+#if defined(_WIN32) || defined(_WIN64)
+#ifndef TOMI_SYSTEMS_WINDOWS
+#define TOMI_SYSTEMS_WINDOWS
+#endif
+
+#elif defined(__APPLE__) && defined(__MACH__)
+#ifndef TOMI_SYSTEMS_OSX
+#define TOMI_SYSTEMS_OSX 1
+#endif
+
+#elif defined(__unix__)
+#ifndef TOMI_SYSTEMS_UNIX
+#define TOMI_SYSTEMS_UNIX 1
+#endif
+
+#if defined(__linux__)
+
+#ifndef TOMI_SYSTEMS_LINUX
+#define TOMI_SYSTEMS_LINUX 1
+#endif
+
+#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#ifndef TOMI_SYSTEM_FREEBSD
+#define TOMI_SYSTEM_FREEBSD 1
+#endif
+
+#elif defined(__OpenBSD__)
+#ifndef TOMI_SYSTEM_OPENBSD
+#define TOMI_SYSTEM_OPENBSD 1
+#endif
+
+#elif defined(__NetBSD__)
+#ifndef TOMI_SYSTEM_NETBSD
+#define TOMI_SYSTEM_NETBSD 1
+#endif
+
+#elif defined(__HAIKU__) || defined(__haiku__)
+#ifndef TOMI_SYSTEM_HAIKU
+#define TOMI_SYSTEM_HAIKU 1
+#endif
+#else
+#error This Unix operating system is not supported
+#endif
+#else
+#error This operating system is not supported
+#endif
+
+#if defined(_MSC_VER)
+#define TOMI_COMPILER_MSVC 1
+#elif defined(__GNUC__)
+#define TOMI_COMPILER_GCC 1
+#elif defined(__clang__)
+#define TOMI_COMPILER_CLANG 1
+#else
+#error Unknown compiler
+#endif
+
 #include <cassert>
 #include <initializer_list>
 #include <iostream>
@@ -367,6 +424,29 @@ public:
 private:
   Container stack;
 };
+inline bool has_ansi_colours() {
+#if defined(TOMI_SYSTEMS_UNIX)
+  char const *force_colour = getenv("FORCE_COLOR");
+  return (force_colour != nullptr);
+#endif
+#if defined(TOMI_SYSTEMS_WINDOWS)
+#define NOMINMAX
+#include <windows.h>
+  HANDLE hnd = GetStdHandle(STD_ERROR_HANDLE);
+  DWORD mode;
 
+  if (GetConsoleMode(hnd, &mode)) {
+    enum { FLAG_ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004 };
+    if (SetConsoleMode(hnd, mode | FLAG_ENABLE_VIRTUAL_TERMINAL_PROCESSING)) {
+      return true;
+    }
+  }
+  return false;
+#endif
+#if defined(TOMI_SYSTEMS_OSX)
+#error "ANSI colours are supported on Unix systems"
+
+#endif
+}
 } // namespace Tomi
 #endif

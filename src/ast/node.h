@@ -5,7 +5,7 @@
 #include "../Include/Internal/type.h"
 #include "../utility/handle.h"
 #include "../utility/property.h"
-
+#include "../../Include/token.h"
 #include <string>
 
 namespace donsus_ast {
@@ -34,7 +34,7 @@ namespace donsus_ast {
   X(OF, "OF")                                                                  \
   X(OTHERWISE_STATEMENT, "OTHERWISE_STATEMENT")                                \
   X(AS_STATEMENT, "AS_STATEMENT")                                              \
-  X(TYPE_STATEMENT, "TYPE_STATEMENT")                                          \
+  X(TYPE_CONSTRUCTOR, "TYPE_CONSTRUCTOR")                                          \
   X(ALIAS_STATEMENT, "ALIAS_STATEMENT")                                        \
   X(TYPECLASS, "TYPECLASS")                                                    \
   X(INSTANCE, "INSTANCE")                                                      \
@@ -43,8 +43,8 @@ namespace donsus_ast {
   X(ABSTRACT_STATEMENT, "ABSTRACT_STATEMENT")                                  \
   X(BITSHIFT, "BITSHIFT")                                                      \
   X(BITWISE, "BITWISE")                                                        \
-  X(ARRAY_DEFINITION, "ARRAY_DEFINITION")                                      \
-  X(ARRAY_DECLARATION, "ARRAY_DECLARATION")                                    \
+  X(ARRAY_DEF, "ARRAY_DEF")                                      \
+  X(ARRAY_DECL, "ARRAY_DECL")                                    \
   X(STRING_EXPRESSION, "STRING_EXPRESSION")                                    \
   X(BOOL_EXPRESSION, "BOOL_EXPRESSION")                                        \
   X(UNARY_EXPRESSION, "UNARY_EXPRESSION")                                      \
@@ -53,7 +53,9 @@ namespace donsus_ast {
   X(FUNCTION_ARG, "FUNCTION_ARG")                                              \
   X(WHILE_LOOP, "WHILE_LOOP")                                                  \
   X(FOR_LOOP, "FOR_LOOP")                                                      \
-  X(RANGE_EXPRESSION, "RANGE_EXPRESSION")
+  X(RANGE_EXPRESSION, "RANGE_EXPRESSION")                                      \
+  X(LANGUAGE_EXTENSION, "LANGUAGE_EXTENSION")                                  \
+  X(GENERICS_DECL, "GENERICS_DECL")
 
 struct donsus_node_type {
   enum underlying : int {
@@ -205,11 +207,11 @@ struct string_expr {
 struct expression {
   token value;
 };
-/*
+
 struct print_expr {};
 
 struct case_expr {};
-*/
+
 
 struct do_expr {
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
@@ -222,7 +224,7 @@ struct as_statement {
   utility::handle<donsus_ast::node> right;
 };
 
-struct type_statement {};
+struct type_constructor {};
 
 struct alias {};
 struct typeclass {};
@@ -231,11 +233,23 @@ struct final {};
 struct abstract_statement {};
 
 struct bitshift {};
+struct class_decl {
+  Tomi::Vector<token> qualifiers;
+};
 
+struct language_extension{
+
+};
+struct instance {
+
+};
+struct generics_decl{
+
+};
 struct node : utility::property<> {
   Tomi::Vector<utility::handle<donsus_ast::node>> children;
   donsus_node_type type;
-
+  token first_token_in_ast;
   TYPE real_type{};
 };
 } // namespace donsus_ast

@@ -7,6 +7,8 @@
 #include "../src/ast/tree.h"
 #include "../src/utility/exception.h"
 #include "../src/utility/handle.h"
+#include "../Include/Donsus/tomi.h"
+#include "../Include/Donsus/terminal_coloured.h"
 
 #include <cstdint>
 #include <iostream>
@@ -16,6 +18,12 @@
 #include <vector>
 
 class Parser;
+
+class ParserError{
+public:
+  void print_meta_syntax(token err_on_token, const std::string& message, const std::string& full_path);
+  void error_out_coloured(const std::string& message, rang::fg colour);
+};
 
 struct AstFile {
   int id;
@@ -57,8 +65,6 @@ public:
 
   Parser(donsus_lexer &lexer, AstFile &file);
   token parser_next();
-  void parser_except(donsus_token_kind type);
-  void donsus_parser_except_current(donsus_token_kind type);
 
   auto parse() -> end_result;
   void print_token();
@@ -166,7 +172,9 @@ public:
   auto create_typeclass() -> parse_result;
   auto typeclass() -> parse_result;
 
-  auto create_class() -> parse_result;
+  auto create_class_decl() -> parse_result;
+  auto class_decl() -> parse_result;
+
   auto create_final() -> parse_result;
   auto create_abstract() -> parse_result;
 
@@ -188,12 +196,13 @@ public:
   auto create_generics_decl() -> parse_result;
   auto generics_decl() -> parse_result;
   auto create_return_statement() -> parse_result;
+  // errors
+  void syntax_error(Parser::parse_result *node, token err_on_token, const std::string&message);
 
-  // handle error
-  void display_error();
-
+  void parser_except(donsus_token_kind type);
+  void parser_except_current(donsus_token_kind type);
 private:
-  DonsusParserError error;
+  ParserError error;
   AstFile &file;
 };
 

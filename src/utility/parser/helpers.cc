@@ -20,3 +20,7 @@ bool is_qualifier(donsus_token_kind kind){
           kind == donsus_token_kind::THREAD_LOCAL_KW ||
           kind == donsus_token_kind::STATIC_KW);
 }
+
+bool is_class_decl(donsus_token_kind kind){
+  return(kind == donsus_token_kind::FINAL_KW || kind== donsus_token_kind::ABSTRACT_KW);
+}

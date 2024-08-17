@@ -2,7 +2,7 @@
 #define TOKEN_H
 #include <iostream>
 
-#define DONSUS_TOKEN_TYPES                                                     \
+#define TOKEN_TYPES                                                     \
   X(UNKNOWN, "UNKNOWN")                                                        \
   X(IDENTIFIER, "IDENTIFIER")                                                  \
   X(END, "END")                                                                \
@@ -106,11 +106,10 @@
 
 enum class donsus_token_kind {
 #define X(name, str) name,
-  DONSUS_TOKEN_TYPES
+  TOKEN_TYPES
 #undef X
 };
 
-// Todo: Get rid of value
 struct token {
   donsus_token_kind kind{};
   unsigned int length{};

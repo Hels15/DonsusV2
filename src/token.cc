@@ -5,7 +5,7 @@ const char *token::type_name(donsus_token_kind kind) {  switch (kind) {
 #define X(name, text)                                                          \
   case donsus_token_kind::name:                                                        \
     return #name;
-    DONSUS_TOKEN_TYPES
+    TOKEN_TYPES
 #undef X
   }
 }

@@ -103,7 +103,10 @@ auto Parser::parse() -> end_result {
         tree->add_node(result);
       } else if ((peek().kind == donsus_token_kind::COMM &&
                   peek(2).kind == donsus_token_kind::IDENTIFIER)) {
-        variable_multi_def();
+        Tomi::Vector<parse_result> ab = variable_multi_def();
+        for (auto node : ab) {
+          tree->add_node(node);
+        }
       } else if (peek(2).kind == donsus_token_kind::LSQB) {
         parse_result result = array_decl();
 
@@ -421,7 +424,109 @@ auto Parser::assignments() -> parse_result {
   return assignment;
 }
 
-auto Parser::variable_multi_def() -> parse_result {}
+auto Parser::variable_multi_def() -> Tomi::Vector<parse_result> {
+  Tomi::Vector<parse_result> a;
+  donsus_ast::specifiers_ s;
+  token first_token_for_multiple = cur_token;
+
+  while (is_specifier(cur_token.kind)) {
+    auto value = lexeme_value(cur_token, file.source);
+    if (value == "comptime") {
+      s = set_specifiers(nullptr, s, donsus_ast::comptime);
+    }
+    if (value == "static") {
+      s = set_specifiers(nullptr, s, donsus_ast::static_);
+    }
+    if (value == "thread_local") {
+      s = set_specifiers(nullptr, s, donsus_ast::thread_local_);
+    }
+    if (value == "mut") {
+      s = set_specifiers(nullptr, s, donsus_ast::mut);
+    }
+    parser_next();
+  }
+
+  parser_except_current(donsus_token_kind::IDENTIFIER);
+  Tomi::Vector<std::string> identifier_names;
+
+  while (cur_token.kind != donsus_token_kind::COLON) {
+    parse_result var = create_variable_def();
+    auto &body = var->get<donsus_ast::variable_def>();
+    body.identifier_name = lexeme_value(cur_token, file.source);
+    body.specifiers = s;
+    a.push_back(var);
+    if (is_specifier(cur_token.kind))
+      syntax_error(&var, cur_token,
+                   "Multiple variable definition only accepts specifiers"
+                   "before the first identifier");
+    parser_next();
+  }
+  parser_except_current(donsus_token_kind::COLON);
+  parser_next();
+  switch (cur_token.kind) {
+  case donsus_token_kind::UNKNOWN:
+    syntax_error(&a[0], cur_token,
+                 lexeme_value(cur_token, file.source) + "is not a valid type!");
+    break;
+
+  case donsus_token_kind::EQUAL:
+    syntax_error(&a[0], cur_token,
+                 lexeme_value(cur_token, file.source) +
+                     "Type must be specified before equal sign");
+    break;
+
+  case donsus_token_kind::STAR:
+    syntax_error(&a[0], cur_token,
+                 lexeme_value(cur_token, file.source) +
+                     "Type must be specified for pointer ");
+    break;
+
+  case donsus_token_kind::AMPERSAND:
+    syntax_error(&a[0], cur_token,
+                 lexeme_value(cur_token, file.source) +
+                     "Type must be specified for reference");
+    break;
+
+  default:
+    break;
+  }
+  parse_result concrete_type = type();
+  parser_next();
+
+  switch (cur_token.kind) {
+  case donsus_token_kind::STAR: {
+    for (auto n : a) {
+      auto n_ = n->get<donsus_ast::variable_def>();
+      n_.identifier_type = pointer(concrete_type);
+    }
+    break;
+  }
+
+  case donsus_token_kind::AMPERSAND: {
+    for (auto n : a) {
+      auto n_ = n->get<donsus_ast::variable_def>();
+      n_.identifier_type = reference(concrete_type);
+    }
+    break;
+  }
+
+  default: {
+    for (auto n : a) {
+      auto n_ = n->get<donsus_ast::variable_def>();
+      n_.identifier_type = concrete_type;
+    }
+    break;
+  }
+  }
+  parser_except(donsus_token_kind::EQUAL);
+  parse_result expression = expr();
+
+  // set values
+  for (auto n : a) {
+    n->children.push_back(expression);
+  }
+  return a;
+}
 
 auto Parser::create_function_def() -> parse_result {
   return tree->create_node<donsus_ast::function_def>(

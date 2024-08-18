@@ -138,11 +138,11 @@ inline void print_function_decl(donsus_ast::function_decl &f_decl,
 inline void print_function_def(donsus_ast::function_def &f_def,
                                int indent_level, std::string &source) {
   print_with_newline("return_types: ", indent_level);
-  for (auto r : f_def.return_type) {
-    print_with_newline("return_type: " +
-                           std::string(token::type_name(r.to_parse(r.type_un))),
-                       indent_level + 1);
-  }
+  /*  for (auto r : f_def.return_type) {
+      print_with_newline("return_type: " +
+                             std::string(token::type_name(r.to_parse(r.type_un))),
+                         indent_level + 1);
+    }*/
 
   print_with_newline("parameters: ", indent_level);
   for (auto p : f_def.parameters) {

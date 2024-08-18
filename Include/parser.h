@@ -158,6 +158,7 @@ public:
 
   auto create_else_statement() -> parse_result;
 
+  auto statements() -> Tomi::Vector<parse_result>;
   auto create_assignments() -> parse_result;
   auto assignments() -> parse_result;
 

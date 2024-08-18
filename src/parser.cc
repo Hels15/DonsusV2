@@ -198,6 +198,8 @@ auto Parser::function_decl() -> parse_result {
   parser_next();
 
   body.return_type = return_from_func();
+
+  parser_except(donsus_token_kind::SEMICOLON);
   return declaration;
 }
 // Handles all the return possibilities from a function
@@ -382,7 +384,42 @@ auto Parser::create_assignments() -> parse_result {
   return tree->create_node<donsus_ast::assignment>(
       donsus_ast::donsus_node_type::ASSIGNMENT);
 }
-auto Parser::assignments() -> parse_result {}
+auto Parser::assignments() -> parse_result {
+  parse_result assignment = create_assignments();
+  assignment->first_token_in_ast = cur_token;
+
+  if (is_specifier(cur_token.kind))
+    syntax_error(&assignment, cur_token,
+                 "Specifier:" + std::string(cur_token.type_name()) +
+                     "can't be used on assignments");
+
+  auto &body = assignment->get<donsus_ast::assignment>();
+  parser_except(donsus_token_kind::IDENTIFIER);
+  body.lvalue = expr();
+
+  parser_next();
+  switch (cur_token.kind) {
+  case donsus_token_kind::PLUS_EQUAL:
+  case donsus_token_kind::MINUS_EQUAL:
+  case donsus_token_kind::STAR_EQUAL:
+  case donsus_token_kind::SLASH_EQUAL:
+  case donsus_token_kind::LARROW2_EQUAL:
+  case donsus_token_kind::RARROW2_EQUAL:
+  case donsus_token_kind::PIPE_EQUAL:
+  case donsus_token_kind::AMPERSAND_EQUAL:
+    break;
+  default:
+    syntax_error(&assignment, cur_token,
+                 std::string(cur_token.type_name()) +
+                     " is not a valid assignment");
+  }
+  body.op = cur_token;
+  parser_next();
+
+  body.rvalue = expr();
+  parser_except(donsus_token_kind::SEMICOLON);
+  return assignment;
+}
 
 auto Parser::variable_multi_def() -> parse_result {}
 
@@ -390,8 +427,46 @@ auto Parser::create_function_def() -> parse_result {
   return tree->create_node<donsus_ast::function_def>(
       donsus_ast::donsus_node_type::FUNCTION_DEF);
 }
-auto Parser::function_def() -> parse_result {}
+auto Parser::function_def() -> parse_result {
+  donsus_ast::specifiers_ s;
+  parse_result definition = create_function_def();
+  definition->first_token_in_ast = cur_token;
 
+  while (is_specifier(cur_token.kind)) {
+    auto value = lexeme_value(cur_token, file.source);
+    if (value == "comptime") {
+      s = set_specifiers(definition, s, donsus_ast::comptime);
+    }
+    if (value == "static") {
+      s = set_specifiers(definition, s, donsus_ast::static_);
+    }
+    if (value == "thread_local") {
+      s = set_specifiers(definition, s, donsus_ast::thread_local_);
+    }
+    if (value == "mut") {
+      s = set_specifiers(definition, s, donsus_ast::mut);
+    }
+    parser_next();
+  }
+
+  auto &body_def = definition->get<donsus_ast::function_def>();
+  body_def.func_name = lexeme_value(cur_token, file.source);
+  body_def.specifiers = s;
+
+  parser_except(donsus_token_kind::LPAR);
+  body_def.parameters = arg_list();
+  parser_except_current(donsus_token_kind::RPAR);
+  parser_except(donsus_token_kind::ARROW);
+  parser_next();
+
+  body_def.return_type = return_from_func();
+  parser_except(donsus_token_kind::LBRACE);
+  body_def.body = statements();
+  parser_except(donsus_token_kind::RBRACE);
+  return definition;
+}
+
+auto Parser::statements() -> Tomi::Vector<parse_result> {}
 auto Parser::create_instance() -> parse_result {
   return tree->create_node<donsus_ast::instance>(
       donsus_ast::donsus_node_type::INSTANCE);

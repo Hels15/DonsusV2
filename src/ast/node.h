@@ -184,14 +184,12 @@ struct function_decl {
       parameters; // parameters inside the function signature
 
   std::string func_name; // name of the function
-
-  Tomi::Vector<utility::handle<donsus_ast::node>>
-      body; // This might be refactored in the future
 };
 
 struct function_def {
-  Tomi::Vector<token> qualifiers;
-  Tomi::Vector<TYPE> return_type; // the return type of the function
+  specifiers_ specifiers;
+  utility::handle<donsus_ast::node>
+      return_type; // the return type of the function
 
   // function signature
   Tomi::Vector<utility::handle<donsus_ast::node>>

@@ -10,6 +10,7 @@ class tree {
 public:
   tree();
   void add_node(utility::handle<node>);
+  utility::handle<donsus_ast::node> *get_current_node();
   auto get_nodes() -> Tomi::Vector<utility::handle<node>>;
   auto get_allocator() -> utility::DonsusAllocator;
   void allocate_node_list(std::uint64_t count);
@@ -22,11 +23,12 @@ public:
     node_ptr->children =
         {}; // initialise it as an empty vector rather than the nodes
     node_ptr->set_property(allocator.r_alloc<extra_type>());
-
+    n++;
     return node_ptr;
   };
 
 private:
+  unsigned int n{};
   Tomi::Vector<utility::handle<node>> nodes;
   utility::DonsusAllocator allocator;
 };

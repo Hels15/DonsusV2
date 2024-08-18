@@ -123,11 +123,10 @@ inline void print_type(donsus_ast::donsus_node_type type, int indent_level) {
 inline void print_function_decl(donsus_ast::function_decl &f_decl,
                                 int indent_level, std::string &source) {
   print_with_newline("return_types: ", indent_level);
-  for (auto r : f_decl.return_type) {
-    print_with_newline("return_type: " +
-                           std::string(token::type_name(r.to_parse(r.type_un))),
-                       indent_level + 1);
-  }
+  // Todo: Fix this
+  /*    print_with_newline("return_type: " +
+                             std::string(token::type_name(f_decl.return_type.type)),
+                         indent_level + 1);*/
 
   print_with_newline("parameters: ", indent_level);
   for (auto p : f_decl.parameters) {
@@ -224,9 +223,10 @@ inline void print_array_def(donsus_ast::array_def &def, int indent_level,
 }
 
 inline void print_var_def(donsus_ast::variable_def &def, int indent_level) {
-  print_with_newline("identifier_type: " +
+  // Todo: fix this
+  /*print_with_newline("identifier_type: " +
                          std::string(token::type_name(def.identifier_type)),
-                     indent_level);
+                     indent_level);*/
   print_with_newline("identifier_name: " + def.identifier_name, indent_level);
 }
 

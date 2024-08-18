@@ -9,23 +9,7 @@
 #include "../Include/token.h"
 
 #include <iostream>
-
-std::map<std::string, donsus_token_kind> TYPES_FOR_LEXER{
-    {"int", donsus_token_kind::BASIC_INT},
-    {"int8", donsus_token_kind::I8},
-    {"int16", donsus_token_kind::I16},
-    {"int32", donsus_token_kind::I32},
-    {"int64", donsus_token_kind::I64},
-    {"u32", donsus_token_kind::U32},
-    {"u64", donsus_token_kind::U64},
-    {"f32", donsus_token_kind::F32},
-    {"f64", donsus_token_kind::F64},
-    {"bool", donsus_token_kind::BOOL},
-    {"void", donsus_token_kind::VOID},
-    {"string", donsus_token_kind::STRING_TYPE},
-    {"char", donsus_token_kind::CHAR}};
-
-std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
+std::map<std::string, donsus_token_kind> KEYWORDS{
     {"def", donsus_token_kind::FUNCTION_DEFINITION_KW},
     {"if", donsus_token_kind::IF_KW},
     {"elif", donsus_token_kind::ELIF_KW},
@@ -86,18 +70,8 @@ static bool iscontinue_identifier(char c) {
   return isstart_identifier(c) || isdigit(c);
 }
 
-static bool is_type(std::string &s) {
-
-  if (TYPES_FOR_LEXER.find(s) != TYPES_FOR_LEXER.end()) {
-
-    return true;
-  }
-
-  return false;
-}
-
 static bool is_keyword(std::string &s) {
-  if (DONSUS_KEYWORDS.find(s) != DONSUS_KEYWORDS.end()) {
+  if (KEYWORDS.find(s) != KEYWORDS.end()) {
     return true;
   }
 
@@ -197,23 +171,6 @@ static bool next_string(Parser &parser) {
   return false;
 }
 
-static token make_type(Parser &parser, std::string &value,
-                       unsigned int length) {
-
-  // construct type token
-  token token;
-
-  token.line = parser.lexer.cur_line;
-  token.column = parser.lexer.cur_column;
-
-  token.kind = TYPES_FOR_LEXER[value];
-
-  token.length = length;
-
-  token.offset = parser.lexer.cur_pos;
-  return token;
-}
-
 static token make_keyword(Parser &parser, std::string &value,
                           unsigned int length) {
 
@@ -223,7 +180,7 @@ static token make_keyword(Parser &parser, std::string &value,
   token.line = parser.lexer.cur_line;
   token.column = parser.lexer.cur_column;
 
-  token.kind = DONSUS_KEYWORDS[value];
+  token.kind = KEYWORDS[value];
 
   token.length = length;
   token.offset = parser.lexer.cur_pos;
@@ -1053,12 +1010,6 @@ token donsus_lexer_next(Parser &parser) {
       cur_token.length = 0; // will be changed during next_identifier
       std::string c_value =
           next_identifier(parser, cur_token, parser.lexer.cur_pos);
-
-      // If it is a type
-      if (is_type(c_value)) {
-
-        return make_type(parser, c_value, cur_token.length);
-      }
 
       if (is_keyword(c_value)) {
 

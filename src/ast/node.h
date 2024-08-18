@@ -1,12 +1,14 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "../../Include/token.h"
 #include "../Include/Donsus/tomi.h"
 #include "../Include/Internal/type.h"
 #include "../utility/handle.h"
 #include "../utility/property.h"
-#include "../../Include/token.h"
+
 #include <string>
+#include <unordered_map>
 
 namespace donsus_ast {
 
@@ -34,7 +36,7 @@ namespace donsus_ast {
   X(OF, "OF")                                                                  \
   X(OTHERWISE_STATEMENT, "OTHERWISE_STATEMENT")                                \
   X(AS_STATEMENT, "AS_STATEMENT")                                              \
-  X(TYPE_CONSTRUCTOR, "TYPE_CONSTRUCTOR")                                          \
+  X(TYPE_CONSTRUCTOR, "TYPE_CONSTRUCTOR")                                      \
   X(ALIAS_STATEMENT, "ALIAS_STATEMENT")                                        \
   X(TYPECLASS, "TYPECLASS")                                                    \
   X(INSTANCE, "INSTANCE")                                                      \
@@ -43,8 +45,8 @@ namespace donsus_ast {
   X(ABSTRACT_STATEMENT, "ABSTRACT_STATEMENT")                                  \
   X(BITSHIFT, "BITSHIFT")                                                      \
   X(BITWISE, "BITWISE")                                                        \
-  X(ARRAY_DEF, "ARRAY_DEF")                                      \
-  X(ARRAY_DECL, "ARRAY_DECL")                                    \
+  X(ARRAY_DEF, "ARRAY_DEF")                                                    \
+  X(ARRAY_DECL, "ARRAY_DECL")                                                  \
   X(STRING_EXPRESSION, "STRING_EXPRESSION")                                    \
   X(BOOL_EXPRESSION, "BOOL_EXPRESSION")                                        \
   X(UNARY_EXPRESSION, "UNARY_EXPRESSION")                                      \
@@ -55,7 +57,11 @@ namespace donsus_ast {
   X(FOR_LOOP, "FOR_LOOP")                                                      \
   X(RANGE_EXPRESSION, "RANGE_EXPRESSION")                                      \
   X(LANGUAGE_EXTENSION, "LANGUAGE_EXTENSION")                                  \
-  X(GENERICS_DECL, "GENERICS_DECL")
+  X(GENERICS_DECL, "GENERICS_DECL")                                            \
+  X(ARG_DECL, "ARG_DECL")                                                      \
+  X(TUPLE, "TUPLE")                                                            \
+  X(POINTER, "POINTER")                                                        \
+  X(REFERENCE, "REFERENCE")
 
 struct donsus_node_type {
   enum underlying : int {
@@ -71,18 +77,26 @@ struct donsus_node_type {
 
   underlying type;
 };
+using declaration_specifiers = std::unordered_map<std::string, bool>;
+inline std::unordered_map<std::string, bool> default_specifiers{
+    {"comptime", false},
+    {"static", false},
+    {"thread_local", false},
+    {"mut", false}};
 
 struct node;
 struct variable_def {
-  Tomi::Vector<token> qualifiers;
-  donsus_token_kind identifier_type;
+  declaration_specifiers specifiers = default_specifiers;
+  utility::handle<donsus_ast::node> identifier_type;
   std::string identifier_name;
-  void *identifier_value;
+
+  void *value;
 };
 struct range_expr {
   utility::handle<donsus_ast::node> start;
   utility::handle<donsus_ast::node> end;
 };
+
 struct for_loop {
   std::string loop_variable;
   utility::handle<donsus_ast::node> iterator;
@@ -97,6 +111,10 @@ struct integer_expr {
 };
 struct float_expr {
   token value;
+};
+
+struct tuple {
+  Tomi::Vector<utility::handle<donsus_ast::node>> items;
 };
 
 enum ArrayType { FIXED, STATIC, DYNAMIC };
@@ -139,7 +157,7 @@ struct unary_expr {
 };
 struct function_decl {
   Tomi::Vector<token> qualifiers;
-  Tomi::Vector<TYPE> return_type;
+  utility::handle<donsus_ast::node> return_type;
 
   // function signature
   Tomi::Vector<utility::handle<donsus_ast::node>>
@@ -198,7 +216,7 @@ struct assignment {
 };
 
 struct identifier {
-  std::string identifier_name; //  name of lvalue
+  std::string identifier_name;
 };
 
 struct string_expr {
@@ -212,6 +230,13 @@ struct print_expr {};
 
 struct case_expr {};
 
+struct arg_decl {
+  Tomi::Vector<token> qualifiers;
+  utility::handle<donsus_ast::node> identifier_type;
+  std::string identifier_name;
+  bool is_pointer;
+  bool is_reference;
+};
 
 struct do_expr {
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
@@ -236,16 +261,16 @@ struct bitshift {};
 struct class_decl {
   Tomi::Vector<token> qualifiers;
 };
-
-struct language_extension{
-
+struct pointer {
+  utility::handle<donsus_ast::node> pointee;
 };
-struct instance {
-
+struct reference {
+  utility::handle<donsus_ast::node> referent;
 };
-struct generics_decl{
 
-};
+struct language_extension {};
+struct instance {};
+struct generics_decl {};
 struct node : utility::property<> {
   Tomi::Vector<utility::handle<donsus_ast::node>> children;
   donsus_node_type type;

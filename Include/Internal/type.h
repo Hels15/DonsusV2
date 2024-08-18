@@ -19,7 +19,8 @@
   X(VOID, "VOID")                                                            \
   X(FIXED_ARRAY, "FIXED_ARRAY")                                              \
   X(STATIC_ARRAY, "STATIC_ARRAY")                                            \
-  X(DYNAMIC_ARRAY, "DYNAMIC_ARRAY")
+  X(DYNAMIC_ARRAY, "DYNAMIC_ARRAY")                                          \
+  X(CHAR, "CHAR")
 
 class TYPE {
 public:

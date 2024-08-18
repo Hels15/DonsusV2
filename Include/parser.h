@@ -2,13 +2,13 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "../Include/Donsus/terminal_coloured.h"
+#include "../Include/Donsus/tomi.h"
 #include "../Include/token.h"
 #include "../src/ast/node.h"
 #include "../src/ast/tree.h"
 #include "../src/utility/exception.h"
 #include "../src/utility/handle.h"
-#include "../Include/Donsus/tomi.h"
-#include "../Include/Donsus/terminal_coloured.h"
 
 #include <cstdint>
 #include <iostream>
@@ -19,10 +19,11 @@
 
 class Parser;
 
-class ParserError{
+class ParserError {
 public:
-  void print_meta_syntax(token err_on_token, const std::string& message, const std::string& full_path);
-  void error_out_coloured(const std::string& message, rang::fg colour);
+  void print_meta_syntax(token err_on_token, const std::string &message,
+                         const std::string &full_path);
+  void error_out_coloured(const std::string &message, rang::fg colour);
 };
 
 struct AstFile {
@@ -86,11 +87,14 @@ public:
   utility::handle<donsus_ast::tree> tree;
   utility::DonsusAllocator allocator;
   // creating nodes
-  auto create_expression(donsus_ast::donsus_node_type type,
-                         std::uint64_t child_count) -> parse_result;
+  auto create_expr() -> parse_result;
+  auto expr() -> parse_result;
 
   auto create_variable_def() -> parse_result;
   auto variable_def() -> parse_result;
+
+  auto create_arg_decl() -> parse_result;
+  auto arg_decl() -> parse_result;
 
   auto create_variable_multi_def() -> parse_result;
   auto variable_multi_def() -> parse_result;
@@ -165,10 +169,14 @@ public:
   auto create_otherwise_statement() -> parse_result;
 
   auto create_as_statement() -> parse_result;
-  auto create_type_statement() -> parse_result;
+
   auto create_alias() -> parse_result;
   auto alias() -> parse_result;
-
+  /*(typeclass)
+   * typeclass Test<T> {
+   *    ...
+   *                   }
+   * */
   auto create_typeclass() -> parse_result;
   auto typeclass() -> parse_result;
 
@@ -180,7 +188,9 @@ public:
 
   auto create_bitshift() -> parse_result;
   auto create_bitwise() -> parse_result;
-
+  /* (typeconstructor)
+   * type MyList a = Empty | Cons a (MyList a)
+   * */
   auto create_type_constructor() -> parse_result;
   auto type_constructor() -> parse_result;
 
@@ -196,11 +206,34 @@ public:
   auto create_generics_decl() -> parse_result;
   auto generics_decl() -> parse_result;
   auto create_return_statement() -> parse_result;
+
+  auto create_type() -> parse_result;
+  /* (type)
+   * a: int = 12; # int here as present in the source
+   * */
+
+  auto type() -> parse_result;
+  auto tuple() -> parse_result;
+  auto create_tuple() -> parse_result;
+
+  auto create_pointer() -> parse_result;
+  auto pointer(parse_result) -> parse_result;
+
+  auto create_reference() -> parse_result;
+  auto reference(parse_result referent) -> parse_result;
+
   // errors
-  void syntax_error(Parser::parse_result *node, token err_on_token, const std::string&message);
+  void syntax_error(Parser::parse_result *node, token err_on_token,
+                    const std::string &message);
 
   void parser_except(donsus_token_kind type);
   void parser_except_current(donsus_token_kind type);
+
+  // helpers
+  auto arg_list() -> Tomi::Vector<parse_result>;
+  auto return_type() -> parse_result;
+  auto return_from_func() -> parse_result;
+
 private:
   ParserError error;
   AstFile &file;

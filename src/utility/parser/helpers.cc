@@ -24,3 +24,9 @@ bool is_qualifier(donsus_token_kind kind){
 bool is_class_decl(donsus_token_kind kind){
   return(kind == donsus_token_kind::FINAL_KW || kind== donsus_token_kind::ABSTRACT_KW);
 }
+
+TYPE make_type(donsus_token_kind type){
+  TYPE a;
+  a.type_un = a.from_parse(type);
+  return a;
+}

@@ -77,20 +77,40 @@ struct donsus_node_type {
 
   underlying type;
 };
-using declaration_specifiers = std::unordered_map<std::string, bool>;
-inline std::unordered_map<std::string, bool> default_specifiers{
-    {"comptime", false},
-    {"static", false},
-    {"thread_local", false},
-    {"mut", false}};
+
+#define SPECIFIERS_LIST                                                        \
+  X(none, 0)                                                                   \
+  X(comptime, 1 << 0)                                                          \
+  X(static_, 1 << 1)                                                           \
+  X(thread_local_, 1 << 2)                                                     \
+  X(mut, 1 << 3)
+
+enum specifiers_ {
+#define X(name, value) name = value,
+  SPECIFIERS_LIST
+#undef X
+};
+
+struct specifiers_utils {
+  static const char *type_name(specifiers_ type) {
+    switch (type) {
+#define X(name, value)                                                         \
+  case specifiers_::name:                                                      \
+    return #name;
+      SPECIFIERS_LIST
+#undef X
+    default:
+      return "Unknown";
+    }
+  }
+};
 
 struct node;
 struct variable_def {
-  declaration_specifiers specifiers = default_specifiers;
+  specifiers_ specifiers{};
   utility::handle<donsus_ast::node> identifier_type;
   std::string identifier_name;
-
-  void *value;
+  // value stored in children
 };
 struct range_expr {
   utility::handle<donsus_ast::node> start;
@@ -156,7 +176,7 @@ struct unary_expr {
   token op;
 };
 struct function_decl {
-  Tomi::Vector<token> qualifiers;
+  specifiers_ specifiers{};
   utility::handle<donsus_ast::node> return_type;
 
   // function signature

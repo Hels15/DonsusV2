@@ -59,13 +59,8 @@ auto Parser::parse() -> end_result {
   //           | selectionstatement
   //           | iterationstatement
   //           | classdeclstatement;
-  while (cur_token.kind != donsus_token_kind::END) {
 
-    Tomi::Vector<token> qualifier;
-    while (is_qualifier(cur_token.kind)) {
-      qualifier.push_back(cur_token);
-      parser_next();
-    }
+  while (cur_token.kind != donsus_token_kind::END) {
     // start/declaration statement
     if (cur_token.kind == donsus_token_kind::TYPE_KW &&
         peek().kind == donsus_token_kind::IDENTIFIER) {
@@ -85,12 +80,11 @@ auto Parser::parse() -> end_result {
       parse_result result = typeclass();
       tree->add_node(result);
     }
+    if (cur_token.kind == donsus_token_kind::ALIAS_KW) {
+      parse_result result = alias();
+      tree->add_node(result);
+    }
     if (cur_token.kind == donsus_token_kind::IDENTIFIER) {
-      // if (qualifier.size() == 1 &&
-      //     qualifier[0].kind == donsus_token_kind::ALIAS_KW) {
-      // parse_result result = alias();
-      // tree->add_node(result);
-      //}
       if (peek().kind == donsus_token_kind::COLON &&
           peek(2).kind == donsus_token_kind::COLON) {
         parse_result result = generics_decl();
@@ -98,11 +92,11 @@ auto Parser::parse() -> end_result {
       }
       if (peek().kind == donsus_token_kind::LPAR) {
         parse_result result = function_decl();
-        // result->get<donsus_ast::function_decl>().qualifiers = qualifier;
+
         tree->add_node(result);
       } else if (peek().kind == donsus_token_kind::COLON) {
         parse_result result = variable_def();
-        // result->get<donsus_ast::variable_def>().qualifiers = qualifier;
+
         tree->add_node(result);
       } else if (is_assignment(peek().kind)) {
         parse_result result = assignments();
@@ -112,14 +106,14 @@ auto Parser::parse() -> end_result {
         variable_multi_def();
       } else if (peek(2).kind == donsus_token_kind::LSQB) {
         parse_result result = array_decl();
-        // result->get<donsus_ast::array_decl>().qualifiers = qualifier;
+
         tree->add_node(result);
       } else {
         // error here;
       }
     } else if (cur_token.kind == donsus_token_kind::FUNCTION_DEFINITION_KW) {
       parse_result result = function_def();
-      // result->get<donsus_ast::function_def>().qualifiers = qualifier;
+
       tree->add_node(result);
     }
     // end/declaration statement
@@ -150,7 +144,6 @@ auto Parser::parse() -> end_result {
     else if (is_class_decl(cur_token.kind) &&
              peek().kind == donsus_token_kind::CLASS_KW) {
       parse_result result = class_decl();
-      result->get<donsus_ast::class_decl>().qualifiers = qualifier;
       tree->add_node(result);
     }
     // end/classdecl statement
@@ -173,12 +166,32 @@ auto Parser::create_function_decl() -> parse_result {
       donsus_ast::donsus_node_type::FUNCTION_DECL);
 }
 auto Parser::function_decl() -> parse_result {
+  donsus_ast::specifiers_ s;
   parse_result declaration = create_function_decl();
   declaration->first_token_in_ast = cur_token;
+
+  while (is_specifier(cur_token.kind)) {
+    auto value = lexeme_value(cur_token, file.source);
+    if (value == "comptime") {
+      s = set_specifiers(declaration, s, donsus_ast::comptime);
+    }
+    if (value == "static") {
+      s = set_specifiers(declaration, s, donsus_ast::static_);
+    }
+    if (value == "thread_local") {
+      s = set_specifiers(declaration, s, donsus_ast::thread_local_);
+    }
+    if (value == "mut") {
+      s = set_specifiers(declaration, s, donsus_ast::mut);
+    }
+    parser_next();
+  }
+
   auto &body = declaration->get<donsus_ast::function_decl>();
   body.func_name = lexeme_value(cur_token, file.source);
+  body.specifiers = s;
+
   parser_except(donsus_token_kind::LPAR);
-  // Todo: Return a vector here
   body.parameters = arg_list();
   parser_except_current(donsus_token_kind::RPAR);
   parser_except(donsus_token_kind::ARROW);
@@ -228,11 +241,31 @@ auto Parser::create_variable_def() -> parse_result {
       donsus_ast::donsus_node_type::VARIABLE_DEFINITION);
 }
 auto Parser::variable_def() -> parse_result {
+  donsus_ast::specifiers_ s;
   parse_result definition = create_variable_def();
+
   definition->first_token_in_ast = cur_token;
 
+  while (is_specifier(cur_token.kind)) {
+    auto value = lexeme_value(cur_token, file.source);
+    if (value == "comptime") {
+      s = set_specifiers(definition, s, donsus_ast::comptime);
+    }
+    if (value == "static") {
+      s = set_specifiers(definition, s, donsus_ast::static_);
+    }
+    if (value == "thread_local") {
+      s = set_specifiers(definition, s, donsus_ast::thread_local_);
+    }
+    if (value == "mut") {
+      s = set_specifiers(definition, s, donsus_ast::mut);
+    }
+    parser_next();
+  }
   auto &body = definition->get<donsus_ast::variable_def>();
   body.identifier_name = lexeme_value(cur_token, file.source);
+  body.specifiers = s;
+
   parser_except(donsus_token_kind::COLON);
   parser_next();
   switch (cur_token.kind) {
@@ -490,6 +523,17 @@ auto Parser::arg_list() -> Tomi::Vector<parse_result> {
     break;
   }
   return a;
+}
+
+auto Parser::set_specifiers(parse_result node, donsus_ast::specifiers_ s,
+                            donsus_ast::specifiers_ v)
+    -> donsus_ast::specifiers_ {
+  if (s & v) {
+    syntax_error(&node, cur_token,
+                 std::string(donsus_ast::specifiers_utils::type_name(v)) +
+                     "is already present!");
+  }
+  return static_cast<donsus_ast::specifiers_>(s | v);
 }
 
 void Parser::parser_except_current(donsus_token_kind type) {

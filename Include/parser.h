@@ -69,6 +69,7 @@ public:
 
   auto parse() -> end_result;
   void print_token();
+
   token peek(int loop = 1);
 
   Parser &operator=(const Parser &f) {
@@ -231,8 +232,9 @@ public:
 
   // helpers
   auto arg_list() -> Tomi::Vector<parse_result>;
-  auto return_type() -> parse_result;
   auto return_from_func() -> parse_result;
+  auto set_specifiers(parse_result node, donsus_ast::specifiers_ s,
+                      donsus_ast::specifiers_ v) -> donsus_ast::specifiers_;
 
 private:
   ParserError error;

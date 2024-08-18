@@ -109,7 +109,7 @@ struct node;
 struct variable_def {
   specifiers_ specifiers{};
   utility::handle<donsus_ast::node> identifier_type;
-  std::string identifier_name;
+  utility::handle<donsus_ast::node> identifier_name;
   // value stored in children
 };
 struct range_expr {
@@ -198,7 +198,7 @@ struct function_def {
   std::string func_name; // name of the function
 
   Tomi::Vector<utility::handle<donsus_ast::node>>
-      body; // This might be refactored in the future
+      body;
 };
 
 struct function_call {
@@ -251,7 +251,7 @@ struct case_expr {};
 struct arg_decl {
   Tomi::Vector<token> qualifiers;
   utility::handle<donsus_ast::node> identifier_type;
-  std::string identifier_name;
+  utility::handle<donsus_ast::node> identifier_name;
   bool is_pointer;
   bool is_reference;
 };
@@ -287,7 +287,10 @@ struct reference {
 };
 
 struct language_extension {};
-struct instance {};
+struct instance {
+  utility::handle<donsus_ast::node> identifier;
+  utility::handle<donsus_ast::node> type;
+};
 struct generics_decl {};
 struct node : utility::property<> {
   Tomi::Vector<utility::handle<donsus_ast::node>> children;

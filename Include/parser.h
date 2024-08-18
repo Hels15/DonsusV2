@@ -202,6 +202,8 @@ public:
   auto language_extension() -> parse_result;
 
   auto create_identifier() -> parse_result;
+  auto identifier() -> parse_result;
+
   auto create_function_call() -> parse_result;
 
   auto create_generics_decl() -> parse_result;
@@ -228,7 +230,7 @@ public:
                     const std::string &message);
 
   void parser_except(donsus_token_kind type);
-  void parser_except_current(donsus_token_kind type);
+  void parser_except_current(parse_result node, donsus_token_kind type);
 
   // helpers
   auto arg_list() -> Tomi::Vector<parse_result>;

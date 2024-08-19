@@ -132,6 +132,8 @@ public:
   auto create_print() -> parse_result;
   auto print() -> parse_result;
 
+  auto create_template_decl() -> parse_result;
+  auto template_decl() -> parse_result;
   auto create_function_decl() -> parse_result;
   auto function_decl() -> parse_result;
 
@@ -155,7 +157,12 @@ public:
   auto create_if_statement() -> parse_result;
   auto if_statement() -> parse_result;
 
+  auto if_var_decls() -> Tomi::Vector<parse_result>;
   auto create_else_statement() -> parse_result;
+  auto else_statement() -> parse_result;
+
+  auto create_else_if_statement() -> parse_result;
+  auto else_if_statement() -> parse_result;
 
   auto statements() -> Tomi::Vector<parse_result>;
   auto create_assignments() -> parse_result;
@@ -187,6 +194,7 @@ public:
   auto create_final() -> parse_result;
   auto create_abstract() -> parse_result;
 
+  auto create_loop_var(token) -> parse_result;
   auto create_bitshift() -> parse_result;
   auto create_bitwise() -> parse_result;
   /* (typeconstructor)

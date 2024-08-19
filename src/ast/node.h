@@ -26,7 +26,6 @@ namespace donsus_ast {
   X(HEX_EXPRESSION, "HEX_EXPRESSION")                                          \
   X(EXPRESSION, "EXPRESSION")                                                  \
   X(FUNCTION_CALL, "FUNCTION_CALL")                                            \
-  X(ELSE_STATEMENT, "ELSE_STATEMENT")                                          \
   X(RETURN_STATEMENT, "RETURN_STATEMENT")                                      \
   X(CONTINUE_STATEMENT, "CONTINUE_STATEMENT")                                  \
   X(BREAK_STATEMENT, "BREAK_STATEMENT")                                        \
@@ -61,7 +60,10 @@ namespace donsus_ast {
   X(ARG_DECL, "ARG_DECL")                                                      \
   X(TUPLE, "TUPLE")                                                            \
   X(POINTER, "POINTER")                                                        \
-  X(REFERENCE, "REFERENCE")
+  X(REFERENCE, "REFERENCE")                                                    \
+  X(TEMPLATE_DECL, "TEMPLATE_DECL")                                            \
+  X(ELSE_IF_STATEMENT, "ELSE_IF_STATEMENT")                                    \
+  X(ELSE_STATEMENT, "ELSE_STATEMENT")
 
 struct donsus_node_type {
   enum underlying : int {
@@ -113,14 +115,27 @@ struct variable_def {
   // value stored in children
 };
 struct range_expr {
+  // start..end
   utility::handle<donsus_ast::node> start;
   utility::handle<donsus_ast::node> end;
 };
 
+enum loop_type { TRADITIONAL, RANGE_BASED };
+// Condition stored in children
 struct for_loop {
-  std::string loop_variable;
+  loop_type type_of_loop;
+  // RANGE_BASED
+  // if loop_variable not set explicitly, thus its a nullptr
+  // loop_variable will be created explicitly
+  utility::handle<donsus_ast::node> loop_variable;
+  // RANGE_BASED
   utility::handle<donsus_ast::node> iterator;
+  // TRADITIONAL || RANGE_BASED
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
+  // TRADITIONAL
+  utility::handle<donsus_ast::node> init_statement;
+  // TRADITIONAL
+  utility::handle<donsus_ast::node> increment_expr;
 };
 struct while_loop {
   // condition is stored in the children
@@ -197,8 +212,7 @@ struct function_def {
 
   std::string func_name; // name of the function
 
-  Tomi::Vector<utility::handle<donsus_ast::node>>
-      body;
+  Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };
 
 struct function_call {
@@ -211,15 +225,19 @@ struct function_call {
 
 struct if_statement {
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
-  // we will include something for the init_statement_condition
-  // the children represents the condition
-  // the body represents the block when the condition evaluates to true
+  utility::handle<donsus_ast::node> condition;
+  Tomi::Vector<utility::handle<donsus_ast::node>> if_var_decls;
   Tomi::Vector<utility::handle<donsus_ast::node>>
       alternate; // this represents the block to be executed if the condition
-                 // evaluates as false(else or elif statement)
+                 // evaluates as false(else or elif statement)*/
 };
-
+struct else_if_statement {
+  Tomi::Vector<utility::handle<donsus_ast::node>> body;
+  utility::handle<donsus_ast::node> condition;
+  Tomi::Vector<utility::handle<donsus_ast::node>> if_var_decls;
+};
 struct else_statement {
+
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };
 
@@ -269,11 +287,25 @@ struct as_statement {
 
 struct type_constructor {};
 
-struct alias {};
-struct typeclass {};
+struct alias {
+  utility::handle<donsus_ast::node> existing_type;
+  utility::handle<donsus_ast::node> synonym;
+};
+struct typeclass {
+  utility::handle<donsus_ast::node> identifier_name;
+  // Todo: this should be optional
+  utility::handle<donsus_ast::node> template_decl;
+};
 struct final {};
 
 struct abstract_statement {};
+
+/*
+ * typeclass "<T>" -> "<T>"
+ * */
+struct template_decl {
+  Tomi::Vector<utility::handle<donsus_ast::node>> types;
+};
 
 struct bitshift {};
 struct class_decl {

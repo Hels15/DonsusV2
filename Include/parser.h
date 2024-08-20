@@ -87,9 +87,26 @@ public:
   // Top level tree
   utility::handle<donsus_ast::tree> tree;
   utility::DonsusAllocator allocator;
-  // creating nodes
+
+  // expressions
   auto create_expr() -> parse_result;
   auto expr() -> parse_result;
+
+  auto bool_or_expr() -> parse_result;
+  auto bool_and_expr() -> parse_result;
+  auto compare_expr() -> parse_result;
+  auto arithmetic_expr() -> parse_result;
+  auto bitwise_expr() -> parse_result;
+  auto addition_expr() -> parse_result;
+
+  auto multiply_expr() -> parse_result;
+  auto bitshift_expr() -> parse_result;
+
+  auto as_expr() -> parse_result;
+  auto prefix_expr() -> parse_result;
+
+  auto postfix_expr() -> parse_result;
+  auto expr_val() -> parse_result;
 
   auto create_variable_def() -> parse_result;
   auto variable_def() -> parse_result;

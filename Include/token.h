@@ -105,7 +105,9 @@
   X(AT, "AT")                                                                  \
   X(DOUBLE_COLON, "DOUBLE_COLON")                                              \
   X(IMPLIES, "IMPLIES")                                                        \
-  X(UNDEFINED, "UNDEFINED")
+  X(UNDEFINED, "UNDEFINED")                                                    \
+  X(DOUBLE_PIPE, "DOUBLE_PIPE")                                                \
+  X(DOUBLE_AMPERSAND, "DOUBLE_AMPERSAND")
 
 enum class donsus_token_kind {
 #define X(name, str) name,

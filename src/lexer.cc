@@ -929,6 +929,21 @@ token donsus_lexer_next(Parser &parser) {
       eat(parser);
 
       return cur_token;
+    } else if (peek_for_char(parser) == '&') {
+      cur_token.kind = donsus_token_kind::DOUBLE_AMPERSAND;
+
+      cur_token.length = 2;
+      cur_token.offset = parser.lexer.cur_pos;
+
+      cur_token.precedence = 10;
+
+      cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_char;
+
+      eat(parser);
+      eat(parser);
+
+      return cur_token;
     } else {
       cur_token.kind = donsus_token_kind::AMPERSAND;
 
@@ -957,6 +972,19 @@ token donsus_lexer_next(Parser &parser) {
       eat(parser);
       eat(parser);
       return cur_token;
+    } else if (peek_for_char(parser) == '|') {
+      cur_token.kind = donsus_token_kind::DOUBLE_PIPE;
+      cur_token.length = 2;
+      cur_token.offset = parser.lexer.cur_pos;
+
+      cur_token.precedence = 10;
+
+      cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_char;
+
+      eat(parser);
+      eat(parser);
+      return cur_token;
     } else {
       cur_token.kind = donsus_token_kind::PIPE;
       cur_token.length = 1;
@@ -971,6 +999,7 @@ token donsus_lexer_next(Parser &parser) {
 
       return cur_token;
     }
+  }
   case '^': {
     if (peek_for_char(parser) == '=') {
       cur_token.kind = donsus_token_kind::CARET_EQUAL;
@@ -998,59 +1027,59 @@ token donsus_lexer_next(Parser &parser) {
       return cur_token;
     }
   }
-  }
-  default: {
-    // numbers
-    if (isdigit(parser.lexer.cur_char)) {
-      cur_token.kind = donsus_token_kind::INT;
 
-      cur_token.length = 0; // will be changed during next_number
-      cur_token.offset = parser.lexer.cur_pos;
+default: {
+  // numbers
+  if (isdigit(parser.lexer.cur_char)) {
+    cur_token.kind = donsus_token_kind::INT;
 
-      cur_token.line = parser.lexer.cur_line;
-      cur_token.column = parser.lexer.cur_column;
+    cur_token.length = 0; // will be changed during next_number
+    cur_token.offset = parser.lexer.cur_pos;
 
-      // float part
-      if (parser.lexer.cur_char == '.' && peek_for_char(parser) != '.') {
-        cur_token.kind = donsus_token_kind::FLOAT;
-        cur_token.length = 0;
+    cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
-        cur_token.line = parser.lexer.cur_line;
-      }
-      return cur_token;
-    }
-    // OCTAL
-    if (parser.lexer.cur_char == '0') {
-      cur_token.kind = donsus_token_kind::OCT;
-      cur_token.offset = parser.lexer.cur_pos;
-      cur_token.line = parser.lexer.cur_line;
-      cur_token.column = parser.lexer.cur_column;
-      eat(parser);
-      return cur_token;
-    }
-    // identifiers
-    if (isstart_identifier(parser.lexer.cur_char)) {
-
-      cur_token.kind = donsus_token_kind::IDENTIFIER;
-
-      cur_token.length = 0; // will be changed during next_identifier
-      std::string c_value =
-          next_identifier(parser, cur_token, parser.lexer.cur_pos);
-
-      if (is_keyword(c_value)) {
-
-        return make_keyword(parser, c_value, cur_token.length);
-      } else {
-      }
+    // float part
+    if (parser.lexer.cur_char == '.' && peek_for_char(parser) != '.') {
+      cur_token.kind = donsus_token_kind::FLOAT;
+      cur_token.length = 0;
 
       cur_token.line = parser.lexer.cur_line;
-      cur_token.column = parser.lexer.cur_column;
-      cur_token.offset = parser.lexer.cur_pos;
-
-      return cur_token;
     }
-    // if none of them are true we end the execution.(error|end of the file)
     return cur_token;
   }
+  // OCTAL
+  if (parser.lexer.cur_char == '0') {
+    cur_token.kind = donsus_token_kind::OCT;
+    cur_token.offset = parser.lexer.cur_pos;
+    cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
+    eat(parser);
+    return cur_token;
   }
+  // identifiers
+  if (isstart_identifier(parser.lexer.cur_char)) {
+
+    cur_token.kind = donsus_token_kind::IDENTIFIER;
+
+    cur_token.length = 0; // will be changed during next_identifier
+    std::string c_value =
+        next_identifier(parser, cur_token, parser.lexer.cur_pos);
+
+    if (is_keyword(c_value)) {
+
+      return make_keyword(parser, c_value, cur_token.length);
+    } else {
+    }
+
+    cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
+    cur_token.offset = parser.lexer.cur_pos;
+
+    return cur_token;
+  }
+  // if none of them are true we end the execution.(error|end of the file)
+  return cur_token;
+}
+}
 }

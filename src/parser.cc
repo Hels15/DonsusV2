@@ -389,7 +389,24 @@ auto Parser::arg_decl() -> parse_result {
   return declaration;
 }
 // Todo: expr here
-auto Parser::expr() -> parse_result {}
+auto Parser::expr() -> parse_result {
+  return bool_or_expr();
+}
+auto Parser::bool_or_expr() -> parse_result {
+}
+auto Parser::bool_and_expr() -> parse_result {}
+auto Parser::compare_expr() -> parse_result {}
+auto Parser::arithmetic_expr() -> parse_result {}
+auto Parser::bitwise_expr() -> parse_result {}
+auto Parser::addition_expr() -> parse_result {}
+auto Parser::multiply_expr() -> parse_result {}
+auto Parser::bitshift_expr() -> parse_result {}
+auto Parser::as_expr() -> parse_result {}
+auto Parser::prefix_expr() -> parse_result {}
+auto Parser::postfix_expr() -> parse_result {}
+auto Parser::expr_val() -> parse_result {}
+
+
 auto Parser::create_expr() -> parse_result {
   return tree->create_node<donsus_ast::expression>(
       donsus_ast::donsus_node_type::EXPRESSION);

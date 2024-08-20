@@ -390,6 +390,10 @@ auto Parser::arg_decl() -> parse_result {
 }
 // Todo: expr here
 auto Parser::expr() -> parse_result {}
+auto Parser::create_expr() -> parse_result {
+  return tree->create_node<donsus_ast::expression>(
+      donsus_ast::donsus_node_type::EXPRESSION);
+}
 auto Parser::create_assignments() -> parse_result {
   return tree->create_node<donsus_ast::assignment>(
       donsus_ast::donsus_node_type::ASSIGNMENT);
@@ -1175,6 +1179,27 @@ auto Parser::create_type_constructor() -> parse_result {
   return constructor;
 }*/
 
+auto Parser::create_indices() -> parse_result {
+  return tree->create_node<donsus_ast::indices>(
+      donsus_ast::donsus_node_type::INDICES);
+}
+auto Parser::indices() -> parse_result {
+  parse_result indices_expr = create_indices();
+  indices_expr->first_token_in_ast = cur_token;
+  auto &body = indices_expr->get<donsus_ast::indices>();
+  parser_except_current(indices_expr, donsus_token_kind::IDENTIFIER);
+  body.name = identifier();
+  parser_except(donsus_token_kind::LSQB);
+  parser_next();
+
+  if (cur_token.kind == donsus_token_kind::RSQB) {
+    syntax_error(&indices_expr, cur_token, "Index must be specified after [");
+  }
+  parser_next();
+  body.index = expr();
+  parser_except(donsus_token_kind::RSQB);
+  return indices_expr;
+}
 auto Parser::create_pointer() -> parse_result {
   return tree->create_node<donsus_ast::pointer>(
       donsus_ast::donsus_node_type::POINTER);

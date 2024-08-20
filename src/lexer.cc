@@ -38,6 +38,7 @@ std::map<std::string, donsus_token_kind> KEYWORDS{
     {"static", donsus_token_kind::STATIC_KW},
     {"otherwise", donsus_token_kind::OTHERWISE_KW},
     {"comptime", donsus_token_kind::COMPTIME_KW},
+    {"undefined", donsus_token_kind::UNDEFINED},
     {"thread_local", donsus_token_kind::THREAD_LOCAL_KW},
     {"alias", donsus_token_kind::ALIAS_KW},
     {"as", donsus_token_kind::AS_KW}};

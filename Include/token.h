@@ -104,7 +104,8 @@
   X(THREAD_LOCAL_KW, "THREAD_LOCAL_KW")                                        \
   X(AT, "AT")                                                                  \
   X(DOUBLE_COLON, "DOUBLE_COLON")                                              \
-  X(IMPLIES, "IMPLIES")
+  X(IMPLIES, "IMPLIES")                                                        \
+  X(UNDEFINED, "UNDEFINED")
 
 enum class donsus_token_kind {
 #define X(name, str) name,

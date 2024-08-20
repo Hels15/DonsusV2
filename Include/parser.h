@@ -108,6 +108,9 @@ public:
   auto create_integer_expression() -> parse_result;
   auto integer_expression() -> parse_result;
 
+  auto create_indices() -> parse_result;
+  auto indices() -> parse_result;
+
   auto create_while_loop() -> parse_result;
   auto while_loop() -> parse_result;
 

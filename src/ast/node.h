@@ -67,7 +67,8 @@ namespace donsus_ast {
   X(ELSE_STATEMENT, "ELSE_STATEMENT")                                          \
   X(DATA_CONSTRUCTOR, "DATA_CONSTRUCTOR")                                      \
   X(PATTERN, "PATTERN")                                                        \
-  X(CONSTRAINT, "CONSTRAINT")
+  X(CONSTRAINT, "CONSTRAINT")                                                  \
+  X(INDICES, "INDICES")
 
 struct donsus_node_type {
   enum underlying : int {
@@ -289,6 +290,10 @@ struct integer_expr {
 };
 struct float_expr {
   token value;
+};
+struct indices {
+  utility::handle<donsus_ast::node> name;
+  utility::handle<donsus_ast::node> index;
 };
 
 struct tuple {

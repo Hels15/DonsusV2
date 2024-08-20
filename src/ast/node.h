@@ -63,7 +63,10 @@ namespace donsus_ast {
   X(REFERENCE, "REFERENCE")                                                    \
   X(TEMPLATE_DECL, "TEMPLATE_DECL")                                            \
   X(ELSE_IF_STATEMENT, "ELSE_IF_STATEMENT")                                    \
-  X(ELSE_STATEMENT, "ELSE_STATEMENT")
+  X(ELSE_STATEMENT, "ELSE_STATEMENT")                                          \
+  X(DATA_CONSTRUCTOR, "DATA_CONSTRUCTOR")                                      \
+  X(PATTERN, "PATTERN")                                                        \
+  X(CONSTRAINT, "CONSTRAINT")
 
 struct donsus_node_type {
   enum underlying : int {
@@ -120,8 +123,7 @@ struct range_expr {
   utility::handle<donsus_ast::node> end;
 };
 
-enum loop_type { TRADITIONAL, RANGE_BASED };
-// Condition stored in children
+enum class loop_type { TRADITIONAL, RANGE_BASED };
 struct for_loop {
   loop_type type_of_loop;
   // RANGE_BASED
@@ -136,9 +138,14 @@ struct for_loop {
   utility::handle<donsus_ast::node> init_statement;
   // TRADITIONAL
   utility::handle<donsus_ast::node> increment_expr;
+  // TRADITIONAL
+  utility::handle<donsus_ast::node> condition;
 };
+enum class while_type { TRADITIONAL, DO_BASED };
+
 struct while_loop {
-  // condition is stored in the children
+  while_type type_of_loop;
+  utility::handle<donsus_ast::node> condition;
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };
 struct integer_expr {
@@ -264,7 +271,17 @@ struct expression {
 
 struct print_expr {};
 
-struct case_expr {};
+struct case_expr {
+  utility::handle<donsus_ast::node> scrutinee;
+  Tomi::Vector<utility::handle<donsus_ast::node>> patterns;
+};
+
+struct pattern {
+  // if the scrutinee satisfies the guard
+  // the value of the expression is the "result_expression"
+  utility::handle<donsus_ast::node> guard;
+  utility::handle<donsus_ast::node> result_expression;
+};
 
 struct arg_decl {
   Tomi::Vector<token> qualifiers;
@@ -285,7 +302,14 @@ struct as_statement {
   utility::handle<donsus_ast::node> right;
 };
 
-struct type_constructor {};
+struct type_constructor {
+  utility::handle<donsus_ast::node> name;
+  Tomi::Vector<utility::handle<donsus_ast::node>> arguments;
+  // This is a data constructor
+  utility::handle<donsus_ast::node> body;
+};
+
+struct data_constructor {};
 
 struct alias {
   utility::handle<donsus_ast::node> existing_type;
@@ -323,7 +347,28 @@ struct instance {
   utility::handle<donsus_ast::node> identifier;
   utility::handle<donsus_ast::node> type;
 };
-struct generics_decl {};
+// func :: Num X => X
+// decl only contains parameters, it does exclude the last return
+// value unlike haskell.
+enum class generics_type {
+  PARAMETRIC, // unconstrained
+  AD_HOC
+};
+
+struct generics_decl {
+  generics_type type_of_decl;
+  utility::handle<donsus_ast::node> name;
+  Tomi::Vector<utility::handle<donsus_ast::node>> constraints;
+  Tomi::Vector<utility::handle<donsus_ast::node>> params;
+};
+// Num X
+struct constraint {
+  // Num
+  utility::handle<donsus_ast::node> class_constraint;
+  // X
+  Tomi::Vector<utility::handle<donsus_ast::node>> type_variables;
+};
+
 struct node : utility::property<> {
   Tomi::Vector<utility::handle<donsus_ast::node>> children;
   donsus_node_type type;

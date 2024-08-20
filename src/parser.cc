@@ -62,11 +62,11 @@ auto Parser::parse() -> end_result {
 
   while (cur_token.kind != donsus_token_kind::END) {
     // start/declaration statement
-    if (cur_token.kind == donsus_token_kind::TYPE_KW &&
-        peek().kind == donsus_token_kind::IDENTIFIER) {
-      parse_result result = type_constructor();
-      tree->add_node(result);
-    }
+    /*    if (cur_token.kind == donsus_token_kind::TYPE_KW &&
+            peek().kind == donsus_token_kind::IDENTIFIER) {
+          parse_result result = type_constructor();
+          tree->add_node(result);
+        }*/
     if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
         peek().kind == donsus_token_kind::INSTANCE_KW) {
       parse_result result = instance();
@@ -133,7 +133,8 @@ auto Parser::parse() -> end_result {
       }
       tree->add_node(result);
     } else if (cur_token.kind == donsus_token_kind::CASE_KW) {
-      parse_result result = case_statement();
+      parse_result result = case_expr();
+      parser_except(donsus_token_kind::SEMICOLON);
       tree->add_node(result);
     }
     // end/ selection statement
@@ -596,11 +597,11 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
   Tomi::Vector<parse_result> body;
   // Todo: Do not duplicate this that much!
   while (cur_token.kind != donsus_token_kind::RBRACE) {
-    if (cur_token.kind == donsus_token_kind::TYPE_KW &&
-        peek().kind == donsus_token_kind::IDENTIFIER) {
-      parse_result result = type_constructor();
-      body.push_back(result);
-    }
+    /*    if (cur_token.kind == donsus_token_kind::TYPE_KW &&
+            peek().kind == donsus_token_kind::IDENTIFIER) {
+          parse_result result = type_constructor();
+          body.push_back(result);
+        }*/
     if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
         peek().kind == donsus_token_kind::INSTANCE_KW) {
       parse_result result = instance();
@@ -664,7 +665,7 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
       parse_result result = if_statement();
       body.push_back(result);
     } else if (cur_token.kind == donsus_token_kind::CASE_KW) {
-      parse_result result = case_statement();
+      parse_result result = case_expr();
       body.push_back(result);
     }
     // end/ selection statement
@@ -785,7 +786,57 @@ auto Parser::create_generics_decl() -> parse_result {
   return tree->create_node<donsus_ast::generics_decl>(
       donsus_ast::donsus_node_type::GENERICS_DECL);
 }
-auto Parser::generics_decl() -> parse_result {}
+// Support for multiple constraints
+auto Parser::generics_decl() -> parse_result {
+  parse_result decl_statement = create_generics_decl();
+  decl_statement->first_token_in_ast = cur_token;
+  auto &body_decl = decl_statement->get<donsus_ast::generics_decl>();
+  parser_except_current(decl_statement, donsus_token_kind::IDENTIFIER);
+  body_decl.name = identifier();
+  parser_next();
+  switch (cur_token.kind) {
+
+  case donsus_token_kind::DOUBLE_COLON: {
+    body_decl.type_of_decl = donsus_ast::generics_type::AD_HOC;
+    if (peek().kind == donsus_token_kind::IMPLIES) {
+      syntax_error(&decl_statement, cur_token, "Constraint left empty");
+      parser_next();
+      break;
+    }
+    parser_next();
+    if (cur_token.kind == donsus_token_kind::LPAR) {
+      while (cur_token.kind != donsus_token_kind::RPAR) {
+        body_decl.constraints.push_back(constraint());
+        parser_except(donsus_token_kind::COMM);
+      }
+      break;
+    }
+
+    body_decl.constraints.push_back(constraint());
+    parser_except_current(decl_statement, donsus_token_kind::IMPLIES);
+    break;
+  }
+  case donsus_token_kind::ARROW:
+    break;
+  default:
+    syntax_error(&decl_statement, cur_token,
+                 lexeme_value(cur_token, file.source) +
+                     "should be followed by -> or ::");
+  }
+  parser_next();
+
+  if (cur_token.kind != donsus_token_kind::ARROW)
+    syntax_error(&decl_statement, cur_token,
+                 lexeme_value(cur_token, file.source) +
+                     "must be followed by ->");
+
+  while (cur_token.kind != donsus_token_kind::NEWLINE) {
+    body_decl.params.push_back(identifier());
+    parser_next();
+    parser_except_current(decl_statement, donsus_token_kind::ARROW);
+  }
+  return decl_statement;
+}
 
 auto Parser::create_array_decl() -> parse_result {
   return tree->create_node<donsus_ast::array_decl>(
@@ -913,12 +964,72 @@ auto Parser::else_statement() -> parse_result {
   body_else.body = statements();
   return else_statement;
 }
-auto Parser::create_case_statement() -> parse_result {
+auto Parser::create_case_expr() -> parse_result {
   return tree->create_node<donsus_ast::case_expr>(
       donsus_ast::donsus_node_type::CASE);
 }
-auto Parser::case_statement() -> parse_result {}
+auto Parser::case_expr() -> parse_result {
+  parse_result statement = create_case_expr();
+  statement->first_token_in_ast = cur_token;
+  auto &body = statement->get<donsus_ast::case_expr>();
+  parser_except_current(statement, donsus_token_kind::CASE_KW);
+  parser_next();
+  switch (cur_token.kind) {
+  case donsus_token_kind::OF_KW:
+    syntax_error(&statement, cur_token,
+                 "Scrutinee must be provided before of keyword");
+    break;
+  default:
+    break;
+  }
+  body.scrutinee = expr();
+  parser_except(donsus_token_kind::OF_KW);
+  parser_next();
+  body.patterns = patterns();
+  return statement;
+}
+auto Parser::pattern() -> parse_result {
+  parse_result pattern_statement = create_pattern();
+  pattern_statement->first_token_in_ast = cur_token;
+  auto &body_pattern = pattern_statement->get<donsus_ast::pattern>();
+  parser_except_current(pattern_statement, donsus_token_kind::PIPE);
+  parser_next();
+  switch (cur_token.kind) {
+  case donsus_token_kind::ARROW:
+    syntax_error(&pattern_statement, cur_token, "Guard must be provided");
+    break;
 
+  default:
+    break;
+  }
+  body_pattern.guard = expr();
+  parser_except(donsus_token_kind::ARROW);
+  parser_next();
+  switch (cur_token.kind) {
+  case donsus_token_kind::PIPE:
+    syntax_error(&pattern_statement, cur_token,
+                 "Expression must be provided for a pattern");
+    break;
+  default:
+    break;
+  }
+  body_pattern.result_expression = expr();
+  return pattern_statement;
+}
+
+auto Parser::create_pattern() -> parse_result {
+  return tree->create_node<donsus_ast::pattern>(
+      donsus_ast::donsus_node_type::PATTERN);
+}
+auto Parser::patterns() -> Tomi::Vector<utility::handle<donsus_ast::node>> {
+  Tomi::Vector<utility::handle<donsus_ast::node>> patterns_a;
+  parser_except_current(*tree->get_current_node(), donsus_token_kind::PIPE);
+  while (peek().kind != donsus_token_kind::SEMICOLON) {
+    patterns_a.push_back(pattern());
+    parser_next();
+  }
+  return patterns_a;
+}
 auto Parser::create_for_loop() -> parse_result {
   return tree->create_node<donsus_ast::for_loop>(
       donsus_ast::donsus_node_type::FOR_LOOP);
@@ -928,24 +1039,45 @@ auto Parser::for_loop() -> parse_result {
   for_statement->first_token_in_ast = cur_token;
   auto &body_for = for_statement->get<donsus_ast::for_loop>();
   parser_except_current(for_statement, donsus_token_kind::FOR_KW);
-  donsus_ast::loop_type loop_type_;
   parser_next();
 
   switch (cur_token.kind) {
   case donsus_token_kind::INT: {
-    loop_type_ = donsus_ast::RANGE_BASED;
-    body_for.type_of_loop = loop_type_;
+    body_for.type_of_loop = donsus_ast::loop_type::RANGE_BASED;
+    ;
     body_for.iterator = range_expression();
     break;
   }
   case donsus_token_kind::IDENTIFIER: {
     if (peek().kind == donsus_token_kind::LBRACE) {
-      loop_type_ = donsus_ast::RANGE_BASED;
-      body_for.type_of_loop = loop_type_;
-      body_for.iterator = identifier();
-      parser_except_current(for_statement, donsus_token_kind::LBRACE);
+      body_for.type_of_loop = donsus_ast::loop_type::RANGE_BASED;
+      body_for.iterator = expr();
+      parser_except(donsus_token_kind::LBRACE);
       break;
+    } else if (peek().kind == donsus_token_kind::COLON) {
+      body_for.type_of_loop = donsus_ast::loop_type::RANGE_BASED;
+      body_for.loop_variable = identifier();
+      parser_except(donsus_token_kind::COLON);
+      parser_next();
+      body_for.iterator = expr();
+      parser_except(donsus_token_kind::LBRACE);
     }
+  }
+  case donsus_token_kind::LPAR: {
+    body_for.type_of_loop = donsus_ast::loop_type::TRADITIONAL;
+
+    parser_except(donsus_token_kind::IDENTIFIER);
+    body_for.init_statement = variable_def();
+    parser_except(donsus_token_kind::SEMICOLON);
+
+    parser_next();
+    body_for.condition = expr();
+    parser_except(donsus_token_kind::SEMICOLON);
+
+    parser_next();
+    body_for.increment_expr = assignments();
+    parser_except(donsus_token_kind::RPAR);
+    parser_except(donsus_token_kind::LBRACE);
   }
   default:
     break;
@@ -960,12 +1092,83 @@ auto Parser::create_while_loop() -> parse_result {
   return tree->create_node<donsus_ast::while_loop>(
       donsus_ast::donsus_node_type::WHILE_LOOP);
 }
-auto Parser::while_loop() -> parse_result {}
+auto Parser::while_loop() -> parse_result {
+  parse_result while_statement = create_while_loop();
+  while_statement->first_token_in_ast = cur_token;
+  auto &body_while = while_statement->get<donsus_ast::while_loop>();
+  parser_except(donsus_token_kind::WHILE_KW);
+  parser_next();
+
+  switch (cur_token.kind) {
+  case donsus_token_kind::LBRACE:
+    syntax_error(&while_statement, cur_token,
+                 "While loop must have a condition!");
+  default:
+    break;
+  }
+  body_while.condition = expr();
+
+  body_while.type_of_loop = (peek().kind == donsus_token_kind::DO_KW)
+                                ? donsus_ast::while_type::DO_BASED
+                                : donsus_ast::while_type::TRADITIONAL;
+
+  if (body_while.type_of_loop == donsus_ast::while_type::DO_BASED) {
+    parser_next();
+  }
+
+  parser_next();
+
+  parser_except_current(while_statement, donsus_token_kind::LBRACE);
+  body_while.body = statements();
+  parser_except_current(while_statement, donsus_token_kind::RBRACE);
+  return while_statement;
+}
+
+auto Parser::create_data_constructor() -> parse_result {
+  return tree->create_node<donsus_ast::data_constructor>(
+      donsus_ast::donsus_node_type::DATA_CONSTRUCTOR);
+}
+// Todo: Finish this
+/*auto Parser::data_constructor() -> parse_result {
+  parse_result constructor = create_data_constructor();
+  constructor->first_token_in_ast = cur_token;
+  auto &body_constructor = constructor->get<donsus_ast::data_constructor>();
+}*/
+
+auto Parser::data_constructor_part() -> parse_result {}
 auto Parser::create_type_constructor() -> parse_result {
   return tree->create_node<donsus_ast::type_constructor>(
       donsus_ast::donsus_node_type::TYPE_CONSTRUCTOR);
 }
-auto Parser::type_constructor() -> parse_result {}
+
+/*auto Parser::type_constructor() -> parse_result {
+  parse_result constructor = create_type_constructor();
+  auto &body_constructor = constructor->get<donsus_ast::type_constructor>();
+  constructor->first_token_in_ast = cur_token;
+  parser_except(donsus_token_kind::TYPE_KW);
+  parser_next();
+  switch (cur_token.kind) {
+  case donsus_token_kind::EQUAL:
+    syntax_error(&constructor, cur_token,
+                 "A type constructor must have a name specified");
+    break;
+  case donsus_token_kind::IDENTIFIER:
+    break;
+  default:
+    syntax_error(&constructor, cur_token, "Type constructor is not valid");
+  }
+  body_constructor.name = identifier();
+  parser_next();
+  // Todo: will result in an infinite loop if Equal is not specified.
+  while (cur_token.kind !=
+         (donsus_token_kind::EQUAL || donsus_token_kind::END)) {
+    body_constructor.arguments(identifier());
+    parser_next();
+  }
+  parser_next();
+  body_constructor.body = expr();
+  return constructor;
+}*/
 
 auto Parser::create_class_decl() -> parse_result {
   return tree->create_node<donsus_ast::class_decl>(
@@ -976,7 +1179,33 @@ auto Parser::create_pointer() -> parse_result {
   return tree->create_node<donsus_ast::pointer>(
       donsus_ast::donsus_node_type::POINTER);
 }
+auto Parser::create_constraint() -> parse_result {
+  return tree->create_node<donsus_ast::constraint>(
+      donsus_ast::donsus_node_type::CONSTRAINT);
+}
+// Todo: Might need to make type variables lowercase
+auto Parser::constraint() -> parse_result {
+  parse_result constraint_statement = create_constraint();
+  constraint_statement->first_token_in_ast = cur_token;
+  auto &body_constraint = constraint_statement->get<donsus_ast::constraint>();
+  parser_except_current(constraint_statement, donsus_token_kind::IDENTIFIER);
 
+  body_constraint.class_constraint = identifier();
+  parser_next();
+  switch (cur_token.kind) {
+  case donsus_token_kind::IMPLIES:
+    syntax_error(&constraint_statement, cur_token,
+                 "Type variable must be specified for constraint");
+    break;
+  default:
+    break;
+  }
+  while (cur_token.kind != donsus_token_kind::COMM &&
+         cur_token.kind != donsus_token_kind::IMPLIES) {
+    body_constraint.type_variables.push_back(identifier());
+  }
+  return constraint_statement;
+}
 auto Parser::pointer(parse_result pointee) -> parse_result {
   parse_result pointer = create_pointer();
   auto &body = pointer->get<donsus_ast::pointer>();

@@ -168,8 +168,14 @@ public:
   auto create_assignments() -> parse_result;
   auto assignments() -> parse_result;
 
-  auto create_case_statement() -> parse_result;
-  auto case_statement() -> parse_result;
+  // case/patterns
+  auto create_case_expr() -> parse_result;
+  auto case_expr() -> parse_result;
+
+  auto create_pattern() -> parse_result;
+  auto pattern() -> parse_result;
+
+  auto patterns() -> Tomi::Vector<utility::handle<donsus_ast::node>>;
 
   auto create_do_statement() -> parse_result;
   auto create_of_statement() -> parse_result;
@@ -203,6 +209,12 @@ public:
   auto create_type_constructor() -> parse_result;
   auto type_constructor() -> parse_result;
 
+  auto create_data_constructor() -> parse_result;
+  auto data_constructor() -> parse_result;
+
+  // data_constructor helper
+  auto data_constructor_part() -> parse_result;
+
   auto create_instance() -> parse_result;
   auto instance() -> parse_result;
 
@@ -222,6 +234,8 @@ public:
   /* (type)
    * a: int = 12; # int here as present in the source
    * */
+  auto create_constraint() -> parse_result;
+  auto constraint() -> parse_result;
 
   auto type() -> parse_result;
   auto tuple() -> parse_result;

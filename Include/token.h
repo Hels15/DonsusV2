@@ -2,7 +2,7 @@
 #define TOKEN_H
 #include <iostream>
 
-#define TOKEN_TYPES                                                     \
+#define TOKEN_TYPES                                                            \
   X(UNKNOWN, "UNKNOWN")                                                        \
   X(IDENTIFIER, "IDENTIFIER")                                                  \
   X(END, "END")                                                                \
@@ -102,7 +102,9 @@
   X(STATIC_KW, "STATIC_KW")                                                    \
   X(COMPTIME_KW, "COMPTIME_KW")                                                \
   X(THREAD_LOCAL_KW, "THREAD_LOCAL_KW")                                        \
-  X(AT, "AT")
+  X(AT, "AT")                                                                  \
+  X(DOUBLE_COLON, "DOUBLE_COLON")                                              \
+  X(IMPLIES, "IMPLIES")
 
 enum class donsus_token_kind {
 #define X(name, str) name,

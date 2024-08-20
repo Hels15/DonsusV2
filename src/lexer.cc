@@ -496,6 +496,18 @@ token donsus_lexer_next(Parser &parser) {
       eat(parser); // Move to the next character
 
       return cur_token;
+    } else if (peek_for_char(parser) == '>') {
+      cur_token.kind = donsus_token_kind::IMPLIES;
+      cur_token.length = 2; // Set length to 2 for ==
+      cur_token.offset = parser.lexer.cur_pos;
+
+      cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
+
+      eat(parser); // Consume the second '=' character
+
+      eat(parser); // Move to the next character
+      return cur_token;
     } else {
       cur_token.kind = donsus_token_kind::EQUAL;
 
@@ -543,6 +555,19 @@ token donsus_lexer_next(Parser &parser) {
   }
 
   case ':': {
+    if (peek_for_char(parser) == ':') {
+      cur_token.kind = donsus_token_kind::DOUBLE_COLON;
+      cur_token.length = 2;
+      cur_token.offset = parser.lexer.cur_pos;
+
+      cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
+
+      eat(parser);
+      eat(parser);
+
+      return cur_token;
+    }
     cur_token.kind = donsus_token_kind::COLON;
 
     cur_token.length = 1;

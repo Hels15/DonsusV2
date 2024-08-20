@@ -472,6 +472,7 @@ struct class_def {
   specifiers_class_ specifiers;
   utility::handle<donsus_ast::node> name;
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
+  Tomi::Vector<utility::handle<donsus_ast::node>> inherits;
 };
 struct pointer {
   utility::handle<donsus_ast::node> pointee;

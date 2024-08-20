@@ -1229,7 +1229,51 @@ auto Parser::create_class_def() -> parse_result {
       donsus_ast::donsus_node_type::CLASS);
 }
 
-auto Parser::class_def() -> parse_result {}
+auto Parser::class_def() -> parse_result {
+  donsus_ast::specifiers_class_ s;
+  parse_result definition = create_class_def();
+  definition->first_token_in_ast = cur_token;
+  auto &body_def = definition->get<donsus_ast::class_def>();
+
+  while (is_class_specifier(cur_token.kind)) {
+    auto value = lexeme_value(cur_token, file.source);
+    if (value == "abstract") {
+      s = set_class_specifiers(definition, s,
+                               donsus_ast::specifiers_class_::abstract);
+    }
+    if (value == "final") {
+      s = set_class_specifiers(definition, s,
+                               donsus_ast::specifiers_class_::final);
+    }
+    parser_next();
+  }
+  parser_except_current(definition, donsus_token_kind::CLASS_KW);
+  parser_next();
+  if (cur_token.kind != donsus_token_kind::IDENTIFIER)
+    syntax_error(&definition, cur_token,
+                 "Class name must be specified after class kw");
+
+  body_def.name = identifier();
+  body_def.specifiers = s;
+  parser_next();
+
+  if (cur_token.kind == donsus_token_kind::COLON &&
+      peek().kind == donsus_token_kind::LBRACE) {
+    syntax_error(&definition, cur_token,
+                 "Must define a class to inherit from!");
+  }
+  if (cur_token.kind == donsus_token_kind::COLON) {
+    parser_next();
+    while (cur_token.kind != donsus_token_kind::LBRACE) {
+      body_def.inherits.push_back(identifier());
+      parser_next();
+    }
+  }
+  parser_except_current(definition, donsus_token_kind::LBRACE);
+  parser_next();
+  body_def.body = statements();
+  return definition;
+}
 
 auto Parser::type() -> parse_result { return identifier(); }
 

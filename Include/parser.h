@@ -194,8 +194,8 @@ public:
   auto create_typeclass() -> parse_result;
   auto typeclass() -> parse_result;
 
-  auto create_class_decl() -> parse_result;
-  auto class_decl() -> parse_result;
+  auto create_class_def() -> parse_result;
+  auto class_def() -> parse_result;
 
   auto create_final() -> parse_result;
   auto create_abstract() -> parse_result;
@@ -259,6 +259,10 @@ public:
   auto return_from_func() -> parse_result;
   auto set_specifiers(parse_result node, donsus_ast::specifiers_ s,
                       donsus_ast::specifiers_ v) -> donsus_ast::specifiers_;
+
+  auto set_class_specifiers(parse_result node, donsus_ast::specifiers_class_ s,
+                            donsus_ast::specifiers_class_ v)
+      -> donsus_ast::specifiers_class_;
 
 private:
   ParserError error;

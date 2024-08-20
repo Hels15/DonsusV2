@@ -17,10 +17,11 @@ bool is_specifier(donsus_token_kind kind) {
   return (kind == donsus_token_kind::COMPTIME_KW ||
           kind == donsus_token_kind::MUT_KW ||
           kind == donsus_token_kind::THREAD_LOCAL_KW ||
-          kind == donsus_token_kind::STATIC_KW);
+          kind == donsus_token_kind::STATIC_KW ||
+          kind == donsus_token_kind::PRIVATE_KW);
 }
 
-bool is_class_decl(donsus_token_kind kind) {
+bool is_class_specifier(donsus_token_kind kind) {
   return (kind == donsus_token_kind::FINAL_KW ||
           kind == donsus_token_kind::ABSTRACT_KW);
 }

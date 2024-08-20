@@ -7,6 +7,7 @@
 #include "../utility/handle.h"
 #include "../utility/property.h"
 
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 
@@ -88,13 +89,134 @@ struct donsus_node_type {
   X(comptime, 1 << 0)                                                          \
   X(static_, 1 << 1)                                                           \
   X(thread_local_, 1 << 2)                                                     \
-  X(mut, 1 << 3)
+  X(mut, 1 << 3)                                                               \
+  X(private_, 1 << 4)
 
-enum specifiers_ {
+enum class specifiers_ {
 #define X(name, value) name = value,
   SPECIFIERS_LIST
 #undef X
 };
+
+// Bitwise AND(specifiers_)
+inline specifiers_ operator&(const specifiers_ &left,
+                             const specifiers_ &right) {
+  using underlying = std::underlying_type_t<specifiers_>;
+  return static_cast<specifiers_>(static_cast<underlying>(left) &
+                                  static_cast<underlying>(right));
+}
+
+// Bitwise OR(specifiers_)
+inline specifiers_ operator|(const specifiers_ &left,
+                             const specifiers_ &right) {
+  using underlying = std::underlying_type_t<specifiers_>;
+  return static_cast<specifiers_>(static_cast<underlying>(left) |
+                                  static_cast<underlying>(right));
+}
+
+// Bitwise XOR(specifiers_)
+inline specifiers_ operator^(const specifiers_ &left,
+                             const specifiers_ &right) {
+  using underlying = std::underlying_type_t<specifiers_>;
+  return static_cast<specifiers_>(static_cast<underlying>(left) ^
+                                  static_cast<underlying>(right));
+}
+
+// Bitwise NOT(specifiers_)
+inline specifiers_ operator~(const specifiers_ &value) {
+  using underlying = std::underlying_type_t<specifiers_>;
+  return static_cast<specifiers_>(~static_cast<underlying>(value));
+}
+
+// Compound assignment AND(specifiers_)
+inline specifiers_ &operator&=(specifiers_ &left, const specifiers_ &right) {
+  left = left & right;
+  return left;
+}
+
+// Compound assignment OR(specifiers_)
+inline specifiers_ &operator|=(specifiers_ &left, const specifiers_ &right) {
+  left = left | right;
+  return left;
+}
+
+// Compound assignment XOR(specifiers_)
+inline specifiers_ &operator^=(specifiers_ &left, const specifiers_ &right) {
+  left = left ^ right;
+  return left;
+}
+
+inline bool to_bool(specifiers_ value) {
+  using underlying = std::underlying_type_t<specifiers_>;
+  return static_cast<underlying>(value) != 0;
+}
+
+#define SPECIFIERS_CLASS_LIST                                                  \
+  X(none, 0)                                                                   \
+  X(abstract, 1 << 0)                                                          \
+  X(final, 1 << 1)
+
+enum class specifiers_class_ {
+#define X(name, value) name = value,
+  SPECIFIERS_CLASS_LIST
+#undef X
+};
+
+// Bitwise AND(specifiers_class_)
+inline specifiers_class_ operator&(const specifiers_class_ &left,
+                                   const specifiers_class_ &right) {
+  using underlying = std::underlying_type_t<specifiers_class_>;
+  return static_cast<specifiers_class_>(static_cast<underlying>(left) &
+                                        static_cast<underlying>(right));
+}
+
+// Bitwise OR(specifiers_class_)
+inline specifiers_class_ operator|(const specifiers_class_ &left,
+                                   const specifiers_class_ &right) {
+  using underlying = std::underlying_type_t<specifiers_class_>;
+  return static_cast<specifiers_class_>(static_cast<underlying>(left) |
+                                        static_cast<underlying>(right));
+}
+
+// Bitwise XOR(specifiers_class_)
+inline specifiers_class_ operator^(const specifiers_class_ &left,
+                                   const specifiers_class_ &right) {
+  using underlying = std::underlying_type_t<specifiers_class_>;
+  return static_cast<specifiers_class_>(static_cast<underlying>(left) ^
+                                        static_cast<underlying>(right));
+}
+
+// Bitwise NOT(specifiers_class_)
+inline specifiers_class_ operator~(const specifiers_class_ &value) {
+  using underlying = std::underlying_type_t<specifiers_class_>;
+  return static_cast<specifiers_class_>(~static_cast<underlying>(value));
+}
+
+// Compound assignment AND(specifiers_class_)
+inline specifiers_class_ &operator&=(specifiers_class_ &left,
+                                     const specifiers_class_ &right) {
+  left = left & right;
+  return left;
+}
+
+// Compound assignment OR(specifiers_class_)
+inline specifiers_class_ &operator|=(specifiers_class_ &left,
+                                     const specifiers_class_ &right) {
+  left = left | right;
+  return left;
+}
+
+// Compound assignment XOR(specifiers_class_)
+inline specifiers_class_ &operator^=(specifiers_class_ &left,
+                                     const specifiers_class_ &right) {
+  left = left ^ right;
+  return left;
+}
+
+inline bool to_bool(specifiers_class_ value) {
+  using underlying = std::underlying_type_t<specifiers_class_>;
+  return static_cast<underlying>(value) != 0;
+}
 
 struct specifiers_utils {
   static const char *type_name(specifiers_ type) {
@@ -103,6 +225,20 @@ struct specifiers_utils {
   case specifiers_::name:                                                      \
     return #name;
       SPECIFIERS_LIST
+#undef X
+    default:
+      return "Unknown";
+    }
+  }
+};
+
+struct specifiers_class_utils {
+  static const char *type_name(specifiers_class_ type) {
+    switch (type) {
+#define X(name, value)                                                         \
+  case specifiers_class_::name:                                                \
+    return #name;
+      SPECIFIERS_CLASS_LIST
 #undef X
     default:
       return "Unknown";
@@ -332,8 +468,10 @@ struct template_decl {
 };
 
 struct bitshift {};
-struct class_decl {
-  Tomi::Vector<token> qualifiers;
+struct class_def {
+  specifiers_class_ specifiers;
+  utility::handle<donsus_ast::node> name;
+  Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };
 struct pointer {
   utility::handle<donsus_ast::node> pointee;

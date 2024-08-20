@@ -148,9 +148,8 @@ auto Parser::parse() -> end_result {
     }
     // end/iteration statement
     // start/classdecl statement
-    else if (is_class_decl(cur_token.kind) &&
-             peek().kind == donsus_token_kind::CLASS_KW) {
-      parse_result result = class_decl();
+    else if (cur_token.kind == donsus_token_kind::CLASS_KW) {
+      parse_result result = class_def();
       tree->add_node(result);
     }
     // end/classdecl statement
@@ -180,16 +179,20 @@ auto Parser::function_decl() -> parse_result {
   while (is_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
     if (value == "comptime") {
-      s = set_specifiers(declaration, s, donsus_ast::comptime);
+      s = set_specifiers(declaration, s, donsus_ast::specifiers_::comptime);
     }
     if (value == "static") {
-      s = set_specifiers(declaration, s, donsus_ast::static_);
+      s = set_specifiers(declaration, s, donsus_ast::specifiers_::static_);
     }
     if (value == "thread_local") {
-      s = set_specifiers(declaration, s, donsus_ast::thread_local_);
+      s = set_specifiers(declaration, s,
+                         donsus_ast::specifiers_::thread_local_);
     }
     if (value == "mut") {
-      s = set_specifiers(declaration, s, donsus_ast::mut);
+      s = set_specifiers(declaration, s, donsus_ast::specifiers_::mut);
+    }
+    if (value == "private") {
+      s = set_specifiers(declaration, s, donsus_ast::specifiers_::private_);
     }
     parser_next();
   }
@@ -258,16 +261,16 @@ auto Parser::variable_def() -> parse_result {
   while (is_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
     if (value == "comptime") {
-      s = set_specifiers(definition, s, donsus_ast::comptime);
+      s = set_specifiers(definition, s, donsus_ast::specifiers_::comptime);
     }
     if (value == "static") {
-      s = set_specifiers(definition, s, donsus_ast::static_);
+      s = set_specifiers(definition, s, donsus_ast::specifiers_::static_);
     }
     if (value == "thread_local") {
-      s = set_specifiers(definition, s, donsus_ast::thread_local_);
+      s = set_specifiers(definition, s, donsus_ast::specifiers_::thread_local_);
     }
     if (value == "mut") {
-      s = set_specifiers(definition, s, donsus_ast::mut);
+      s = set_specifiers(definition, s, donsus_ast::specifiers_::mut);
     }
     parser_next();
   }
@@ -435,16 +438,16 @@ auto Parser::variable_multi_def() -> Tomi::Vector<parse_result> {
   while (is_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
     if (value == "comptime") {
-      s = set_specifiers(nullptr, s, donsus_ast::comptime);
+      s = set_specifiers(nullptr, s, donsus_ast::specifiers_::comptime);
     }
     if (value == "static") {
-      s = set_specifiers(nullptr, s, donsus_ast::static_);
+      s = set_specifiers(nullptr, s, donsus_ast::specifiers_::static_);
     }
     if (value == "thread_local") {
-      s = set_specifiers(nullptr, s, donsus_ast::thread_local_);
+      s = set_specifiers(nullptr, s, donsus_ast::specifiers_::thread_local_);
     }
     if (value == "mut") {
-      s = set_specifiers(nullptr, s, donsus_ast::mut);
+      s = set_specifiers(nullptr, s, donsus_ast::specifiers_::mut);
     }
     parser_next();
   }
@@ -560,16 +563,19 @@ auto Parser::function_def() -> parse_result {
   while (is_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
     if (value == "comptime") {
-      s = set_specifiers(definition, s, donsus_ast::comptime);
+      s = set_specifiers(definition, s, donsus_ast::specifiers_::comptime);
     }
     if (value == "static") {
-      s = set_specifiers(definition, s, donsus_ast::static_);
+      s = set_specifiers(definition, s, donsus_ast::specifiers_::static_);
     }
     if (value == "thread_local") {
-      s = set_specifiers(definition, s, donsus_ast::thread_local_);
+      s = set_specifiers(definition, s, donsus_ast::specifiers_::thread_local_);
     }
     if (value == "mut") {
-      s = set_specifiers(definition, s, donsus_ast::mut);
+      s = set_specifiers(definition, s, donsus_ast::specifiers_::mut);
+    }
+    if (value == "private") {
+      s = set_specifiers(definition, s, donsus_ast::specifiers_::private_);
     }
     parser_next();
   }
@@ -679,9 +685,8 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
     }
     // end/iteration statement
     // start/classdecl statement
-    else if (is_class_decl(cur_token.kind) &&
-             peek().kind == donsus_token_kind::CLASS_KW) {
-      parse_result result = class_decl();
+    else if (cur_token.kind == donsus_token_kind::CLASS_KW) {
+      parse_result result = class_def();
       body.push_back(result);
     }
     parser_next();
@@ -1170,11 +1175,6 @@ auto Parser::create_type_constructor() -> parse_result {
   return constructor;
 }*/
 
-auto Parser::create_class_decl() -> parse_result {
-  return tree->create_node<donsus_ast::class_decl>(
-      donsus_ast::donsus_node_type::CLASS);
-}
-
 auto Parser::create_pointer() -> parse_result {
   return tree->create_node<donsus_ast::pointer>(
       donsus_ast::donsus_node_type::POINTER);
@@ -1224,7 +1224,12 @@ auto Parser::reference(parse_result referent) -> parse_result {
   body.referent = referent;
   return reference;
 }
-auto Parser::class_decl() -> parse_result {}
+auto Parser::create_class_def() -> parse_result {
+  return tree->create_node<donsus_ast::class_def>(
+      donsus_ast::donsus_node_type::CLASS);
+}
+
+auto Parser::class_def() -> parse_result {}
 
 auto Parser::type() -> parse_result { return identifier(); }
 
@@ -1272,12 +1277,24 @@ auto Parser::arg_list() -> Tomi::Vector<parse_result> {
 auto Parser::set_specifiers(parse_result node, donsus_ast::specifiers_ s,
                             donsus_ast::specifiers_ v)
     -> donsus_ast::specifiers_ {
-  if (s & v) {
+  if (donsus_ast::to_bool(s & v)) {
     syntax_error(&node, cur_token,
                  std::string(donsus_ast::specifiers_utils::type_name(v)) +
                      "is already present!");
   }
   return static_cast<donsus_ast::specifiers_>(s | v);
+}
+
+auto Parser::set_class_specifiers(parse_result node,
+                                  donsus_ast::specifiers_class_ s,
+                                  donsus_ast::specifiers_class_ v)
+    -> donsus_ast::specifiers_class_ {
+  if (donsus_ast::to_bool(s & v)) {
+    syntax_error(&node, cur_token,
+                 std::string(donsus_ast::specifiers_class_utils::type_name(v)) +
+                     "is already present!");
+  }
+  return static_cast<donsus_ast::specifiers_class_>(s | v);
 }
 
 void Parser::parser_except_current(parse_result node, donsus_token_kind type) {

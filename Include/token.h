@@ -122,6 +122,7 @@ struct token {
   unsigned int line{};
   unsigned int column{};
 
+  // Todo: might remove it in the future
   // zero by default
   unsigned int precedence{};
 

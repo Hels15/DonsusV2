@@ -37,6 +37,13 @@ int Du_Main(int argc, const char **argv) {
   file.id = 0;
   file.source = result;
 
+  Parser parser = Du_Parse(result, file);
+  Parser::end_result parser_result = parser.parse();
+  if (file.error_count) {
+    std::cout << rang::fg::reset;
+    return 1;
+  }
+
 #if DEBUG
   std::cout << "\n";
 

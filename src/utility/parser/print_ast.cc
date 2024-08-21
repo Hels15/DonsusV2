@@ -2,7 +2,7 @@
 #include <iostream>
 
 std::string lexeme_value(token token_, std::string &source) {
-  return "to be determined";
+  return source.substr(token_.offset + token_.length);
 }
 
 inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
@@ -123,10 +123,11 @@ inline void print_type(donsus_ast::donsus_node_type type, int indent_level) {
 inline void print_function_decl(donsus_ast::function_decl &f_decl,
                                 int indent_level, std::string &source) {
   print_with_newline("return_types: ", indent_level);
-  // Todo: Fix this
-  /*    print_with_newline("return_type: " +
-                             std::string(token::type_name(f_decl.return_type.type)),
-                         indent_level + 1);*/
+  print_with_newline(
+      "return_type" +
+          std::string(f_decl.return_type->get<donsus_ast::identifier>()
+                          .identifier_name),
+      indent_level + 1);
 
   print_with_newline("parameters: ", indent_level);
   for (auto p : f_decl.parameters) {
@@ -223,10 +224,10 @@ inline void print_array_def(donsus_ast::array_def &def, int indent_level,
 }
 
 inline void print_var_def(donsus_ast::variable_def &def, int indent_level) {
-  // Todo: fix this
-  /*print_with_newline("identifier_type: " +
-                         std::string(token::type_name(def.identifier_type)),
-                     indent_level);*/
+  print_with_newline(
+      "identifier_type: " +
+          def.identifier_type->get<donsus_ast::identifier>().identifier_name,
+      indent_level);
   print_with_newline("identifier_name: " + def.identifier_name, indent_level);
 }
 

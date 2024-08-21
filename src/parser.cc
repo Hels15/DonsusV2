@@ -19,18 +19,13 @@ token Parser::parser_next() {
   cur_token = donsus_lexer_next(*this);
   return cur_token;
 }
-// Todo: maybe print value here
-// Move it out from here
-static std::ostream &operator<<(std::ostream &o, token &token) {
-  o << "Kind: " << token.type_name() << "\n";
-  o << "Length: " << token.length << "\n";
-  o << "Line: " << token.line << "\n";
-  return o;
-}
 
 void Parser::print_token() {
   while (cur_token.kind != donsus_token_kind::END) {
-    std::cout << cur_token << "\n";
+    std::cout << "Kind: " << cur_token.type_name() << "\n";
+    std::cout << "Length: " << cur_token.length << "\n";
+    std::cout << "Line: " << cur_token.line << "\n";
+    std::cout << "--------------------------------- \n";
     parser_next();
   }
 }
@@ -313,10 +308,12 @@ auto Parser::variable_def() -> parse_result {
   switch (cur_token.kind) {
   case donsus_token_kind::STAR:
     body.identifier_type = pointer(concrete_type);
+    parser_next();
     break;
 
   case donsus_token_kind::AMPERSAND:
     body.identifier_type = reference(concrete_type);
+    parser_next();
     break;
 
   default:
@@ -324,7 +321,8 @@ auto Parser::variable_def() -> parse_result {
     break;
   }
 
-  parser_except(donsus_token_kind::EQUAL);
+  parser_except_current(definition, donsus_token_kind::EQUAL);
+  parser_next();
   parse_result expression = expr();
   definition->children.push_back(expression);
   return definition;
@@ -1507,8 +1505,8 @@ void Parser::parser_except(donsus_token_kind type) {
   token a = parser_next();
   if (a.kind != type) {
     syntax_error(nullptr, cur_token,
-                 "Expected token:" + std::string(token::type_name(type)) +
-                     "got instead: " +
+                 "Expected token: " + std::string(token::type_name(type)) +
+                     " got instead: " +
                      std::string(token::type_name(cur_token.kind)) + "\n");
   }
 }
@@ -1592,7 +1590,7 @@ void ParserError::error_out_coloured(const std::string &message,
 void ParserError::print_meta_syntax(token err_on_token,
                                     const std::string &message,
                                     const std::string &full_path) {
-  std::string message_c = "(" + std::to_string(err_on_token.line) + "?" +
+  std::string message_c = "(" + std::to_string(err_on_token.line) + ":" +
                           std::to_string(err_on_token.column) + ") ";
   if (Tomi::has_ansi_colours()) {
     error_out_coloured(full_path, rang::fg::reset);
@@ -1602,7 +1600,7 @@ void ParserError::print_meta_syntax(token err_on_token,
     std::cout << "\n";
   } else {
     std::cout << full_path;
-    std::cout << "SYNTAX ERROR: ";
+    std::cout << " SYNTAX ERROR: ";
     std::cout << message_c;
     std::cout << message;
     std::cout << "\n";

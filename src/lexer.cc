@@ -6,9 +6,7 @@
 
 #include "../Include/Donsus/tomi.h"
 #include "../Include/parser.h"
-#include "../Include/token.h"
 
-#include <iostream>
 std::map<std::string, donsus_token_kind> KEYWORDS{
     {"def", donsus_token_kind::FUNCTION_DEFINITION_KW},
     {"if", donsus_token_kind::IF_KW},
@@ -106,8 +104,8 @@ static std::string get_rid_of_esc_seq(std::string &formal) {
   }
   return formal;
 }
-
-static std::string next_number(Parser &parser, token token_,
+// Todo: these functions shouldn't return string
+static std::string next_number(Parser &parser, token &token_,
                                unsigned int start_pos) {
 
   // TBD: we are checking isdigit 2 times here. We can't eat.
@@ -1046,7 +1044,7 @@ token donsus_lexer_next(Parser &parser) {
 
       cur_token.length = 0; // will be changed during next_number
       cur_token.offset = parser.lexer.cur_pos;
-
+      std::string value = next_number(parser, cur_token, parser.lexer.cur_pos);
       cur_token.line = parser.lexer.cur_line;
       cur_token.column = parser.lexer.cur_column;
 

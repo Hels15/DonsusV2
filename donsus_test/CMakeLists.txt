@@ -16,6 +16,8 @@ add_executable(donsus_test
         # typecheck
         #symbol table
         #codegen_test
+        #parser
+        parser/test_var.cc
 )
 
 include(GoogleTest)

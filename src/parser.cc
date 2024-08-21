@@ -282,24 +282,24 @@ auto Parser::variable_def() -> parse_result {
   parser_next();
   switch (cur_token.kind) {
   case donsus_token_kind::UNKNOWN:
-    syntax_error(&definition, cur_token,
+    syntax_error(definition, cur_token,
                  lexeme_value(cur_token, file.source) + "is not a valid type!");
     break;
 
   case donsus_token_kind::EQUAL:
-    syntax_error(&definition, cur_token,
+    syntax_error(definition, cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified before equal sign");
     break;
 
   case donsus_token_kind::STAR:
-    syntax_error(&definition, cur_token,
+    syntax_error(definition, cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified for pointer ");
     break;
 
   case donsus_token_kind::AMPERSAND:
-    syntax_error(&definition, cur_token,
+    syntax_error(definition, cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified for reference");
     break;
@@ -344,24 +344,24 @@ auto Parser::arg_decl() -> parse_result {
 
   switch (cur_token.kind) {
   case donsus_token_kind::UNKNOWN:
-    syntax_error(&declaration, cur_token,
+    syntax_error(declaration, cur_token,
                  lexeme_value(cur_token, file.source) + "is not a valid type!");
     break;
 
   case donsus_token_kind::EQUAL:
-    syntax_error(&declaration, cur_token,
+    syntax_error(declaration, cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified before equal sign");
     break;
 
   case donsus_token_kind::STAR:
-    syntax_error(&declaration, cur_token,
+    syntax_error(declaration, cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified for pointer ");
     break;
 
   case donsus_token_kind::AMPERSAND:
-    syntax_error(&declaration, cur_token,
+    syntax_error(declaration, cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified for reference");
     break;
@@ -593,7 +593,7 @@ auto Parser::assignments() -> parse_result {
   assignment->first_token_in_ast = cur_token;
 
   if (is_specifier(cur_token.kind))
-    syntax_error(&assignment, cur_token,
+    syntax_error(assignment, cur_token,
                  "Specifier:" + std::string(cur_token.type_name()) +
                      "can't be used on assignments");
 
@@ -613,7 +613,7 @@ auto Parser::assignments() -> parse_result {
   case donsus_token_kind::AMPERSAND_EQUAL:
     break;
   default:
-    syntax_error(&assignment, cur_token,
+    syntax_error(assignment, cur_token,
                  std::string(cur_token.type_name()) +
                      " is not a valid assignment");
   }
@@ -657,7 +657,7 @@ auto Parser::variable_multi_def() -> Tomi::Vector<parse_result> {
     body.specifiers = s;
     a.push_back(var);
     if (is_specifier(cur_token.kind))
-      syntax_error(&var, cur_token,
+      syntax_error(var, cur_token,
                    "Multiple variable definition only accepts specifiers"
                    "before the first identifier");
     parser_next();
@@ -666,24 +666,24 @@ auto Parser::variable_multi_def() -> Tomi::Vector<parse_result> {
   parser_next();
   switch (cur_token.kind) {
   case donsus_token_kind::UNKNOWN:
-    syntax_error(&a[0], cur_token,
+    syntax_error(a[0], cur_token,
                  lexeme_value(cur_token, file.source) + "is not a valid type!");
     break;
 
   case donsus_token_kind::EQUAL:
-    syntax_error(&a[0], cur_token,
+    syntax_error(a[0], cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified before equal sign");
     break;
 
   case donsus_token_kind::STAR:
-    syntax_error(&a[0], cur_token,
+    syntax_error(a[0], cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified for pointer ");
     break;
 
   case donsus_token_kind::AMPERSAND:
-    syntax_error(&a[0], cur_token,
+    syntax_error(a[0], cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified for reference");
     break;
@@ -998,7 +998,7 @@ auto Parser::generics_decl() -> parse_result {
   case donsus_token_kind::DOUBLE_COLON: {
     body_decl.type_of_decl = donsus_ast::generics_type::AD_HOC;
     if (peek().kind == donsus_token_kind::IMPLIES) {
-      syntax_error(&decl_statement, cur_token, "Constraint left empty");
+      syntax_error(decl_statement, cur_token, "Constraint left empty");
       parser_next();
       break;
     }
@@ -1018,14 +1018,14 @@ auto Parser::generics_decl() -> parse_result {
   case donsus_token_kind::ARROW:
     break;
   default:
-    syntax_error(&decl_statement, cur_token,
+    syntax_error(decl_statement, cur_token,
                  lexeme_value(cur_token, file.source) +
                      "should be followed by -> or ::");
   }
   parser_next();
 
   if (cur_token.kind != donsus_token_kind::ARROW)
-    syntax_error(&decl_statement, cur_token,
+    syntax_error(decl_statement, cur_token,
                  lexeme_value(cur_token, file.source) +
                      "must be followed by ->");
 
@@ -1056,7 +1056,7 @@ auto Parser::if_statement() -> parse_result {
   case donsus_token_kind::LPAR:
     break;
   default:
-    syntax_error(&statement, cur_token, "if statement must have condition");
+    syntax_error(statement, cur_token, "if statement must have condition");
   }
   if (peek().kind == donsus_token_kind::IDENTIFIER &&
       peek(2).kind == donsus_token_kind::COLON) {
@@ -1072,7 +1072,7 @@ auto Parser::if_statement() -> parse_result {
   case donsus_token_kind::LBRACE:
     break;
   default:
-    syntax_error(&statement, cur_token,
+    syntax_error(statement, cur_token,
                  "Block must be specified for if statement");
   }
   body_if.body = statements();
@@ -1090,7 +1090,7 @@ auto Parser::if_statement() -> parse_result {
 }
 auto Parser::if_var_decls() -> Tomi::Vector<parse_result> {
   Tomi::Vector<parse_result> a;
-  parser_except_current(*tree->get_current_node(),
+  parser_except_current(tree->get_current_node(),
                         donsus_token_kind::IDENTIFIER);
   while (cur_token.kind != donsus_token_kind::SEMICOLON) {
     a.push_back(variable_def());
@@ -1117,7 +1117,7 @@ auto Parser::else_if_statement() -> parse_result {
   case donsus_token_kind::LPAR:
     break;
   default:
-    syntax_error(&else_if_statement, cur_token,
+    syntax_error(else_if_statement, cur_token,
                  "else if statement must have condition");
   }
   if (peek().kind == donsus_token_kind::IDENTIFIER &&
@@ -1134,7 +1134,7 @@ auto Parser::else_if_statement() -> parse_result {
   case donsus_token_kind::LBRACE:
     break;
   default:
-    syntax_error(&else_if_statement, cur_token,
+    syntax_error(else_if_statement, cur_token,
                  "Block must be specified for if statement");
   }
   body_else_if.body = statements();
@@ -1157,7 +1157,7 @@ auto Parser::else_statement() -> parse_result {
   case donsus_token_kind::LBRACE:
     break;
   default:
-    syntax_error(&else_statement, cur_token,
+    syntax_error(else_statement, cur_token,
                  "Block must be specified for if statement");
   }
   body_else.body = statements();
@@ -1175,7 +1175,7 @@ auto Parser::case_expr() -> parse_result {
   parser_next();
   switch (cur_token.kind) {
   case donsus_token_kind::OF_KW:
-    syntax_error(&statement, cur_token,
+    syntax_error(statement, cur_token,
                  "Scrutinee must be provided before of keyword");
     break;
   default:
@@ -1195,7 +1195,7 @@ auto Parser::pattern() -> parse_result {
   parser_next();
   switch (cur_token.kind) {
   case donsus_token_kind::ARROW:
-    syntax_error(&pattern_statement, cur_token, "Guard must be provided");
+    syntax_error(pattern_statement, cur_token, "Guard must be provided");
     break;
 
   default:
@@ -1206,7 +1206,7 @@ auto Parser::pattern() -> parse_result {
   parser_next();
   switch (cur_token.kind) {
   case donsus_token_kind::PIPE:
-    syntax_error(&pattern_statement, cur_token,
+    syntax_error(pattern_statement, cur_token,
                  "Expression must be provided for a pattern");
     break;
   default:
@@ -1222,7 +1222,7 @@ auto Parser::create_pattern() -> parse_result {
 }
 auto Parser::patterns() -> Tomi::Vector<utility::handle<donsus_ast::node>> {
   Tomi::Vector<utility::handle<donsus_ast::node>> patterns_a;
-  parser_except_current(*tree->get_current_node(), donsus_token_kind::PIPE);
+  parser_except_current(tree->get_current_node(), donsus_token_kind::PIPE);
   while (peek().kind != donsus_token_kind::SEMICOLON) {
     patterns_a.push_back(pattern());
     parser_next();
@@ -1300,7 +1300,7 @@ auto Parser::while_loop() -> parse_result {
 
   switch (cur_token.kind) {
   case donsus_token_kind::LBRACE:
-    syntax_error(&while_statement, cur_token,
+    syntax_error(while_statement, cur_token,
                  "While loop must have a condition!");
   default:
     break;
@@ -1383,7 +1383,7 @@ auto Parser::indices() -> parse_result {
   parser_next();
 
   if (cur_token.kind == donsus_token_kind::RSQB) {
-    syntax_error(&indices_expr, cur_token, "Index must be specified after [");
+    syntax_error(indices_expr, cur_token, "Index must be specified after [");
   }
   parser_next();
   body.index = expr();
@@ -1409,7 +1409,7 @@ auto Parser::constraint() -> parse_result {
   parser_next();
   switch (cur_token.kind) {
   case donsus_token_kind::IMPLIES:
-    syntax_error(&constraint_statement, cur_token,
+    syntax_error(constraint_statement, cur_token,
                  "Type variable must be specified for constraint");
     break;
   default:
@@ -1465,7 +1465,7 @@ auto Parser::class_def() -> parse_result {
   parser_except_current(definition, donsus_token_kind::CLASS_KW);
   parser_next();
   if (cur_token.kind != donsus_token_kind::IDENTIFIER)
-    syntax_error(&definition, cur_token,
+    syntax_error(definition, cur_token,
                  "Class name must be specified after class kw");
 
   body_def.name = identifier();
@@ -1474,8 +1474,7 @@ auto Parser::class_def() -> parse_result {
 
   if (cur_token.kind == donsus_token_kind::COLON &&
       peek().kind == donsus_token_kind::LBRACE) {
-    syntax_error(&definition, cur_token,
-                 "Must define a class to inherit from!");
+    syntax_error(definition, cur_token, "Must define a class to inherit from!");
   }
   if (cur_token.kind == donsus_token_kind::COLON) {
     parser_next();
@@ -1537,7 +1536,7 @@ auto Parser::set_specifiers(parse_result node, donsus_ast::specifiers_ s,
                             donsus_ast::specifiers_ v)
     -> donsus_ast::specifiers_ {
   if (donsus_ast::to_bool(s & v)) {
-    syntax_error(&node, cur_token,
+    syntax_error(node, cur_token,
                  std::string(donsus_ast::specifiers_utils::type_name(v)) +
                      "is already present!");
   }
@@ -1549,7 +1548,7 @@ auto Parser::set_class_specifiers(parse_result node,
                                   donsus_ast::specifiers_class_ v)
     -> donsus_ast::specifiers_class_ {
   if (donsus_ast::to_bool(s & v)) {
-    syntax_error(&node, cur_token,
+    syntax_error(node, cur_token,
                  std::string(donsus_ast::specifiers_class_utils::type_name(v)) +
                      "is already present!");
   }
@@ -1558,7 +1557,7 @@ auto Parser::set_class_specifiers(parse_result node,
 
 void Parser::parser_except_current(parse_result node, donsus_token_kind type) {
   if (cur_token.kind != type) {
-    syntax_error(&node, cur_token,
+    syntax_error(node, cur_token,
                  "Expected token:" + std::string(token::type_name(type)) +
                      "Got instead: " +
                      std::string(token::type_name(cur_token.kind)) + "\n");
@@ -1569,7 +1568,7 @@ void Parser::parser_except_current(parse_result node, donsus_token_kind type) {
 /*
  * If nullptr is passed in, show_error_on_line doesn't apply
  * */
-void Parser::syntax_error(Parser::parse_result *optional_node,
+void Parser::syntax_error(Parser::parse_result optional_node,
                           token err_on_token, const std::string &message) {
   error.print_meta_syntax(err_on_token, message, file.absolute_path);
   if (!optional_node) {
@@ -1577,7 +1576,8 @@ void Parser::syntax_error(Parser::parse_result *optional_node,
     error.error_out_coloured("", rang::fg::reset);
     return;
   }
-
+  error.show_error_on_line(optional_node->first_token_in_ast, cur_token,
+                           file.source);
   // reset
   error.error_out_coloured("", rang::fg::reset);
   file.error_count += 1;
@@ -1607,4 +1607,27 @@ void ParserError::print_meta_syntax(token err_on_token,
     std::cout << message;
     std::cout << "\n";
   }
+}
+
+void ParserError::show_error_on_line(token first_token, token cur_token,
+                                     std::string &source) {
+  std::string ast_in_source =
+      source.substr(first_token.offset, cur_token.offset + cur_token.length);
+
+  std::string token_in_source =
+      source.substr(cur_token.offset, cur_token.offset + cur_token.length);
+  error_out_coloured(ast_in_source, rang::fg::reset);
+  error_out_coloured(token_in_source, rang::fg::reset);
+
+  for (int i = 0; i < cur_token.column - cur_token.length; i++) {
+    std::cout << " ";
+  }
+  error_out_coloured("\n", rang::fg::reset);
+  error_out_coloured("^", rang::fg::green);
+
+  for (int i = 0; i < cur_token.length; i++) {
+    error_out_coloured("~", rang::fg::green);
+  }
+  error_out_coloured("^", rang::fg::green);
+  error_out_coloured("\n", rang::fg::reset);
 }

@@ -14,6 +14,6 @@ auto donsus_ast::tree::get_allocator() -> utility::DonsusAllocator {
 }
 void donsus_ast::tree::allocate_node_list(std::uint64_t count) {}
 
-utility::handle<donsus_ast::node> *donsus_ast::tree::get_current_node() {
-  return &nodes[n];
+utility::handle<donsus_ast::node> donsus_ast::tree::get_current_node() {
+  return nodes[n];
 }

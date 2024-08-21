@@ -24,6 +24,8 @@ public:
   void print_meta_syntax(token err_on_token, const std::string &message,
                          const std::string &full_path);
   void error_out_coloured(const std::string &message, rang::fg colour);
+  void show_error_on_line(token first_token, token cur_token,
+                          std::string &source);
 };
 
 struct AstFile {
@@ -270,7 +272,7 @@ public:
   auto reference(parse_result referent) -> parse_result;
 
   // errors
-  void syntax_error(Parser::parse_result *node, token err_on_token,
+  void syntax_error(Parser::parse_result node, token err_on_token,
                     const std::string &message);
 
   void parser_except(donsus_token_kind type);

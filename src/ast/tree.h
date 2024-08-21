@@ -10,7 +10,7 @@ class tree {
 public:
   tree();
   void add_node(utility::handle<node>);
-  utility::handle<donsus_ast::node> *get_current_node();
+  utility::handle<donsus_ast::node> get_current_node();
   auto get_nodes() -> Tomi::Vector<utility::handle<node>>;
   auto get_allocator() -> utility::DonsusAllocator;
   void allocate_node_list(std::uint64_t count);

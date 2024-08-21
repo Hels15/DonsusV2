@@ -285,9 +285,11 @@ struct while_loop {
   utility::handle<donsus_ast::node> condition;
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };
+
 struct integer_expr {
   token value;
 };
+
 struct float_expr {
   token value;
 };

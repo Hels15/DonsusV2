@@ -388,28 +388,201 @@ auto Parser::arg_decl() -> parse_result {
 
   return declaration;
 }
-// Todo: expr here
-auto Parser::expr() -> parse_result {
-  return bool_or_expr();
-}
-auto Parser::bool_or_expr() -> parse_result {
-}
-auto Parser::bool_and_expr() -> parse_result {}
-auto Parser::compare_expr() -> parse_result {}
-auto Parser::arithmetic_expr() -> parse_result {}
-auto Parser::bitwise_expr() -> parse_result {}
-auto Parser::addition_expr() -> parse_result {}
-auto Parser::multiply_expr() -> parse_result {}
-auto Parser::bitshift_expr() -> parse_result {}
-auto Parser::as_expr() -> parse_result {}
-auto Parser::prefix_expr() -> parse_result {}
-auto Parser::postfix_expr() -> parse_result {}
-auto Parser::expr_val() -> parse_result {}
 
+auto Parser::expr() -> parse_result { return bool_or_expr(); }
+auto Parser::bool_or_expr() -> parse_result {
+  parse_result node = bool_and_expr();
+
+  while (cur_token.kind == donsus_token_kind::DOUBLE_PIPE) {
+    token op = cur_token;
+    parser_next();
+    parse_result right = bool_and_expr();
+
+    parse_result new_node = create_expr_w_value(op);
+    new_node->children.push_back(node);
+    new_node->children.push_back(right);
+    node = new_node;
+  }
+  return node;
+}
+auto Parser::bool_and_expr() -> parse_result {
+  parse_result node = compare_expr();
+  while (cur_token.kind == donsus_token_kind::DOUBLE_AMPERSAND) {
+    token op = cur_token;
+    parser_next();
+    parse_result right = compare_expr();
+
+    parse_result new_node = create_expr_w_value(op);
+    new_node->children.push_back(node);
+    new_node->children.push_back(right);
+    node = new_node;
+  }
+
+  return node;
+}
+auto Parser::compare_expr() -> parse_result {
+  parse_result node = arithmetic_expr();
+  while (is_compare_op(cur_token.kind)) {
+    token op = cur_token;
+    parser_next();
+    parse_result right = arithmetic_expr();
+    parse_result new_node = create_expr_w_value(op);
+    new_node->children.push_back(node);
+    new_node->children.push_back(right);
+
+    node = new_node;
+  }
+  return node;
+}
+auto Parser::arithmetic_expr() -> parse_result {
+  parse_result node = bitwise_expr();
+  while (is_addition_op(cur_token.kind)) {
+    token op = cur_token;
+    parser_next();
+
+    parse_result right = bitwise_expr();
+    parse_result new_node = create_expr_w_value(op);
+    new_node->children.push_back(node);
+    new_node->children.push_back(right);
+
+    node = new_node;
+  }
+  return node;
+}
+auto Parser::bitwise_expr() -> parse_result {
+  parse_result node = addition_expr();
+  while (is_multi_op(cur_token.kind)) {
+    token op = cur_token;
+    parser_next();
+    parse_result right = addition_expr();
+
+    parse_result new_node = create_expr_w_value(op);
+    new_node->children.push_back(node);
+    new_node->children.push_back(right);
+
+    node = new_node;
+  }
+  return node;
+}
+auto Parser::addition_expr() -> parse_result {
+  parse_result node = multiply_expr();
+  while (is_bitwise_op(cur_token.kind)) {
+    token op = cur_token;
+    parser_next();
+    parse_result right = addition_expr();
+
+    parse_result new_node = create_expr_w_value(op);
+    new_node->children.push_back(node);
+    new_node->children.push_back(right);
+
+    node = new_node;
+  }
+  return node;
+}
+auto Parser::multiply_expr() -> parse_result {
+  parse_result node = bitshift_expr();
+  while (is_bitshift_op(cur_token.kind)) {
+    token op = cur_token;
+    parser_next();
+    parse_result right = bitshift_expr();
+
+    parse_result new_node = create_expr_w_value(op);
+    new_node->children.push_back(node);
+    new_node->children.push_back(right);
+
+    node = new_node;
+  }
+  return node;
+}
+auto Parser::bitshift_expr() -> parse_result {
+  parse_result node = as_expr();
+  while (is_as_op(cur_token.kind)) {
+    token op = cur_token;
+    parser_next();
+
+    parse_result right = as_expr();
+
+    parse_result new_node = create_expr_w_value(op);
+    new_node->children.push_back(node);
+    new_node->children.push_back(right);
+
+    node = new_node;
+  }
+  return node;
+}
+
+auto Parser::as_expr() -> parse_result {
+  parse_result node = prefix_expr();
+  while (is_prefix_op(cur_token.kind)) {
+    token op = cur_token;
+    parser_next();
+
+    parse_result right = prefix_expr();
+
+    parse_result new_node = create_expr_w_value(op);
+    new_node->children.push_back(node);
+    new_node->children.push_back(right);
+
+    node = new_node;
+  }
+  return node;
+}
+auto Parser::prefix_expr() -> parse_result {
+  parse_result node = expr_val();
+  while (is_member_access_op(cur_token.kind)) {
+
+    token op = cur_token;
+    parser_next();
+
+    parse_result right = expr_val();
+
+    parse_result new_node = create_expr_w_value(op);
+    new_node->children.push_back(node);
+    new_node->children.push_back(right);
+
+    node = new_node;
+  }
+  return node;
+}
+
+/*auto Parser::postfix_expr() -> parse_result {
+  parse_result node = expr_val();
+  while (is)
+  return node;
+}*/
+auto Parser::expr_val() -> parse_result {
+  if (cur_token.kind == donsus_token_kind::LPAR) {
+    parser_next();
+    parse_result node = expr();
+    parser_next();
+    if (cur_token.kind != donsus_token_kind::RPAR) {
+      syntax_error(tree->get_current_node(), cur_token,
+                   "Expected ')' after expression");
+    }
+    return node;
+  }
+  if (cur_token.kind == donsus_token_kind::IDENTIFIER ||
+      cur_token.kind == donsus_token_kind::INT ||
+      cur_token.kind == donsus_token_kind::FLOAT ||
+      cur_token.kind == donsus_token_kind::STRING ||
+      cur_token.kind == donsus_token_kind::UNDEFINED) {
+    return create_expr_w_value(cur_token);
+  }
+  syntax_error(tree->get_current_node(), cur_token, "Wrong token!");
+  parse_result empty;
+  return empty;
+}
 
 auto Parser::create_expr() -> parse_result {
   return tree->create_node<donsus_ast::expression>(
       donsus_ast::donsus_node_type::EXPRESSION);
+}
+auto Parser::create_expr_w_value(token value_) -> parse_result {
+  parse_result expr = create_expr();
+  auto &body = expr->get<donsus_ast::expression>();
+  expr->first_token_in_ast = cur_token;
+  body.value = value_;
+  return expr;
 }
 auto Parser::create_assignments() -> parse_result {
   return tree->create_node<donsus_ast::assignment>(

@@ -13,6 +13,12 @@ bool is_assignment(donsus_token_kind kind) {
           kind == donsus_token_kind::RARROW2_EQUAL);
 }
 
+bool is_compare_op(donsus_token_kind kind) {
+  return (kind == donsus_token_kind::LESS ||
+          kind == donsus_token_kind::GREATER ||
+          kind == donsus_token_kind::LESS_EQUAL ||
+          kind == donsus_token_kind::GREATER_EQUAL);
+}
 bool is_specifier(donsus_token_kind kind) {
   return (kind == donsus_token_kind::COMPTIME_KW ||
           kind == donsus_token_kind::MUT_KW ||
@@ -26,6 +32,38 @@ bool is_class_specifier(donsus_token_kind kind) {
           kind == donsus_token_kind::ABSTRACT_KW);
 }
 
+bool is_addition_op(donsus_token_kind kind) {
+  return (kind == donsus_token_kind::PLUS || kind == donsus_token_kind::MINUS);
+}
+bool is_multi_op(donsus_token_kind kind) {
+  return (kind == donsus_token_kind::PERCENT ||
+          kind == donsus_token_kind::STAR || kind == donsus_token_kind::SLASH);
+}
+
+bool is_bitwise_op(donsus_token_kind kind) {
+  return (kind == donsus_token_kind::AMPERSAND ||
+          kind == donsus_token_kind::PIPE || kind == donsus_token_kind::CARET);
+}
+
+bool is_bitshift_op(donsus_token_kind kind) {
+  return (kind == donsus_token_kind::LARROW2 ||
+          kind == donsus_token_kind::RARROW2);
+}
+
+bool is_as_op(donsus_token_kind kind) {
+  return (kind == donsus_token_kind::AS_KW);
+}
+bool is_prefix_op(donsus_token_kind kind) {
+  return (kind == donsus_token_kind::MINUS ||
+          kind == donsus_token_kind::CARET ||
+          kind == donsus_token_kind::AMPERSAND ||
+          kind == donsus_token_kind::EXCLAMATION ||
+          kind == donsus_token_kind::STAR || kind == donsus_token_kind::TILDE);
+}
+
+bool is_member_access_op(donsus_token_kind kind) {
+  return (kind == donsus_token_kind::DOT || kind == donsus_token_kind::ARROW);
+}
 TYPE make_type(donsus_token_kind type) {
   TYPE a;
   a.type_un = a.from_parse(type);

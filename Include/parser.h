@@ -90,6 +90,8 @@ public:
 
   // expressions
   auto create_expr() -> parse_result;
+  auto create_expr_w_value(token value_) -> parse_result;
+
   auto expr() -> parse_result;
 
   auto bool_or_expr() -> parse_result;

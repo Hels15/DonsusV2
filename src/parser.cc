@@ -1502,12 +1502,13 @@ auto Parser::identifier() -> parse_result {
 }
 
 void Parser::parser_except(donsus_token_kind type) {
+  token error_on = cur_token;
   token a = parser_next();
   if (a.kind != type) {
-    syntax_error(nullptr, cur_token,
+    syntax_error(tree->get_current_node(), error_on,
                  "Expected token: " + std::string(token::type_name(type)) +
                      " got instead: " +
-                     std::string(token::type_name(cur_token.kind)) + "\n");
+                     std::string(token::type_name(error_on.kind)) + "\n");
   }
 }
 // Error handling

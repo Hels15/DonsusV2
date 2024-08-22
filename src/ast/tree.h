@@ -23,13 +23,17 @@ public:
     node_ptr->children =
         {}; // initialise it as an empty vector rather than the nodes
     node_ptr->set_property(allocator.r_alloc<extra_type>());
-    n++;
+    debug_nodes.push_back(node_ptr);
+    if (n != 0)
+      n++;
+
     return node_ptr;
   };
 
 private:
   unsigned int n{};
   Tomi::Vector<utility::handle<node>> nodes;
+  Tomi::Vector<utility::handle<node>> debug_nodes;
   utility::DonsusAllocator allocator;
 };
 } // namespace donsus_ast

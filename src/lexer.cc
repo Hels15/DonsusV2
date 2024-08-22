@@ -1072,18 +1072,22 @@ token donsus_lexer_next(Parser &parser) {
       cur_token.kind = donsus_token_kind::IDENTIFIER;
 
       cur_token.length = 0; // will be changed during next_identifier
+
+      cur_token.offset = parser.lexer.cur_pos;
+
+      cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
+
       std::string c_value =
           next_identifier(parser, cur_token, parser.lexer.cur_pos);
+
+
 
       if (is_keyword(c_value)) {
 
         return make_keyword(parser, c_value, cur_token.length);
       } else {
       }
-
-      cur_token.line = parser.lexer.cur_line;
-      cur_token.column = parser.lexer.cur_column;
-      cur_token.offset = parser.lexer.cur_pos;
 
       return cur_token;
     }

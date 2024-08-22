@@ -29,6 +29,20 @@ bool donsus_ast::tree::is_main_node(donsus_ast::donsus_node_type type_) {
   switch (type_.type) {
   case donsus_node_type::VARIABLE_DEFINITION:
   case donsus_node_type::FUNCTION_DECL:
+  case donsus_node_type::INSTANCE:
+  case donsus_node_type::LANGUAGE_EXTENSION:
+  case donsus_node_type::TYPECLASS:
+  case donsus_node_type::TEMPLATE_DECL:
+  case donsus_node_type::ALIAS_STATEMENT:
+  case donsus_node_type::GENERICS_DECL:
+  case donsus_node_type::IF_STATEMENT:
+  case donsus_node_type::ELSE_IF_STATEMENT:
+  case donsus_node_type::ELSE_STATEMENT:
+  case donsus_node_type::FOR_LOOP:
+  case donsus_node_type::WHILE_LOOP:
+  case donsus_node_type::ARRAY_DECL:
+  case donsus_node_type::ARRAY_DEF:
+  case donsus_node_type::CLASS:
     return true;
   default:
     return false;

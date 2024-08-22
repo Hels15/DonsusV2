@@ -281,29 +281,38 @@ auto Parser::variable_def() -> parse_result {
   parser_except(donsus_token_kind::COLON);
   parser_next();
   switch (cur_token.kind) {
-  case donsus_token_kind::UNKNOWN:
+  case donsus_token_kind::UNKNOWN: {
     syntax_error(definition, cur_token,
                  lexeme_value(cur_token, file.source) + "is not a valid type!");
+    parse_result empty;
+    return empty;
     break;
+  }
 
-  case donsus_token_kind::EQUAL:
+  case donsus_token_kind::EQUAL: {
     syntax_error(definition, cur_token,
-                 lexeme_value(cur_token, file.source) +
-                     "Type must be specified before equal sign");
+                 "Type must be specified before equal sign");
+    parse_result empty;
+    return empty;
     break;
-
-  case donsus_token_kind::STAR:
+  }
+  case donsus_token_kind::STAR: {
     syntax_error(definition, cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified for pointer ");
+    parse_result empty;
+    return empty;
     break;
+  }
 
-  case donsus_token_kind::AMPERSAND:
+  case donsus_token_kind::AMPERSAND: {
     syntax_error(definition, cur_token,
                  lexeme_value(cur_token, file.source) +
                      "Type must be specified for reference");
+    parse_result empty;
+    return empty;
     break;
-
+  }
   default:
     break;
   }
@@ -631,7 +640,6 @@ auto Parser::variable_multi_def() -> Tomi::Vector<parse_result> {
   Tomi::Vector<parse_result> a;
   donsus_ast::specifiers_ s;
   token first_token_for_multiple = cur_token;
-
   while (is_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
     if (value == "comptime") {
@@ -646,6 +654,7 @@ auto Parser::variable_multi_def() -> Tomi::Vector<parse_result> {
     if (value == "mut") {
       s = set_specifiers(nullptr, s, donsus_ast::specifiers_::mut);
     }
+    parser_except(donsus_token_kind::COMM);
     parser_next();
   }
 
@@ -653,6 +662,8 @@ auto Parser::variable_multi_def() -> Tomi::Vector<parse_result> {
   Tomi::Vector<std::string> identifier_names;
 
   while (cur_token.kind != donsus_token_kind::COLON) {
+    if (cur_token.kind == donsus_token_kind::COMM)
+      parser_next();
     parse_result var = create_variable_def();
     var->first_token_in_ast = cur_token;
     auto &body = var->get<donsus_ast::variable_def>();
@@ -716,13 +727,14 @@ auto Parser::variable_multi_def() -> Tomi::Vector<parse_result> {
 
   default: {
     for (auto n : a) {
-      auto n_ = n->get<donsus_ast::variable_def>();
+      auto &n_ = n->get<donsus_ast::variable_def>();
       n_.identifier_type = concrete_type;
     }
     break;
   }
   }
-  parser_except(donsus_token_kind::EQUAL);
+  parser_except_current(tree->get_current_node(), donsus_token_kind::EQUAL);
+  parser_next();
   parse_result expression = expr();
 
   // set values
@@ -1512,8 +1524,8 @@ void Parser::parser_except(donsus_token_kind type) {
   if (a.kind != type) {
     syntax_error(tree->get_current_node(), error_on,
                  "Expected token: " + std::string(token::type_name(type)) +
-                     " got instead: " +
-                     std::string(token::type_name(error_on.kind)) + "\n");
+                     ", got instead: " + std::string(token::type_name(a.kind)) +
+                     "\n");
     cur_token = error_on;
   }
 }
@@ -1563,8 +1575,8 @@ auto Parser::set_class_specifiers(parse_result node,
 void Parser::parser_except_current(parse_result node, donsus_token_kind type) {
   if (cur_token.kind != type) {
     syntax_error(node, cur_token,
-                 "Expected token:" + std::string(token::type_name(type)) +
-                     "Got instead: " +
+                 "Expected token: " + std::string(token::type_name(type)) +
+                     ", got instead: " +
                      std::string(token::type_name(cur_token.kind)) + "\n");
   }
 }

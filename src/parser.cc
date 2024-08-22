@@ -104,8 +104,14 @@ auto Parser::parse() -> end_result {
       } else if ((peek().kind == donsus_token_kind::COMM &&
                   peek(2).kind == donsus_token_kind::IDENTIFIER)) {
         parse_result ab = variable_multi_def();
+        token previous = cur_token;
         parser_next();
-        parser_except_current(ab, donsus_token_kind::SEMICOLON);
+        // if the cur token is not semi colon put the error
+        // on the last part of the expression and not on the new line.
+        if (cur_token.kind != donsus_token_kind::SEMICOLON)
+          parser_except_current_token(ab, donsus_token_kind::SEMICOLON,
+                                      previous);
+
         for (auto node : ab->get<donsus_ast::multi_var_def>().vars) {
           tree->add_node(node);
         }
@@ -865,9 +871,16 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
         body.push_back(result);
       } else if ((peek().kind == donsus_token_kind::COMM &&
                   peek(2).kind == donsus_token_kind::IDENTIFIER)) {
+
         parse_result ab = variable_multi_def();
+        token previous = cur_token;
         parser_next();
-        parser_except_current(ab, donsus_token_kind::SEMICOLON);
+        // if the cur token is not semi colon put the error
+        // on the last part of the expression and not on the new line.
+        if (cur_token.kind != donsus_token_kind::SEMICOLON)
+          parser_except_current_token(ab, donsus_token_kind::SEMICOLON,
+                                      previous);
+
         for (auto node : ab->get<donsus_ast::multi_var_def>().vars) {
           body.push_back(node);
         }
@@ -1592,6 +1605,15 @@ void Parser::parser_except_current(parse_result node, donsus_token_kind type) {
   }
 }
 
+void Parser::parser_except_current_token(Parser::parse_result node,
+                                         donsus_token_kind type, token token_) {
+  if (token_.kind != type) {
+    syntax_error(node, token_,
+                 "Expected token: " + std::string(token_.type_name(type)) +
+                     ", got instead: " +
+                     std::string(token_.type_name(token_.kind)) + "\n");
+  }
+}
 // Error handling
 /*
  * If nullptr is passed in, show_error_on_line doesn't apply

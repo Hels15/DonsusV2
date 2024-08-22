@@ -279,6 +279,8 @@ public:
   void parser_except(donsus_token_kind type);
   void parser_except_current(parse_result node, donsus_token_kind type);
 
+  void parser_except_current_token(parse_result node, donsus_token_kind type,
+                                   token token_);
   // helpers
   auto arg_list() -> Tomi::Vector<parse_result>;
   auto return_from_func() -> parse_result;

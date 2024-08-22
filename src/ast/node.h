@@ -68,7 +68,8 @@ namespace donsus_ast {
   X(DATA_CONSTRUCTOR, "DATA_CONSTRUCTOR")                                      \
   X(PATTERN, "PATTERN")                                                        \
   X(CONSTRAINT, "CONSTRAINT")                                                  \
-  X(INDICES, "INDICES")
+  X(INDICES, "INDICES")                                                        \
+  X(MULTI_VAR_DEF, "MULTI_VAR_DEF")
 
 struct donsus_node_type {
   enum underlying : int {
@@ -254,6 +255,12 @@ struct variable_def {
   utility::handle<donsus_ast::node> identifier_name;
   // value stored in children
 };
+
+// Just for reporting more precise error messages
+struct multi_var_def {
+  Tomi::Vector<utility::handle<donsus_ast::node>> vars;
+};
+
 struct range_expr {
   // start..end
   utility::handle<donsus_ast::node> start;

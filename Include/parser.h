@@ -118,7 +118,8 @@ public:
   auto create_arg_decl() -> parse_result;
   auto arg_decl() -> parse_result;
 
-  auto variable_multi_def() -> Tomi::Vector<parse_result>;
+  auto create_variable_multi_def() -> parse_result;
+  auto variable_multi_def() -> parse_result;
 
   auto create_array_def() -> parse_result;
   auto array_def() -> parse_result;

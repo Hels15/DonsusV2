@@ -27,6 +27,7 @@ void Parser::print_token() {
     std::cout << "Line: " << cur_token.line << "\n";
     std::cout << "Column: " << cur_token.column << "\n";
     std::cout << "Offset: " << cur_token.offset << "\n";
+    std::cout << "Value: " << lexeme_value(cur_token, file.source) << "\n";
     std::cout << "--------------------------------- \n";
     parser_next();
   }
@@ -223,6 +224,8 @@ auto Parser::return_from_func() -> parse_result {
   syntax_error(tree->get_current_node(), cur_token,
                "Return type: " + std::string(cur_token.type_name()) +
                    "is not valid");
+  parse_result empty;
+  return empty;
 }
 
 auto Parser::tuple() -> parse_result {
@@ -1578,6 +1581,7 @@ void Parser::syntax_error(Parser::parse_result optional_node,
     error.error_out_coloured("", rang::fg::reset);
     return;
   }
+
   error.show_error_on_line(optional_node->first_token_in_ast, err_on_token,
                            file.source);
   // reset
@@ -1611,20 +1615,21 @@ void ParserError::print_meta_syntax(token err_on_token,
   }
 }
 
+// Todo: bug here with printing
 void ParserError::show_error_on_line(token first_token, token cur_token,
                                      std::string &source) {
   std::string ast_in_source =
       source.substr(first_token.offset, cur_token.offset + cur_token.length);
-
   error_out_coloured(ast_in_source, rang::fg::reset);
   error_out_coloured("\n", rang::fg::reset);
   unsigned int indent = -1;
   for (unsigned int i = 0; i < (cur_token.column + indent); i++) {
     std::cout << " ";
   }
+
   error_out_coloured("^", rang::fg::green);
 
-  for (int i = 0; i < cur_token.length; i++) {
+  for (unsigned int i = 0; i < cur_token.length; i++) {
     error_out_coloured("~", rang::fg::green);
   }
   error_out_coloured("^", rang::fg::green);

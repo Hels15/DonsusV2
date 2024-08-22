@@ -519,6 +519,8 @@ struct node : utility::property<> {
   Tomi::Vector<utility::handle<donsus_ast::node>> children;
   donsus_node_type type;
   token first_token_in_ast;
+  // if main node is true then it can be returned by
+  // get_current_node() which is used for error reporting.
   TYPE real_type{};
 };
 } // namespace donsus_ast

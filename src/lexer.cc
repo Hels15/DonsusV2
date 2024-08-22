@@ -79,6 +79,7 @@ static bool is_keyword(std::string &s) {
 
 bool eat(Parser &parser) {
   ++parser.lexer.cur_column;
+
   if ((parser.lexer.cur_char = parser.lexer.string[++parser.lexer.cur_pos]) !=
       '\0') {
 
@@ -273,6 +274,7 @@ token donsus_lexer_next(Parser &parser) {
     cur_token.length = 1;
     cur_token.offset = parser.lexer.cur_pos;
     eat(parser);
+    parser.lexer.cur_column = 0;
 
     return cur_token;
   }

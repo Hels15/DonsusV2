@@ -25,6 +25,8 @@ void Parser::print_token() {
     std::cout << "Kind: " << cur_token.type_name() << "\n";
     std::cout << "Length: " << cur_token.length << "\n";
     std::cout << "Line: " << cur_token.line << "\n";
+    std::cout << "Column: " << cur_token.column << "\n";
+    std::cout << "Offset: " << cur_token.offset << "\n";
     std::cout << "--------------------------------- \n";
     parser_next();
   }
@@ -1509,6 +1511,7 @@ void Parser::parser_except(donsus_token_kind type) {
                  "Expected token: " + std::string(token::type_name(type)) +
                      " got instead: " +
                      std::string(token::type_name(error_on.kind)) + "\n");
+    cur_token = error_on;
   }
 }
 // Error handling
@@ -1575,7 +1578,7 @@ void Parser::syntax_error(Parser::parse_result optional_node,
     error.error_out_coloured("", rang::fg::reset);
     return;
   }
-  error.show_error_on_line(optional_node->first_token_in_ast, cur_token,
+  error.show_error_on_line(optional_node->first_token_in_ast, err_on_token,
                            file.source);
   // reset
   error.error_out_coloured("", rang::fg::reset);
@@ -1613,15 +1616,12 @@ void ParserError::show_error_on_line(token first_token, token cur_token,
   std::string ast_in_source =
       source.substr(first_token.offset, cur_token.offset + cur_token.length);
 
-  std::string token_in_source =
-      source.substr(cur_token.offset, cur_token.offset + cur_token.length);
   error_out_coloured(ast_in_source, rang::fg::reset);
-  error_out_coloured(token_in_source, rang::fg::reset);
-
-  for (int i = 0; i < cur_token.column - cur_token.length; i++) {
+  error_out_coloured("\n", rang::fg::reset);
+  unsigned int indent = -1;
+  for (unsigned int i = 0; i < (cur_token.column + indent); i++) {
     std::cout << " ";
   }
-  error_out_coloured("\n", rang::fg::reset);
   error_out_coloured("^", rang::fg::green);
 
   for (int i = 0; i < cur_token.length; i++) {

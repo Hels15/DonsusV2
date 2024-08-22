@@ -1044,9 +1044,10 @@ token donsus_lexer_next(Parser &parser) {
 
       cur_token.length = 0; // will be changed during next_number
       cur_token.offset = parser.lexer.cur_pos;
-      std::string value = next_number(parser, cur_token, parser.lexer.cur_pos);
       cur_token.line = parser.lexer.cur_line;
       cur_token.column = parser.lexer.cur_column;
+
+      std::string value = next_number(parser, cur_token, parser.lexer.cur_pos);
 
       // float part
       if (parser.lexer.cur_char == '.' && peek_for_char(parser) != '.') {
@@ -1080,8 +1081,6 @@ token donsus_lexer_next(Parser &parser) {
 
       std::string c_value =
           next_identifier(parser, cur_token, parser.lexer.cur_pos);
-
-
 
       if (is_keyword(c_value)) {
 

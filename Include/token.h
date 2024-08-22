@@ -119,7 +119,10 @@ enum class donsus_token_kind {
 struct token {
   donsus_token_kind kind{};
   unsigned int length{};
+
+  // line where token starts
   unsigned int line{};
+  // column where token starts
   unsigned int column{};
 
   // Todo: might remove it in the future

@@ -321,7 +321,7 @@ struct array_def {
 
   utility::handle<donsus_ast::node> body;
   // Represents the number between the square brackets a:int[3], 3 in this case.
-  utility::handle <donsus_ast::node> indices;
+  utility::handle<donsus_ast::node> indices;
 };
 
 struct array {
@@ -395,7 +395,6 @@ struct return_kw {
 struct assignment {
   utility::handle<donsus_ast::node> lvalue;
   utility::handle<donsus_ast::node> rvalue;
-  std::string identifier_name;
   token op; // operator
 };
 

@@ -412,7 +412,8 @@ auto Parser::expr() -> parse_result { return bool_or_expr(); }
 auto Parser::bool_or_expr() -> parse_result {
   parse_result node = bool_and_expr();
 
-  while (cur_token.kind == donsus_token_kind::DOUBLE_PIPE) {
+  while (peek().kind == donsus_token_kind::DOUBLE_PIPE) {
+    parser_next();
     token op = cur_token;
     parser_next();
     parse_result right = bool_and_expr();
@@ -426,7 +427,9 @@ auto Parser::bool_or_expr() -> parse_result {
 }
 auto Parser::bool_and_expr() -> parse_result {
   parse_result node = compare_expr();
-  while (cur_token.kind == donsus_token_kind::DOUBLE_AMPERSAND) {
+
+  while (peek().kind == donsus_token_kind::DOUBLE_AMPERSAND) {
+    parser_next();
     token op = cur_token;
     parser_next();
     parse_result right = compare_expr();
@@ -441,7 +444,9 @@ auto Parser::bool_and_expr() -> parse_result {
 }
 auto Parser::compare_expr() -> parse_result {
   parse_result node = arithmetic_expr();
-  while (is_compare_op(cur_token.kind)) {
+
+  while (is_compare_op(peek().kind)) {
+    parser_next();
     token op = cur_token;
     parser_next();
     parse_result right = arithmetic_expr();
@@ -455,7 +460,9 @@ auto Parser::compare_expr() -> parse_result {
 }
 auto Parser::arithmetic_expr() -> parse_result {
   parse_result node = bitwise_expr();
-  while (is_addition_op(cur_token.kind)) {
+
+  while (is_addition_op(peek().kind)) {
+    parser_next();
     token op = cur_token;
     parser_next();
 
@@ -470,7 +477,9 @@ auto Parser::arithmetic_expr() -> parse_result {
 }
 auto Parser::bitwise_expr() -> parse_result {
   parse_result node = addition_expr();
-  while (is_multi_op(cur_token.kind)) {
+
+  while (is_multi_op(peek().kind)) {
+    parser_next();
     token op = cur_token;
     parser_next();
     parse_result right = addition_expr();
@@ -485,7 +494,9 @@ auto Parser::bitwise_expr() -> parse_result {
 }
 auto Parser::addition_expr() -> parse_result {
   parse_result node = multiply_expr();
-  while (is_bitwise_op(cur_token.kind)) {
+
+  while (is_bitwise_op(peek().kind)) {
+    parser_next();
     token op = cur_token;
     parser_next();
     parse_result right = addition_expr();
@@ -500,7 +511,9 @@ auto Parser::addition_expr() -> parse_result {
 }
 auto Parser::multiply_expr() -> parse_result {
   parse_result node = bitshift_expr();
-  while (is_bitshift_op(cur_token.kind)) {
+
+  while (is_bitshift_op(peek().kind)) {
+    parser_next();
     token op = cur_token;
     parser_next();
     parse_result right = bitshift_expr();
@@ -515,7 +528,9 @@ auto Parser::multiply_expr() -> parse_result {
 }
 auto Parser::bitshift_expr() -> parse_result {
   parse_result node = as_expr();
-  while (is_as_op(cur_token.kind)) {
+
+  while (is_as_op(peek().kind)) {
+    parser_next();
     token op = cur_token;
     parser_next();
 
@@ -532,7 +547,9 @@ auto Parser::bitshift_expr() -> parse_result {
 
 auto Parser::as_expr() -> parse_result {
   parse_result node = prefix_expr();
-  while (is_prefix_op(cur_token.kind)) {
+
+  while (is_prefix_op(peek().kind)) {
+    parser_next();
     token op = cur_token;
     parser_next();
 
@@ -548,8 +565,9 @@ auto Parser::as_expr() -> parse_result {
 }
 auto Parser::prefix_expr() -> parse_result {
   parse_result node = expr_val();
-  while (is_member_access_op(cur_token.kind)) {
 
+  while (is_member_access_op(peek().kind)) {
+    parser_next();
     token op = cur_token;
     parser_next();
 
@@ -617,7 +635,8 @@ auto Parser::assignments() -> parse_result {
                      "can't be used on assignments");
 
   auto &body = assignment->get<donsus_ast::assignment>();
-  parser_except(donsus_token_kind::IDENTIFIER);
+  parser_except_current(assignment, donsus_token_kind::IDENTIFIER);
+
   body.lvalue = expr();
 
   parser_next();

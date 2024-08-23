@@ -44,6 +44,7 @@ bool donsus_ast::tree::is_main_node(donsus_ast::donsus_node_type type_) {
   case donsus_node_type::ARRAY_DEF:
   case donsus_node_type::CLASS:
   case donsus_node_type::MULTI_VAR_DEF:
+  case donsus_node_type::ASSIGNMENT:
     return true;
   default:
     return false;

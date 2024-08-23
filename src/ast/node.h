@@ -404,7 +404,6 @@ struct return_kw {
 struct assignment {
   utility::handle<donsus_ast::node> lvalue;
   utility::handle<donsus_ast::node> rvalue;
-  std::string identifier_name;
   token op; // operator
 };
 

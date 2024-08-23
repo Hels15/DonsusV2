@@ -112,8 +112,6 @@ inline void print_assignment(donsus_ast::assignment &assignment,
   print_ast_node(assignment.rvalue, indent_level + 1, source);
   print_with_newline("identifier_op: " + std::string(assignment.op.type_name()),
                      indent_level);
-  print_with_newline("identifier_name: " + assignment.identifier_name,
-                     indent_level);
 }
 
 inline void print_type(donsus_ast::donsus_node_type type, int indent_level) {

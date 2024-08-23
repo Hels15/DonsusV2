@@ -315,7 +315,7 @@ enum ArrayType { FIXED, STATIC, DYNAMIC };
 struct array_def {
   specifiers_ specifiers{};
   ArrayType array_type;
-  std::string identifier_name;
+  utility::handle<donsus_ast::node> identifier_name;
   utility::handle<donsus_ast::node> identifier_type;
 
   utility::handle<donsus_ast::node> body;

@@ -93,7 +93,8 @@ auto Parser::parse() -> end_result {
         parse_result result = function_decl();
 
         tree->add_node(result);
-      } else if (peek().kind == donsus_token_kind::COLON) {
+      } else if (peek().kind == donsus_token_kind::COLON &&
+                 peek(3).kind != donsus_token_kind::LSQB) {
         parse_result result = variable_def();
         parser_except(donsus_token_kind::SEMICOLON);
         tree->add_node(result);
@@ -601,7 +602,7 @@ auto Parser::expr_val() -> parse_result {
 
   case donsus_token_kind::IDENTIFIER:
   case donsus_token_kind::INT: {
-    if (peek().kind == donsus_token_kind::DOT)
+    if (peek().kind == donsus_token_kind::TWO_DOTS)
       return range_expression();
   }
   case donsus_token_kind::FLOAT:
@@ -795,11 +796,12 @@ auto Parser::range_expression() -> parse_result {
   parse_result range_statement = create_range_expression();
   range_statement->first_token_in_ast = cur_token;
   auto &body_range = range_statement->get<donsus_ast::range_expr>();
-  parse_result start = expr();
-  body_range.start = start;
+  parse_result start = create_expr_w_value(cur_token);
   parser_next();
+  body_range.start = start;
   parser_except_current(range_statement, donsus_token_kind::TWO_DOTS);
-  parse_result end = expr();
+  parser_next();
+  parse_result end = create_expr_w_value(cur_token);
   body_range.end = end;
   return range_statement;
 }
@@ -887,7 +889,8 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
         parse_result result = function_decl();
 
         body.push_back(result);
-      } else if (peek().kind == donsus_token_kind::COLON) {
+      } else if (peek().kind == donsus_token_kind::COLON &&
+                 peek(3).kind != donsus_token_kind::LSQB) {
         parse_result result = variable_def();
         parser_except(donsus_token_kind::SEMICOLON);
         body.push_back(result);
@@ -1112,14 +1115,16 @@ auto Parser::array() -> parse_result {
   auto &body = array->get<donsus_ast::array>();
   parser_except_current(array, donsus_token_kind::LSQB);
   parser_next();
-  while (cur_token.kind != donsus_token_kind::RPAR) {
+  while (cur_token.kind != donsus_token_kind::RSQB) {
     body.items.push_back(expr());
     if (peek().kind == donsus_token_kind::COMM) {
+      parser_except(donsus_token_kind::COMM);
       parser_next();
       continue;
     }
     break;
   }
+  parser_except(donsus_token_kind::RSQB);
   return array;
 }
 auto Parser::create_array_def() -> parse_result {

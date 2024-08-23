@@ -40,7 +40,6 @@ bool donsus_ast::tree::is_main_node(donsus_ast::donsus_node_type type_) {
   case donsus_node_type::ELSE_STATEMENT:
   case donsus_node_type::FOR_LOOP:
   case donsus_node_type::WHILE_LOOP:
-  case donsus_node_type::ARRAY_DECL:
   case donsus_node_type::ARRAY_DEF:
   case donsus_node_type::CLASS:
   case donsus_node_type::MULTI_VAR_DEF:

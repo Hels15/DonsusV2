@@ -69,7 +69,8 @@ namespace donsus_ast {
   X(PATTERN, "PATTERN")                                                        \
   X(CONSTRAINT, "CONSTRAINT")                                                  \
   X(INDICES, "INDICES")                                                        \
-  X(MULTI_VAR_DEF, "MULTI_VAR_DEF")
+  X(MULTI_VAR_DEF, "MULTI_VAR_DEF")                                            \
+  X(ARRAY, "ARRAY")
 
 struct donsus_node_type {
   enum underlying : int {
@@ -312,29 +313,18 @@ struct tuple {
 enum ArrayType { FIXED, STATIC, DYNAMIC };
 
 struct array_def {
+  specifiers_ specifiers{};
   ArrayType array_type;
   std::string identifier_name;
-  donsus_token_kind type;
-  Tomi::Vector<utility::handle<donsus_ast::node>> elements;
-  /*If the array_type is dynamic the size will be zero and ignored
- If the array_type is static or fixed then the size must be provided
-*/
-  int number_of_elements;
-  int size; // Represents the number between the square brackets a:int[3]
-            // [1,2,3] here it is 3.
+  utility::handle<donsus_ast::node> identifier_type;
+
+  utility::handle<donsus_ast::node> body;
+  // Represents the number between the square brackets a:int[3], 3 in this case.
+  utility::handle <donsus_ast::node> indices;
 };
 
-struct array_decl {
-  Tomi::Vector<token> qualifiers;
-  ArrayType array_type;
-  std::string identifier_name;
-  donsus_token_kind type;
-  /*If the array_type is dynamic the size will be zero and ignored
-    If the array_type is static then the size must be provided
-  */
-  int number_of_elements;
-  int size; // Represents the number between the square brackets a:int[3] =
-            // [1,2,3]; here it is 3
+struct array {
+  Tomi::Vector<utility::handle<donsus_ast::node>> items;
 };
 
 struct array_access {
@@ -404,6 +394,7 @@ struct return_kw {
 struct assignment {
   utility::handle<donsus_ast::node> lvalue;
   utility::handle<donsus_ast::node> rvalue;
+  std::string identifier_name;
   token op; // operator
 };
 

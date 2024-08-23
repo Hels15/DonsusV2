@@ -193,29 +193,21 @@ inline void print_expression(donsus_ast::expression &expression,
                      indent_level);
 }
 
-inline void print_array_decl(donsus_ast::array_decl &decl, int indent_level) {
-  print_with_newline("identifier_type: " +
-                         std::string(token::type_name(decl.type)),
-                     indent_level);
-  print_with_newline("identifier_name: " + decl.identifier_name, indent_level);
-  print_with_newline("size: " + std::to_string(decl.size), indent_level);
-  print_with_newline("number_of_elements: " +
-                         std::to_string(decl.number_of_elements),
-                     indent_level);
-}
-
 inline void print_array_def(donsus_ast::array_def &def, int indent_level,
                             std::string &source) {
-  print_with_newline("identifier_type: " +
-                         std::string(token::type_name(def.type)),
-                     indent_level);
+  print_with_newline(
+      "identifier_type: " +
+          def.identifier_type->get<donsus_ast::identifier>().identifier_name,
+      indent_level);
   print_with_newline("identifier_name: " + def.identifier_name, indent_level);
-  print_with_newline("size: " + std::to_string(def.size), indent_level);
-  print_with_newline("number_of_elements: " +
-                         std::to_string(def.number_of_elements),
-                     indent_level);
-  print_with_newline("elements: ", indent_level);
-  for (auto e : def.elements) {
+  print_with_newline(
+      "indices: " +
+          lexeme_value(def.indices->get<donsus_ast::integer_expr>().value,
+                       source),
+      indent_level);
+
+  print_with_newline("body: ", indent_level);
+  for (auto e : def.body->get<donsus_ast::array>().items) {
     print_ast_node(e, indent_level + 1, source);
     print_with_newline(" ", indent_level);
   }
@@ -351,11 +343,11 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
     break;
   }
 
-  case type::ARRAY_DECL: {
-    print_type(ast_node->type, indent_level);
-    print_array_decl(ast_node->get<donsus_ast::array_decl>(), indent_level);
-    break;
-  }
+    /*  case type::ARRAY_DECL: {
+        print_type(ast_node->type, indent_level);
+        print_array_decl(ast_node->get<donsus_ast::array_decl>(), indent_level);
+        break;
+      }*/
 
   case type::ARRAY_DEF: {
     print_type(ast_node->type, indent_level);

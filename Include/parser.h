@@ -124,8 +124,8 @@ public:
   auto create_array_def() -> parse_result;
   auto array_def() -> parse_result;
 
-  auto create_array_decl() -> parse_result;
-  auto array_decl() -> parse_result;
+  auto create_array() -> parse_result;
+  auto array() -> parse_result;
 
   auto create_integer_expression() -> parse_result;
   auto integer_expression() -> parse_result;

@@ -833,15 +833,23 @@ auto Parser::function_def() -> parse_result {
     }
     parser_next();
   }
+  parser_except_current(definition, donsus_token_kind::FUNCTION_DEFINITION_KW);
+  parser_next();
 
   auto &body_def = definition->get<donsus_ast::function_def>();
   body_def.func_name = lexeme_value(cur_token, file.source);
   body_def.specifiers = s;
 
   parser_except(donsus_token_kind::LPAR);
+  parser_next();
+
   body_def.parameters = arg_list();
+
   parser_except_current(definition, donsus_token_kind::RPAR);
+
   parser_except(donsus_token_kind::ARROW);
+  parser_next();
+
   parser_next();
 
   body_def.return_type = return_from_func();
@@ -1215,10 +1223,13 @@ auto Parser::array_def() -> parse_result {
   default: {
     body_def.indices = expr();
     parser_except(donsus_token_kind::RSQB);
-    if (peek().kind == donsus_token_kind::DOT)
+    if (peek().kind == donsus_token_kind::DOT) {
       body_def.array_type = donsus_ast::ArrayType::STATIC;
+      parser_next();
+    }
     else
       body_def.array_type = donsus_ast::ArrayType::FIXED;
+
   }
   }
   parser_next();

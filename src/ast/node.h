@@ -310,10 +310,11 @@ struct tuple {
   Tomi::Vector<utility::handle<donsus_ast::node>> items;
 };
 
-enum ArrayType { FIXED, STATIC, DYNAMIC };
+enum class ArrayType { FIXED, STATIC, DYNAMIC };
 
 struct array_def {
   specifiers_ specifiers{};
+  // default initialise it
   ArrayType array_type;
   utility::handle<donsus_ast::node> identifier_name;
   utility::handle<donsus_ast::node> identifier_type;

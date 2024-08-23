@@ -219,6 +219,23 @@ inline void print_array_def(donsus_ast::array_def &def, int indent_level,
                : "not defined"),
       indent_level);
 
+  std::string array_type_str;
+  switch (def.array_type) {
+  case donsus_ast::ArrayType::FIXED:
+    array_type_str = "FIXED";
+    break;
+  case donsus_ast::ArrayType::STATIC:
+    array_type_str = "STATIC";
+    break;
+  case donsus_ast::ArrayType::DYNAMIC:
+    array_type_str = "DYNAMIC";
+    break;
+  default:
+    array_type_str = "UNKNOWN";
+    break;
+  }
+  print_with_newline("type of array: " + array_type_str, indent_level);
+
   print_with_newline("body: ", indent_level);
   print_ast_node(def.body, indent_level + 1, source);
   print_with_newline(" ", indent_level);

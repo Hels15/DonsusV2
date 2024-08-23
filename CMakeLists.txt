@@ -67,6 +67,8 @@ endif ()
 
 target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include")
 target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/Internal")
+target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/src/utility/parser")
+
 
 add_executable(donsus src/main.cc)
 target_link_libraries(donsus PUBLIC donsus_lib)

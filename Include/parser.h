@@ -17,7 +17,10 @@
 #include <variant>
 #include <vector>
 
+
 class Parser;
+
+
 
 class ParserError {
 public:
@@ -45,7 +48,9 @@ struct AstFile {
   unsigned int error_count{};
 };
 
-/**
+Parser Du_Parse(std::string result, AstFile &file);
+
+    /**
  *  \brief Lexer API
  */
 struct donsus_lexer {

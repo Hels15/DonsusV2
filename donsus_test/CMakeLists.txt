@@ -18,7 +18,13 @@ add_executable(donsus_test
         #codegen_test
         #parser
         parser/test_var.cc
-)
+        parser/test_array.cc
+        parser/test_assignments.cc
+        parser/test_multi_var_def.cc
+        parser/test_range_expression.cc
+        parser/test_var.cc
+ )
+
 
 include(GoogleTest)
 gtest_discover_tests(donsus_test)

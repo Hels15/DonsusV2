@@ -87,6 +87,11 @@ auto Parser::parse() -> end_result {
       tree->add_node(result);
     }
     if (cur_token.kind == donsus_token_kind::IDENTIFIER) {
+      if (peek().kind == donsus_token_kind::LPAR) {
+        parse_result result = function_call();
+        parser_except(donsus_token_kind::SEMICOLON);
+        tree->add_node(result);
+      }
       if (peek().kind == donsus_token_kind::COLON &&
           peek(2).kind == donsus_token_kind::COLON) {
         parse_result result = generics_decl();
@@ -302,12 +307,12 @@ auto Parser::variable_def() -> parse_result {
   return definition;
 }
 
-auto Parser::create_arg_decl() -> parse_result {
+auto Parser::create_param_decl() -> parse_result {
   return tree->create_node<donsus_ast::arg_decl>(
       donsus_ast::donsus_node_type::ARG_DECL);
 }
-auto Parser::arg_decl() -> parse_result {
-  parse_result declaration = create_arg_decl();
+auto Parser::param_decl() -> parse_result {
+  parse_result declaration = create_param_decl();
   declaration->first_token_in_ast = cur_token;
   auto &body = declaration->get<donsus_ast::arg_decl>();
   body.identifier_name = identifier();
@@ -761,6 +766,32 @@ auto Parser::range_expression() -> parse_result {
   body_range.end = end;
   return range_statement;
 }
+
+auto Parser::create_function_call() -> parse_result {
+  return tree->create_node<donsus_ast::function_call>(
+      donsus_ast::donsus_node_type::FUNCTION_CALL);
+}
+auto Parser::function_call() -> parse_result {
+  parse_result f_call = create_function_call();
+  f_call->first_token_in_ast = cur_token;
+  auto &body_f_call = f_call->get<donsus_ast::function_call>();
+  parser_except_current(f_call, donsus_token_kind::IDENTIFIER);
+  body_f_call.func_name = lexeme_value(cur_token, file.source);
+  parser_except(donsus_token_kind::LPAR);
+  parser_next();
+  while (cur_token.kind != donsus_token_kind::RPAR) {
+    body_f_call.arguments.push_back(expr());
+    if (peek().kind == donsus_token_kind::COMM) {
+      parser_next();
+      parser_next();
+      continue;
+    }
+    parser_next();
+    break;
+  }
+  parser_except_current(f_call, donsus_token_kind::RPAR);
+  return f_call;
+}
 auto Parser::create_function_def() -> parse_result {
   return tree->create_node<donsus_ast::function_def>(
       donsus_ast::donsus_node_type::FUNCTION_DEF);
@@ -779,7 +810,7 @@ auto Parser::function_def() -> parse_result {
   parser_except(donsus_token_kind::LPAR);
   parser_next();
 
-  body_def.parameters = arg_list();
+  body_def.parameters = param_list();
 
   parser_except_current(definition, donsus_token_kind::RPAR);
   parser_next();
@@ -859,6 +890,11 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
       body.push_back(result);
     }
     if (cur_token.kind == donsus_token_kind::IDENTIFIER) {
+      if (peek().kind == donsus_token_kind::LPAR) {
+        parse_result result = function_call();
+        body.push_back(result);
+        parser_except(donsus_token_kind::SEMICOLON);
+      }
       if (peek().kind == donsus_token_kind::COLON &&
           peek(2).kind == donsus_token_kind::COLON) {
         parse_result result = generics_decl();
@@ -1692,11 +1728,11 @@ void Parser::parser_except(donsus_token_kind type) {
 /*
  * If nullptr is passed in, show_error_on_line doesn't apply
  * */
-auto Parser::arg_list() -> Tomi::Vector<parse_result> {
+auto Parser::param_list() -> Tomi::Vector<parse_result> {
   Tomi::Vector<parse_result> a;
   while (cur_token.kind != donsus_token_kind::RPAR) {
     parser_except(donsus_token_kind::IDENTIFIER);
-    parse_result v_d = arg_decl();
+    parse_result v_d = param_decl();
     a.push_back(v_d);
 
     if (peek().kind == donsus_token_kind::COMM) {

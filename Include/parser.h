@@ -117,8 +117,8 @@ public:
   auto create_variable_def() -> parse_result;
   auto variable_def() -> parse_result;
 
-  auto create_arg_decl() -> parse_result;
-  auto arg_decl() -> parse_result;
+  auto create_param_decl() -> parse_result;
+  auto param_decl() -> parse_result;
 
   auto create_variable_multi_def() -> parse_result;
   auto variable_multi_def() -> parse_result;
@@ -250,6 +250,7 @@ public:
   auto identifier() -> parse_result;
 
   auto create_function_call() -> parse_result;
+  auto function_call() -> parse_result;
 
   auto create_generics_decl() -> parse_result;
   auto generics_decl() -> parse_result;
@@ -284,7 +285,7 @@ public:
   void parser_except_current_token(parse_result node, donsus_token_kind type,
                                    token token_);
   // helpers
-  auto arg_list() -> Tomi::Vector<parse_result>;
+  auto param_list() -> Tomi::Vector<parse_result>;
   auto return_from_func() -> parse_result;
   auto set_specifiers(parse_result node, donsus_ast::specifiers_ s,
                       donsus_ast::specifiers_ v) -> donsus_ast::specifiers_;

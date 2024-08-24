@@ -128,17 +128,18 @@ inline void print_type(donsus_ast::donsus_node_type type, int indent_level) {
 inline void print_function_decl(donsus_ast::function_decl &f_decl,
                                 int indent_level, std::string &source) {
   print_with_newline("return_types: ", indent_level);
-  print_with_newline(
-      "return_type" +
-          std::string(f_decl.return_type->get<donsus_ast::identifier>()
-                          .identifier_name),
-      indent_level + 1);
+  print_ast_node(f_decl.return_type, indent_level + 1, source);
 
   print_with_newline("parameters: ", indent_level);
   for (auto p : f_decl.parameters) {
     print_ast_node(p, indent_level + 1, source);
   }
   print_with_newline("func_name: " + f_decl.func_name, indent_level);
+
+  print_with_newline("specifiers: " +
+                         std::string(donsus_ast::specifiers_utils::type_name(
+                             f_decl.specifiers)),
+                     indent_level);
 }
 
 inline void print_function_def(donsus_ast::function_def &f_def,

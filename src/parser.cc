@@ -60,11 +60,6 @@ auto Parser::parse() -> end_result {
 
   while (cur_token.kind != donsus_token_kind::END) {
     // start/declaration statement
-    /*    if (cur_token.kind == donsus_token_kind::TYPE_KW &&
-            peek().kind == donsus_token_kind::IDENTIFIER) {
-          parse_result result = type_constructor();
-          tree->add_node(result);
-        }*/
     if (cur_token.kind == donsus_token_kind::LET_KW &&
         is_specifier(peek().kind)) {
 
@@ -186,10 +181,19 @@ auto Parser::create_function_decl() -> parse_result {
       donsus_ast::donsus_node_type::FUNCTION_DECL);
 }
 auto Parser::function_decl() -> parse_result {
-  donsus_ast::specifiers_ s;
+  donsus_ast::specifiers_ s{};
   parse_result declaration = create_function_decl();
   declaration->first_token_in_ast = cur_token;
 
+  auto &body = declaration->get<donsus_ast::function_decl>();
+  body.func_name = lexeme_value(cur_token, file.source);
+
+  parser_except(donsus_token_kind::LPAR);
+  parser_next();
+
+  body.parameters = arg_list();
+  parser_except_current(declaration, donsus_token_kind::RPAR);
+  parser_next();
   while (is_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
     if (value == "comptime") {
@@ -210,15 +214,9 @@ auto Parser::function_decl() -> parse_result {
     }
     parser_next();
   }
-
-  auto &body = declaration->get<donsus_ast::function_decl>();
-  body.func_name = lexeme_value(cur_token, file.source);
   body.specifiers = s;
 
-  parser_except(donsus_token_kind::LPAR);
-  body.parameters = arg_list();
-  parser_except_current(declaration, donsus_token_kind::RPAR);
-  parser_except(donsus_token_kind::ARROW);
+  parser_except_current(declaration, donsus_token_kind::ARROW);
   parser_next();
 
   body.return_type = return_from_func();
@@ -877,11 +875,14 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
   Tomi::Vector<parse_result> body{};
   // Todo: Do not duplicate this that much!
   while (cur_token.kind != donsus_token_kind::RBRACE) {
-    /*    if (cur_token.kind == donsus_token_kind::TYPE_KW &&
-            peek().kind == donsus_token_kind::IDENTIFIER) {
-          parse_result result = type_constructor();
-          body.push_back(result);
-        }*/
+    // start/declaration statement
+    if (cur_token.kind == donsus_token_kind::LET_KW &&
+        is_specifier(peek().kind)) {
+
+      parse_result result = variable_def();
+      parser_except(donsus_token_kind::SEMICOLON);
+      tree->add_node(result);
+    }
     if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
         peek().kind == donsus_token_kind::INSTANCE_KW) {
       parse_result result = instance();

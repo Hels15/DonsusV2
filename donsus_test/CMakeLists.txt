@@ -23,7 +23,8 @@ add_executable(donsus_test
         parser/test_multi_var_def.cc
         parser/test_range_expression.cc
         parser/test_var.cc
- )
+        parser/test_functions.cc
+)
 
 
 include(GoogleTest)

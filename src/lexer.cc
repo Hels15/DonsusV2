@@ -39,7 +39,8 @@ std::map<std::string, donsus_token_kind> KEYWORDS{
     {"undefined", donsus_token_kind::UNDEFINED},
     {"thread_local", donsus_token_kind::THREAD_LOCAL_KW},
     {"alias", donsus_token_kind::ALIAS_KW},
-    {"as", donsus_token_kind::AS_KW}};
+    {"as", donsus_token_kind::AS_KW},
+    {"let", donsus_token_kind::LET_KW}};
 
 // Function to peek at the next character without consuming it
 char peek_for_char(Parser &parser) {
@@ -172,7 +173,7 @@ static bool next_string(Parser &parser) {
 }
 
 static token make_keyword(Parser &parser, std::string &value,
-                          unsigned int length) {
+                          unsigned int length, unsigned int offset) {
 
   // construct keyword token
   token token;
@@ -183,7 +184,7 @@ static token make_keyword(Parser &parser, std::string &value,
   token.kind = KEYWORDS[value];
 
   token.length = length;
-  token.offset = parser.lexer.cur_pos;
+  token.offset = offset;
 
   return token;
 }
@@ -915,11 +916,9 @@ token donsus_lexer_next(Parser &parser) {
     cur_token.kind = donsus_token_kind::SINGLE_QUOTE;
 
     cur_token.length = 1;
-    cur_token.offset = parser.lexer.cur_pos;
-
     cur_token.line = parser.lexer.cur_line;
     cur_token.column = parser.lexer.cur_column;
-
+    cur_token.offset = parser.lexer.cur_pos;
     eat(parser);
 
     return cur_token;
@@ -1077,6 +1076,7 @@ token donsus_lexer_next(Parser &parser) {
       cur_token.length = 0; // will be changed during next_identifier
 
       cur_token.offset = parser.lexer.cur_pos;
+      unsigned offset_save = cur_token.offset;
 
       cur_token.line = parser.lexer.cur_line;
       cur_token.column = parser.lexer.cur_column;
@@ -1086,7 +1086,7 @@ token donsus_lexer_next(Parser &parser) {
 
       if (is_keyword(c_value)) {
 
-        return make_keyword(parser, c_value, cur_token.length);
+        return make_keyword(parser, c_value, cur_token.length, offset_save);
       } else {
       }
 

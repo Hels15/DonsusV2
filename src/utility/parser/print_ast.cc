@@ -250,6 +250,7 @@ inline void print_var_def(donsus_ast::variable_def &def, int indent_level) {
       "identifier_name: " +
           def.identifier_name->get<donsus_ast::identifier>().identifier_name,
       indent_level);
+  print_with_newline("specifiers: " + std::string(donsus_ast::specifiers_utils::type_name(def.specifiers)), indent_level);
 }
 
 inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,

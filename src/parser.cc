@@ -282,6 +282,7 @@ auto Parser::variable_def() -> parse_result {
     }
     parser_next();
   }
+
   auto &body = definition->get<donsus_ast::variable_def>();
   body.identifier_name = identifier();
   body.specifiers = s;
@@ -1226,10 +1227,8 @@ auto Parser::array_def() -> parse_result {
     if (peek().kind == donsus_token_kind::DOT) {
       body_def.array_type = donsus_ast::ArrayType::STATIC;
       parser_next();
-    }
-    else
+    } else
       body_def.array_type = donsus_ast::ArrayType::FIXED;
-
   }
   }
   parser_next();

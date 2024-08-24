@@ -70,7 +70,8 @@ namespace donsus_ast {
   X(CONSTRAINT, "CONSTRAINT")                                                  \
   X(INDICES, "INDICES")                                                        \
   X(MULTI_VAR_DEF, "MULTI_VAR_DEF")                                            \
-  X(ARRAY, "ARRAY")
+  X(ARRAY, "ARRAY")                                                            \
+  X(CHAR_EXPR, "CHAR_EXPR")
 
 struct donsus_node_type {
   enum underlying : int {
@@ -405,6 +406,11 @@ struct identifier {
 struct string_expr {
   token value;
 };
+
+struct char_expr {
+  token value;
+};
+
 struct expression {
   token value;
 };

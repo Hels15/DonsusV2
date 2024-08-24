@@ -108,7 +108,8 @@
   X(UNDEFINED, "UNDEFINED")                                                    \
   X(DOUBLE_PIPE, "DOUBLE_PIPE")                                                \
   X(DOUBLE_AMPERSAND, "DOUBLE_AMPERSAND")                                      \
-  X(TILDE, "TILDE")
+  X(TILDE, "TILDE")                                                            \
+  X(LET_KW, "LET_KW")
 
 enum class donsus_token_kind {
 #define X(name, str) name,

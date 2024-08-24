@@ -65,6 +65,14 @@ auto Parser::parse() -> end_result {
           parse_result result = type_constructor();
           tree->add_node(result);
         }*/
+    if (cur_token.kind == donsus_token_kind::LET_KW &&
+        is_specifier(peek().kind)) {
+
+      parse_result result = variable_def();
+      parser_except(donsus_token_kind::SEMICOLON);
+      tree->add_node(result);
+    }
+
     if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
         peek().kind == donsus_token_kind::INSTANCE_KW) {
       parse_result result = instance();
@@ -261,11 +269,13 @@ auto Parser::create_variable_def() -> parse_result {
       donsus_ast::donsus_node_type::VARIABLE_DEFINITION);
 }
 auto Parser::variable_def() -> parse_result {
-  donsus_ast::specifiers_ s;
+  donsus_ast::specifiers_ s{};
   parse_result definition = create_variable_def();
 
   definition->first_token_in_ast = cur_token;
-
+  if (cur_token.kind == donsus_token_kind::LET_KW)
+    parser_next();
+  // move to the specifier
   while (is_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
     if (value == "comptime") {

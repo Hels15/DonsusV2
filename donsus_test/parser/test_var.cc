@@ -79,7 +79,7 @@ TEST(Vardef, VarDefWithExpression) {
 
 TEST(vardef, VarDefWithSpecifiers) {
   std::string a = R"(
-    mut comptime a:int = 12;
+    let mut comptime a:int = 12;
     )";
 
   AstFile file;

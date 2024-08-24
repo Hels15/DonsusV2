@@ -17,10 +17,7 @@
 #include <variant>
 #include <vector>
 
-
 class Parser;
-
-
 
 class ParserError {
 public:
@@ -50,7 +47,7 @@ struct AstFile {
 
 Parser Du_Parse(std::string result, AstFile &file);
 
-    /**
+/**
  *  \brief Lexer API
  */
 struct donsus_lexer {
@@ -258,6 +255,8 @@ public:
 
   auto create_generics_decl() -> parse_result;
   auto generics_decl() -> parse_result;
+
+  auto return_statement() -> parse_result;
   auto create_return_statement() -> parse_result;
 
   auto create_type() -> parse_result;

@@ -390,8 +390,8 @@ struct else_statement {
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };
 
-struct return_kw {
-  Tomi::Vector<TYPE> types; // only if the main type is not long enough
+struct return_statement {
+  utility::handle<donsus_ast::node> body;
 };
 struct assignment {
   utility::handle<donsus_ast::node> lvalue;

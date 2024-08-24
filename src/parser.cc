@@ -864,9 +864,8 @@ auto Parser::function_def() -> parse_result {
 
   body_def.return_type = return_from_func();
   parser_except(donsus_token_kind::LBRACE);
-  // Todo: think about this
-  // body_def.body = statements();
-  definition->children = statements();
+  body_def.body = statements();
+
   parser_except_current(definition, donsus_token_kind::RBRACE);
   return definition;
 }
@@ -882,6 +881,11 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
       parse_result result = variable_def();
       parser_except(donsus_token_kind::SEMICOLON);
       tree->add_node(result);
+    }
+    if (cur_token.kind == donsus_token_kind::RETURN_KW) {
+      parse_result result = return_statement();
+      parser_except(donsus_token_kind::SEMICOLON);
+      body.push_back(result);
     }
     if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
         peek().kind == donsus_token_kind::INSTANCE_KW) {
@@ -1702,6 +1706,19 @@ auto Parser::type() -> parse_result { return identifier(); }
 auto Parser::create_identifier() -> parse_result {
   return tree->create_node<donsus_ast::identifier>(
       donsus_ast::donsus_node_type::IDENTIFIER);
+}
+auto Parser::create_return_statement() -> parse_result {
+  return tree->create_node<donsus_ast::return_statement>(
+      donsus_ast::donsus_node_type::RETURN_STATEMENT);
+}
+auto Parser::return_statement() -> parse_result {
+  parse_result return_statement = create_return_statement();
+  return_statement->first_token_in_ast = cur_token;
+  auto &body_ret = return_statement->get<donsus_ast::return_statement>();
+  parser_except_current(return_statement, donsus_token_kind::RETURN_KW);
+  parser_next();
+  body_ret.body = expr();
+  return return_statement;
 }
 auto Parser::identifier() -> parse_result {
   parse_result identifier = create_identifier();

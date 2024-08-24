@@ -161,8 +161,6 @@ public:
 
   auto create_template_decl() -> parse_result;
   auto template_decl() -> parse_result;
-  auto create_function_decl() -> parse_result;
-  auto function_decl() -> parse_result;
 
   auto create_array_access() -> parse_result;
   auto array_access() -> parse_result;

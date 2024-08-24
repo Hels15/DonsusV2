@@ -125,27 +125,20 @@ inline void print_type(donsus_ast::donsus_node_type type, int indent_level) {
   print_with_newline("type: " + std::string(type.type_name()), indent_level);
 }
 
-inline void print_function_decl(donsus_ast::function_decl &f_decl,
-                                int indent_level, std::string &source) {
-  print_with_newline("return_types: ", indent_level);
-  print_ast_node(f_decl.return_type, indent_level + 1, source);
-
-  print_with_newline("parameters: ", indent_level);
-  for (auto p : f_decl.parameters) {
-    print_ast_node(p, indent_level + 1, source);
-  }
-  print_with_newline("func_name: " + f_decl.func_name, indent_level);
-
-  print_with_newline("specifiers: " +
-                         std::string(donsus_ast::specifiers_utils::type_name(
-                             f_decl.specifiers)),
-                     indent_level);
-}
-
 inline void print_function_def(donsus_ast::function_def &f_def,
                                int indent_level, std::string &source) {
   print_with_newline("return_types: ", indent_level);
   print_ast_node(f_def.return_type, indent_level + 1, source);
+  print_with_newline("Actual type: ", indent_level);
+  if (f_def.function_type == donsus_ast::FunctionType::Unknown) {
+    print_with_newline("Unknown", indent_level + 1);
+  } else if (f_def.function_type == donsus_ast::FunctionType::DECL) {
+    print_with_newline("DECL", indent_level + 1);
+  } else if (f_def.function_type == donsus_ast::FunctionType::DEF) {
+    print_with_newline("DEF", indent_level + 1);
+  } else {
+    print_with_newline("Unrecognised", indent_level + 1);
+  }
 
   print_with_newline("parameters: ", indent_level);
   for (auto p : f_def.parameters) {
@@ -371,12 +364,6 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
   case type::IDENTIFIER: {
     print_type(ast_node->type, indent_level);
     print_identifier(ast_node->get<donsus_ast::identifier>(), indent_level);
-    break;
-  }
-  case type::FUNCTION_DECL: {
-    print_type(ast_node->type, indent_level);
-    print_function_decl(ast_node->get<donsus_ast::function_decl>(),
-                        indent_level + 1, source);
     break;
   }
 

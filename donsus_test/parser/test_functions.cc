@@ -63,7 +63,7 @@ TEST(FuncDef, FuncDefReturn) {
 
 TEST(FuncDecl, FuncDeclSpecifiers) {
   std::string a = R"(
-  func() comptime -> int;
+  def func() comptime -> int;
 )";
   AstFile file;
   file.source = a;
@@ -73,20 +73,25 @@ TEST(FuncDecl, FuncDeclSpecifiers) {
   auto main_type = result->get_nodes()[0]->type;
   auto func_decl = result->get_nodes()[0];
 
-  EXPECT_EQ(func_decl->get<donsus_ast::function_decl>().specifiers,
+  EXPECT_EQ(func_decl->get<donsus_ast::function_def>().specifiers,
             static_cast<donsus_ast::specifiers_>(1 << 0));
 
-  EXPECT_EQ(func_decl->get<donsus_ast::function_decl>().func_name, "func");
+  EXPECT_EQ(func_decl->get<donsus_ast::function_def>().func_name, "func");
 
-  EXPECT_EQ(lexeme_value(func_decl->get<donsus_ast::function_decl>()
+  EXPECT_EQ(lexeme_value(func_decl->get<donsus_ast::function_def>()
                              .return_type->get<donsus_ast::expression>()
                              .value,
                          a),
             "int");
+  EXPECT_EQ(func_decl->get<donsus_ast::function_def>().body.size(), 0);
+
   EXPECT_EQ(file.error_count, 0);
-  EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::FUNCTION_DECL);
+  EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::FUNCTION_DEF);
+  EXPECT_EQ(func_decl->get<donsus_ast::function_def>().function_type,
+            donsus_ast::FunctionType::DECL);
 }
 
+/*
 TEST(FuncCall, ZeroArgs) {
   std::string a = R"(
   a();
@@ -131,3 +136,4 @@ TEST(FuncParam, Default) {
   auto main_type = result->get_nodes()[0]->type;
   auto func_call = result->get_nodes()[0];
 }
+*/

@@ -28,7 +28,6 @@ utility::handle<donsus_ast::node> donsus_ast::tree::get_current_node() {
 bool donsus_ast::tree::is_main_node(donsus_ast::donsus_node_type type_) {
   switch (type_.type) {
   case donsus_node_type::VARIABLE_DEFINITION:
-  case donsus_node_type::FUNCTION_DECL:
   case donsus_node_type::INSTANCE:
   case donsus_node_type::LANGUAGE_EXTENSION:
   case donsus_node_type::TYPECLASS:

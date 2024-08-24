@@ -15,7 +15,6 @@ namespace donsus_ast {
 
 #define UNDERLYING_NODE_TYPES                                                  \
   X(VARIABLE_DEFINITION, "VARIABLE_DEFINITION")                                \
-  X(FUNCTION_DECL, "FUNCTION_DECL")                                            \
   X(FUNCTION_DEF, "FUNCTION_DEF")                                              \
   X(IF_STATEMENT, "IF_STATEMENT")                                              \
   X(ASSIGNMENT, "ASSIGNMENT")                                                  \
@@ -339,18 +338,11 @@ struct bool_expr {
 struct unary_expr {
   token op;
 };
-struct function_decl {
-  specifiers_ specifiers{};
-  utility::handle<donsus_ast::node> return_type;
 
-  // function signature
-  Tomi::Vector<utility::handle<donsus_ast::node>>
-      parameters; // parameters inside the function signature
-
-  std::string func_name; // name of the function
-};
+enum class FunctionType {Unknown, DECL, DEF};
 
 struct function_def {
+  FunctionType function_type{};
   specifiers_ specifiers;
   utility::handle<donsus_ast::node>
       return_type; // the return type of the function
@@ -361,7 +353,7 @@ struct function_def {
 
   std::string func_name; // name of the function
 
-  Tomi::Vector<utility::handle<donsus_ast::node>> body;
+  Tomi::Vector<utility::handle<donsus_ast::node>> body{};
 };
 
 struct function_call {

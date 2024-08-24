@@ -91,11 +91,6 @@ auto Parser::parse() -> end_result {
           peek(2).kind == donsus_token_kind::COLON) {
         parse_result result = generics_decl();
         tree->add_node(result);
-      }
-      if (peek().kind == donsus_token_kind::LPAR) {
-        parse_result result = function_decl();
-
-        tree->add_node(result);
       } else if (peek().kind == donsus_token_kind::COLON &&
                  peek(3).kind != donsus_token_kind::LSQB) {
         parse_result result = variable_def();
@@ -176,54 +171,6 @@ auto Parser::parse() -> end_result {
   // return smt here
 }
 
-auto Parser::create_function_decl() -> parse_result {
-  return tree->create_node<donsus_ast::function_decl>(
-      donsus_ast::donsus_node_type::FUNCTION_DECL);
-}
-auto Parser::function_decl() -> parse_result {
-  donsus_ast::specifiers_ s{};
-  parse_result declaration = create_function_decl();
-  declaration->first_token_in_ast = cur_token;
-
-  auto &body = declaration->get<donsus_ast::function_decl>();
-  body.func_name = lexeme_value(cur_token, file.source);
-
-  parser_except(donsus_token_kind::LPAR);
-  parser_next();
-
-  body.parameters = arg_list();
-  parser_except_current(declaration, donsus_token_kind::RPAR);
-  parser_next();
-  while (is_specifier(cur_token.kind)) {
-    auto value = lexeme_value(cur_token, file.source);
-    if (value == "comptime") {
-      s = set_specifiers(declaration, s, donsus_ast::specifiers_::comptime);
-    }
-    if (value == "static") {
-      s = set_specifiers(declaration, s, donsus_ast::specifiers_::static_);
-    }
-    if (value == "thread_local") {
-      s = set_specifiers(declaration, s,
-                         donsus_ast::specifiers_::thread_local_);
-    }
-    if (value == "mut") {
-      s = set_specifiers(declaration, s, donsus_ast::specifiers_::mut);
-    }
-    if (value == "private") {
-      s = set_specifiers(declaration, s, donsus_ast::specifiers_::private_);
-    }
-    parser_next();
-  }
-  body.specifiers = s;
-
-  parser_except_current(declaration, donsus_token_kind::ARROW);
-  parser_next();
-
-  body.return_type = return_from_func();
-
-  parser_except(donsus_token_kind::SEMICOLON);
-  return declaration;
-}
 // Handles all the return possibilities from a function
 // e.g (int, int)
 auto Parser::return_from_func() -> parse_result {
@@ -863,6 +810,12 @@ auto Parser::function_def() -> parse_result {
   parser_next();
 
   body_def.return_type = return_from_func();
+  if (peek().kind == donsus_token_kind::SEMICOLON) {
+    body_def.function_type = donsus_ast::FunctionType::DECL;
+    return definition;
+  }
+  body_def.function_type = donsus_ast::FunctionType::DEF;
+
   parser_except(donsus_token_kind::LBRACE);
   body_def.body = statements();
 
@@ -909,10 +862,6 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
       if (peek().kind == donsus_token_kind::COLON &&
           peek(2).kind == donsus_token_kind::COLON) {
         parse_result result = generics_decl();
-        body.push_back(result);
-      } else if (peek().kind == donsus_token_kind::LPAR) {
-        parse_result result = function_decl();
-
         body.push_back(result);
       } else if (peek().kind == donsus_token_kind::COLON &&
                  peek(3).kind != donsus_token_kind::LSQB) {

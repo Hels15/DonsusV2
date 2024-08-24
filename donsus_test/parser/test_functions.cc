@@ -86,3 +86,48 @@ TEST(FuncDecl, FuncDeclSpecifiers) {
   EXPECT_EQ(file.error_count, 0);
   EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::FUNCTION_DECL);
 }
+
+TEST(FuncCall, ZeroArgs) {
+  std::string a = R"(
+  a();
+)";
+  AstFile file;
+  file.source = a;
+  Parser parser = Du_Parse(a, file);
+  Parser::end_result result = parser.parse();
+
+  auto main_type = result->get_nodes()[0]->type;
+  auto func_call = result->get_nodes()[0];
+
+  EXPECT_EQ(func_call->get<donsus_ast::function_call>().func_name, "a");
+  EXPECT_EQ(func_call->get<donsus_ast::function_call>().arguments.size(), 0);
+
+  EXPECT_EQ(file.error_count, 0);
+  EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::FUNCTION_CALL);
+}
+
+TEST(FuncCall, Args) {
+  std::string a = R"(
+  func() comptime -> int;
+)";
+  AstFile file;
+  file.source = a;
+  Parser parser = Du_Parse(a, file);
+  Parser::end_result result = parser.parse();
+
+  auto main_type = result->get_nodes()[0]->type;
+  auto func_call = result->get_nodes()[0];
+}
+
+TEST(FuncParam, Default) {
+  std::string a = R"(
+  func() comptime -> int;
+)";
+  AstFile file;
+  file.source = a;
+  Parser parser = Du_Parse(a, file);
+  Parser::end_result result = parser.parse();
+
+  auto main_type = result->get_nodes()[0]->type;
+  auto func_call = result->get_nodes()[0];
+}

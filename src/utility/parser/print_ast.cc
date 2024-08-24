@@ -144,11 +144,7 @@ inline void print_function_decl(donsus_ast::function_decl &f_decl,
 inline void print_function_def(donsus_ast::function_def &f_def,
                                int indent_level, std::string &source) {
   print_with_newline("return_types: ", indent_level);
-  /*  for (auto r : f_def.return_type) {
-      print_with_newline("return_type: " +
-                             std::string(token::type_name(r.to_parse(r.type_un))),
-                         indent_level + 1);
-    }*/
+  print_ast_node(f_def.return_type, indent_level + 1, source);
 
   print_with_newline("parameters: ", indent_level);
   for (auto p : f_def.parameters) {
@@ -159,6 +155,10 @@ inline void print_function_def(donsus_ast::function_def &f_def,
   for (auto node : f_def.body) {
     print_ast_node(node, indent_level + 1, source);
   }
+  print_with_newline("specifiers: " +
+                         std::string(donsus_ast::specifiers_utils::type_name(
+                             f_def.specifiers)),
+                     indent_level);
 }
 
 inline void print_statement(donsus_ast::if_statement &statement,
@@ -250,7 +250,10 @@ inline void print_var_def(donsus_ast::variable_def &def, int indent_level) {
       "identifier_name: " +
           def.identifier_name->get<donsus_ast::identifier>().identifier_name,
       indent_level);
-  print_with_newline("specifiers: " + std::string(donsus_ast::specifiers_utils::type_name(def.specifiers)), indent_level);
+  print_with_newline(
+      "specifiers: " +
+          std::string(donsus_ast::specifiers_utils::type_name(def.specifiers)),
+      indent_level);
 }
 
 inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,

@@ -821,9 +821,23 @@ auto Parser::create_function_def() -> parse_result {
       donsus_ast::donsus_node_type::FUNCTION_DEF);
 }
 auto Parser::function_def() -> parse_result {
-  donsus_ast::specifiers_ s;
+  donsus_ast::specifiers_ s{};
   parse_result definition = create_function_def();
   definition->first_token_in_ast = cur_token;
+
+  parser_except_current(definition, donsus_token_kind::FUNCTION_DEFINITION_KW);
+  parser_next();
+
+  auto &body_def = definition->get<donsus_ast::function_def>();
+  body_def.func_name = lexeme_value(cur_token, file.source);
+
+  parser_except(donsus_token_kind::LPAR);
+  parser_next();
+
+  body_def.parameters = arg_list();
+
+  parser_except_current(definition, donsus_token_kind::RPAR);
+  parser_next();
 
   while (is_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
@@ -844,23 +858,10 @@ auto Parser::function_def() -> parse_result {
     }
     parser_next();
   }
-  parser_except_current(definition, donsus_token_kind::FUNCTION_DEFINITION_KW);
-  parser_next();
 
-  auto &body_def = definition->get<donsus_ast::function_def>();
-  body_def.func_name = lexeme_value(cur_token, file.source);
   body_def.specifiers = s;
 
-  parser_except(donsus_token_kind::LPAR);
-  parser_next();
-
-  body_def.parameters = arg_list();
-
-  parser_except_current(definition, donsus_token_kind::RPAR);
-
-  parser_except(donsus_token_kind::ARROW);
-  parser_next();
-
+  parser_except_current(definition, donsus_token_kind::ARROW);
   parser_next();
 
   body_def.return_type = return_from_func();
@@ -868,12 +869,12 @@ auto Parser::function_def() -> parse_result {
   // Todo: think about this
   // body_def.body = statements();
   definition->children = statements();
-  parser_except(donsus_token_kind::RBRACE);
+  parser_except_current(definition, donsus_token_kind::RBRACE);
   return definition;
 }
 
 auto Parser::statements() -> Tomi::Vector<parse_result> {
-  Tomi::Vector<parse_result> body;
+  Tomi::Vector<parse_result> body{};
   // Todo: Do not duplicate this that much!
   while (cur_token.kind != donsus_token_kind::RBRACE) {
     /*    if (cur_token.kind == donsus_token_kind::TYPE_KW &&
@@ -972,6 +973,7 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
     }
     parser_next();
   }
+  return body;
 }
 auto Parser::create_instance() -> parse_result {
   return tree->create_node<donsus_ast::instance>(
@@ -1725,7 +1727,7 @@ void Parser::parser_except(donsus_token_kind type) {
  * */
 auto Parser::arg_list() -> Tomi::Vector<parse_result> {
   Tomi::Vector<parse_result> a;
-  while (peek().kind != donsus_token_kind::RPAR) {
+  while (cur_token.kind != donsus_token_kind::RPAR) {
     parser_except(donsus_token_kind::IDENTIFIER);
     parse_result v_d = arg_decl();
     a.push_back(v_d);

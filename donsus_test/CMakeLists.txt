@@ -24,6 +24,7 @@ add_executable(donsus_test
         parser/test_range_expression.cc
         parser/test_var.cc
         parser/test_functions.cc
+        parser/test_param_decl.cc
 )
 
 

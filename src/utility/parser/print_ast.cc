@@ -235,11 +235,10 @@ inline void print_array_def(donsus_ast::array_def &def, int indent_level,
   print_with_newline(" ", indent_level);
 }
 
-inline void print_var_def(donsus_ast::variable_def &def, int indent_level) {
-  print_with_newline(
-      "identifier_type: " +
-          def.identifier_type->get<donsus_ast::identifier>().identifier_name,
-      indent_level);
+inline void print_var_def(donsus_ast::variable_def &def, int indent_level,
+                          std::string &source) {
+  print_with_newline("identifier_type: ", indent_level);
+  print_ast_node(def.identifier_type, indent_level + 1, source);
   print_with_newline(
       "identifier_name: " +
           def.identifier_name->get<donsus_ast::identifier>().identifier_name,
@@ -261,8 +260,8 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
   case type::VARIABLE_DEFINITION: {
     print_type(ast_node->type, indent_level);
     indent_level++;
-    print_var_def(ast_node->get<donsus_ast::variable_def>(),
-                  indent_level); // reuse variable decl
+    print_var_def(ast_node->get<donsus_ast::variable_def>(), indent_level,
+                  source); // reuse variable decl
     for (auto children_expr : ast_node->children) {
       print_with_newline("children: ", indent_level);
       print_ast_node(children_expr, indent_level + 2, source);
@@ -304,7 +303,8 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
 
   case type::FUNCTION_ARG: {
     print_type(ast_node->type, indent_level);
-    print_var_def(ast_node->get<donsus_ast::variable_def>(), indent_level);
+    print_var_def(ast_node->get<donsus_ast::variable_def>(), indent_level,
+                  source);
     break;
   }
 
@@ -361,6 +361,18 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
     break;
   }
 
+  case type::PARAM_DECL: {
+    print_ast_node(ast_node->get<donsus_ast::param_decl>().identifier_name,
+                   indent_level, source);
+    print_ast_node(ast_node->get<donsus_ast::param_decl>().identifier_type,
+                   indent_level, source);
+    print_with_newline(
+        "specifiers: " +
+            std::string(donsus_ast::specifiers_utils::type_name(
+                ast_node->get<donsus_ast::param_decl>().specifiers)),
+        indent_level);
+    break;
+  }
   case type::IDENTIFIER: {
     print_type(ast_node->type, indent_level);
     print_identifier(ast_node->get<donsus_ast::identifier>(), indent_level);
@@ -442,6 +454,14 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
     for (auto node : ast_node->get<donsus_ast::for_loop>().body) {
       print_ast_node(node, indent_level + 1, source);
     }
+    break;
+  }
+
+  case type::POINTER: {
+    print_with_newline("POINTER TYPE", indent_level);
+    print_with_newline("POINTEE:", indent_level);
+    print_ast_node(ast_node->get<donsus_ast::pointer>().pointee, indent_level,
+                   source);
     break;
   }
 

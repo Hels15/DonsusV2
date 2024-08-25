@@ -308,13 +308,13 @@ auto Parser::variable_def() -> parse_result {
 }
 
 auto Parser::create_param_decl() -> parse_result {
-  return tree->create_node<donsus_ast::arg_decl>(
-      donsus_ast::donsus_node_type::ARG_DECL);
+  return tree->create_node<donsus_ast::param_decl>(
+      donsus_ast::donsus_node_type::PARAM_DECL);
 }
 auto Parser::param_decl() -> parse_result {
   parse_result declaration = create_param_decl();
   declaration->first_token_in_ast = cur_token;
-  auto &body = declaration->get<donsus_ast::arg_decl>();
+  auto &body = declaration->get<donsus_ast::param_decl>();
   body.identifier_name = identifier();
   parser_except(donsus_token_kind::COLON);
   parser_next();
@@ -1731,11 +1731,12 @@ void Parser::parser_except(donsus_token_kind type) {
 auto Parser::param_list() -> Tomi::Vector<parse_result> {
   Tomi::Vector<parse_result> a;
   while (cur_token.kind != donsus_token_kind::RPAR) {
-    parser_except(donsus_token_kind::IDENTIFIER);
+    parser_except_current(tree->get_current_node(), donsus_token_kind::IDENTIFIER);
     parse_result v_d = param_decl();
     a.push_back(v_d);
 
     if (peek().kind == donsus_token_kind::COMM) {
+      parser_next();
       parser_next();
       continue;
     }

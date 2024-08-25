@@ -57,7 +57,7 @@ namespace donsus_ast {
   X(RANGE_EXPRESSION, "RANGE_EXPRESSION")                                      \
   X(LANGUAGE_EXTENSION, "LANGUAGE_EXTENSION")                                  \
   X(GENERICS_DECL, "GENERICS_DECL")                                            \
-  X(ARG_DECL, "ARG_DECL")                                                      \
+  X(PARAM_DECL, "PARAM_DECL")                                                  \
   X(TUPLE, "TUPLE")                                                            \
   X(POINTER, "POINTER")                                                        \
   X(REFERENCE, "REFERENCE")                                                    \
@@ -251,10 +251,10 @@ struct specifiers_class_utils {
 
 struct node;
 struct variable_def {
+  // value stored in children
   specifiers_ specifiers{};
   utility::handle<donsus_ast::node> identifier_type;
   utility::handle<donsus_ast::node> identifier_name;
-  // value stored in children
 };
 
 // Just for reporting more precise error messages
@@ -339,7 +339,7 @@ struct unary_expr {
   token op;
 };
 
-enum class FunctionType {Unknown, DECL, DEF};
+enum class FunctionType { Unknown, DECL, DEF };
 
 struct function_def {
   FunctionType function_type{};
@@ -361,7 +361,7 @@ struct function_call {
   // test ->func_name
   // (1,2,3,4,5,6) ->arguments
   std::string func_name;
-  Tomi::Vector<utility::handle<donsus_ast::node>> arguments;
+  Tomi::Vector<utility::handle<donsus_ast::node>> arguments{};
 };
 
 struct if_statement {
@@ -421,12 +421,11 @@ struct pattern {
   utility::handle<donsus_ast::node> result_expression;
 };
 
-struct arg_decl {
-  Tomi::Vector<token> qualifiers;
+struct param_decl {
+  // value stored in children
+  specifiers_ specifiers{};
   utility::handle<donsus_ast::node> identifier_type;
   utility::handle<donsus_ast::node> identifier_name;
-  bool is_pointer;
-  bool is_reference;
 };
 
 struct do_expr {

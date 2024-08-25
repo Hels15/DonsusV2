@@ -458,13 +458,19 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
   }
 
   case type::POINTER: {
-    print_with_newline("POINTER TYPE", indent_level);
+    print_type(ast_node->type, indent_level);
     print_with_newline("POINTEE:", indent_level);
-    print_ast_node(ast_node->get<donsus_ast::pointer>().pointee, indent_level,
-                   source);
+    print_ast_node(ast_node->get<donsus_ast::pointer>().pointee,
+                   indent_level + 1, source);
     break;
   }
-
+  case type::REFERENCE: {
+    print_type(ast_node->type, indent_level);
+    print_with_newline("REFERENT:", indent_level);
+    print_ast_node(ast_node->get<donsus_ast::reference>().referent,
+                   indent_level + 1, source);
+    break;
+  }
   case type::EXPRESSION: {
     print_type(ast_node->type, indent_level);
     print_expression(ast_node->get<donsus_ast::expression>(), indent_level,

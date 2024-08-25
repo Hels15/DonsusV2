@@ -352,10 +352,12 @@ auto Parser::param_decl() -> parse_result {
   switch (cur_token.kind) {
   case donsus_token_kind::STAR:
     body.identifier_type = pointer(concrete_type);
+    parser_next();
     break;
 
   case donsus_token_kind::AMPERSAND:
     body.identifier_type = reference(concrete_type);
+    parser_next();
     break;
 
   default:
@@ -1731,12 +1733,12 @@ void Parser::parser_except(donsus_token_kind type) {
 auto Parser::param_list() -> Tomi::Vector<parse_result> {
   Tomi::Vector<parse_result> a;
   while (cur_token.kind != donsus_token_kind::RPAR) {
-    parser_except_current(tree->get_current_node(), donsus_token_kind::IDENTIFIER);
+    parser_except_current(tree->get_current_node(),
+                          donsus_token_kind::IDENTIFIER);
     parse_result v_d = param_decl();
     a.push_back(v_d);
 
-    if (peek().kind == donsus_token_kind::COMM) {
-      parser_next();
+    if (cur_token.kind == donsus_token_kind::COMM) {
       parser_next();
       continue;
     }

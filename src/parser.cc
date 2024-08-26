@@ -1669,6 +1669,15 @@ auto Parser::class_def() -> parse_result {
   definition->first_token_in_ast = cur_token;
   auto &body_def = definition->get<donsus_ast::class_def>();
 
+  parser_except_current(definition, donsus_token_kind::CLASS_KW);
+  parser_next();
+
+  if (cur_token.kind != donsus_token_kind::IDENTIFIER)
+    syntax_error(definition, cur_token,
+                 "Class name must be specified after class kw");
+
+  body_def.name = identifier();
+
   while (is_class_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
     if (value == "abstract") {
@@ -1681,13 +1690,7 @@ auto Parser::class_def() -> parse_result {
     }
     parser_next();
   }
-  parser_except_current(definition, donsus_token_kind::CLASS_KW);
-  parser_next();
-  if (cur_token.kind != donsus_token_kind::IDENTIFIER)
-    syntax_error(definition, cur_token,
-                 "Class name must be specified after class kw");
 
-  body_def.name = identifier();
   body_def.specifiers = s;
   parser_next();
 

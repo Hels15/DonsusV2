@@ -235,6 +235,24 @@ inline void print_array_def(donsus_ast::array_def &def, int indent_level,
   print_with_newline(" ", indent_level);
 }
 
+inline void print_class_def(donsus_ast::class_def &def, int indent_level,
+                            std::string &source) {
+  print_with_newline("NAME:", indent_level + 1);
+  print_ast_node(def.name, indent_level + 2, source);
+  print_with_newline(
+      "specifiers: " +
+          std::string(
+              donsus_ast::specifiers_class_utils::type_name(def.specifiers)),
+      indent_level);
+  print_with_newline("BODY:", indent_level + 1);
+  for (auto child : def.body) {
+    print_ast_node(child, indent_level + 2, source);
+  }
+  print_with_newline("INHERITS: ", indent_level + 1);
+  for (auto child : def.inherits) {
+    print_ast_node(child, indent_level + 2, source);
+  }
+}
 inline void print_var_def(donsus_ast::variable_def &def, int indent_level,
                           std::string &source) {
   print_with_newline("identifier_type: ", indent_level);
@@ -494,7 +512,12 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
                    indent_level + 2, source);
     break;
   }
-
+  case type::CLASS: {
+    print_type(ast_node->type, indent_level);
+    print_class_def(ast_node->get<donsus_ast::class_def>(), indent_level + 1,
+                    source);
+    break;
+  }
   case type::CASE: {
     print_type(ast_node->type, indent_level);
     print_with_newline("SCRUTINEE:", indent_level + 1);

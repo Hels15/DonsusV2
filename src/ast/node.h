@@ -353,7 +353,7 @@ struct function_def {
 
   std::string func_name; // name of the function
 
-  Tomi::Vector<utility::handle<donsus_ast::node>> body{};
+  Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };
 
 struct function_call {
@@ -361,7 +361,7 @@ struct function_call {
   // test ->func_name
   // (1,2,3,4,5,6) ->arguments
   std::string func_name;
-  Tomi::Vector<utility::handle<donsus_ast::node>> arguments{};
+  Tomi::Vector<utility::handle<donsus_ast::node>> arguments;
 };
 
 struct if_statement {

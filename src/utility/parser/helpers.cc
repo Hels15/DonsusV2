@@ -62,7 +62,7 @@ bool is_prefix_op(donsus_token_kind kind) {
 }
 
 bool is_member_access_op(donsus_token_kind kind) {
-  return (kind == donsus_token_kind::DOT || kind == donsus_token_kind::ARROW);
+  return (kind == donsus_token_kind::DOT);
 }
 TYPE make_type(donsus_token_kind type) {
   TYPE a;

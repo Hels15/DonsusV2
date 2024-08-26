@@ -471,6 +471,42 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
                    indent_level + 1, source);
     break;
   }
+  case type::PATTERN: {
+    print_type(ast_node->type, indent_level);
+    print_with_newline("TYPE: ", indent_level + 1);
+    switch (ast_node->get<donsus_ast::pattern>().type) {
+    case donsus_ast::PatternType::CONDITIONAL:
+      print_with_newline("CONDITIONAL", indent_level + 2);
+      break;
+    case donsus_ast::PatternType::UNCONDITIONAL:
+      print_with_newline("UNCONDITIONAL", indent_level + 2);
+      break;
+    case donsus_ast::PatternType::Unknown:
+      print_with_newline("UNKNOWN", indent_level + 2);
+      break;
+    }
+    print_with_newline("GUARD: ", indent_level + 1);
+    print_ast_node(ast_node->get<donsus_ast::pattern>().guard, indent_level + 2,
+                   source);
+
+    print_with_newline("RESULT EXPRESSION: ", indent_level + 1);
+    print_ast_node(ast_node->get<donsus_ast::pattern>().result_expression,
+                   indent_level + 2, source);
+    break;
+  }
+
+  case type::CASE: {
+    print_type(ast_node->type, indent_level);
+    print_with_newline("SCRUTINEE:", indent_level + 1);
+    print_ast_node(ast_node->get<donsus_ast::case_expr>().scrutinee,
+                   indent_level + 1, source);
+    print_with_newline("PATTERNS: ", indent_level + 1);
+    for (auto pattern : ast_node->get<donsus_ast::case_expr>().patterns) {
+      print_ast_node(pattern, indent_level + 1, source);
+    }
+
+    break;
+  }
   case type::EXPRESSION: {
     print_type(ast_node->type, indent_level);
     print_expression(ast_node->get<donsus_ast::expression>(), indent_level,

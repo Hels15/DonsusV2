@@ -414,9 +414,15 @@ struct case_expr {
   Tomi::Vector<utility::handle<donsus_ast::node>> patterns;
 };
 
+enum class PatternType { Unknown, CONDITIONAL, UNCONDITIONAL };
+
 struct pattern {
   // if the scrutinee satisfies the guard
   // the value of the expression is the "result_expression"
+
+  PatternType type{};
+  // guard is both a conditional guard and an
+  // unconditional simple_expression
   utility::handle<donsus_ast::node> guard;
   utility::handle<donsus_ast::node> result_expression;
 };

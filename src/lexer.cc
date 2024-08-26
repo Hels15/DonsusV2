@@ -162,7 +162,7 @@ static std::string next_identifier(Parser &parser, token &token,
 }
 
 static bool next_string(Parser &parser) {
-  if (eat(parser) && peek_for_char(parser) != '\"') {
+  if (parser.lexer.cur_char != '\"') {
     return true;
   }
   if (parser.lexer.cur_char == '\\' && peek_for_char(parser) == '\"') {
@@ -890,14 +890,15 @@ token donsus_lexer_next(Parser &parser) {
     unsigned int start_pos = parser.lexer.cur_pos;
     cur_token.kind = donsus_token_kind::STRING;
 
-    cur_token.length = 0;
     cur_token.offset = parser.lexer.cur_pos;
+    eat(parser);
 
     while (next_string(parser)) {
       cur_token.length++;
+      eat(parser);
     }
-
-    eat(parser);
+    if (cur_token.length)
+      cur_token.offset++;
     if (parser.lexer.cur_char == '\"') {
       eat(parser); // Consume the closing double quote
       std::string formal =

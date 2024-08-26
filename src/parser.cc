@@ -4,6 +4,7 @@
 #include "../src/utility/parser/helpers.h"
 #include "../src/utility/parser/print_ast.h"
 
+// Todo: add unary
 // Todo: Replace it when switching to multi-threading
 Tomi::Vector<AstFile *> global_files;
 
@@ -17,6 +18,9 @@ Parser::Parser(donsus_lexer &lexer, AstFile &file)
 
 token Parser::parser_next() {
   cur_token = donsus_lexer_next(*this);
+  // Todo: think about this
+  if (cur_token.kind == donsus_token_kind::NEWLINE)
+    parser_next();
   return cur_token;
 }
 
@@ -563,11 +567,16 @@ auto Parser::expr_val() -> parse_result {
     return array();
   }
 
-  case donsus_token_kind::IDENTIFIER:
+  case donsus_token_kind::CASE_KW: {
+    return case_expr();
+  }
   case donsus_token_kind::INT: {
     if (peek().kind == donsus_token_kind::TWO_DOTS)
       return range_expression();
   }
+  case donsus_token_kind::TRUE_KW:
+  case donsus_token_kind::FALSE_KW:
+  case donsus_token_kind::IDENTIFIER:
   case donsus_token_kind::FLOAT:
   case donsus_token_kind::STRING:
   case donsus_token_kind::UNDEFINED: {
@@ -1053,12 +1062,12 @@ auto Parser::alias() -> parse_result {
   parser_except_current(alias_decl, donsus_token_kind::ALIAS_KW);
   parser_next();
   parser_except_current(alias_decl, donsus_token_kind::IDENTIFIER);
-  body.existing_type = type();
+  body.synonym = type();
   parser_next();
   parser_except_current(alias_decl, donsus_token_kind::EQUAL);
   parser_next();
   parser_except_current(alias_decl, donsus_token_kind::IDENTIFIER);
-  body.synonym = type();
+  body.existing_type = type();
   return alias_decl;
 }
 
@@ -1390,8 +1399,15 @@ auto Parser::pattern() -> parse_result {
   parse_result pattern_statement = create_pattern();
   pattern_statement->first_token_in_ast = cur_token;
   auto &body_pattern = pattern_statement->get<donsus_ast::pattern>();
-  parser_except_current(pattern_statement, donsus_token_kind::PIPE);
-  parser_next();
+
+  body_pattern.type = (cur_token.kind == donsus_token_kind::PIPE)
+                          ? donsus_ast::PatternType::CONDITIONAL
+                          : donsus_ast::PatternType::UNCONDITIONAL;
+
+  if (cur_token.kind == donsus_token_kind::PIPE) {
+    parser_next();
+  }
+
   switch (cur_token.kind) {
   case donsus_token_kind::ARROW:
     syntax_error(pattern_statement, cur_token, "Guard must be provided");
@@ -1400,7 +1416,10 @@ auto Parser::pattern() -> parse_result {
   default:
     break;
   }
+
+  // Todo: Here it is a newline as well
   body_pattern.guard = expr();
+  // Todo: Here it is newline and not arrow
   parser_except(donsus_token_kind::ARROW);
   parser_next();
   switch (cur_token.kind) {
@@ -1421,10 +1440,10 @@ auto Parser::create_pattern() -> parse_result {
 }
 auto Parser::patterns() -> Tomi::Vector<utility::handle<donsus_ast::node>> {
   Tomi::Vector<utility::handle<donsus_ast::node>> patterns_a;
-  parser_except_current(tree->get_current_node(), donsus_token_kind::PIPE);
   while (peek().kind != donsus_token_kind::SEMICOLON) {
     patterns_a.push_back(pattern());
-    parser_next();
+    if (peek().kind != donsus_token_kind::SEMICOLON)
+      parser_next();
   }
   return patterns_a;
 }

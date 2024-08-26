@@ -240,30 +240,6 @@ token donsus_lexer_next(Parser &parser) {
   consume_spaces(parser);
 
   switch (parser.lexer.cur_char) {
-  case '0': {
-    if (peek_for_char(parser) == 'b') {
-      // binary.
-      cur_token.kind = donsus_token_kind::BIN;
-      cur_token.offset = parser.lexer.cur_pos;
-
-      cur_token.line = parser.lexer.cur_line;
-      cur_token.column = parser.lexer.cur_column;
-      // eat it until the Int part
-      eat(parser);
-      eat(parser);
-      // sets length as well
-
-      return cur_token;
-    } else if (peek_for_char(parser) == 'x') {
-      cur_token.kind = donsus_token_kind::HEX;
-      cur_token.offset = parser.lexer.cur_pos;
-      cur_token.line = parser.lexer.cur_line;
-      cur_token.column = parser.lexer.cur_column;
-      eat(parser);
-      eat(parser);
-      return cur_token;
-    }
-  }
   case '\n': {
     parser.lexer.cur_column = 1;
 
@@ -1040,6 +1016,30 @@ token donsus_lexer_next(Parser &parser) {
   }
 
   default: {
+  case '0': {
+    if (peek_for_char(parser) == 'b') {
+      // binary.
+      cur_token.kind = donsus_token_kind::BIN;
+      cur_token.offset = parser.lexer.cur_pos;
+
+      cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
+      // eat it until the Int part
+      eat(parser);
+      eat(parser);
+      // sets length as well
+
+      return cur_token;
+    } else if (peek_for_char(parser) == 'x') {
+      cur_token.kind = donsus_token_kind::HEX;
+      cur_token.offset = parser.lexer.cur_pos;
+      cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
+      eat(parser);
+      eat(parser);
+      return cur_token;
+    }
+  }
     // numbers
     if (isdigit(parser.lexer.cur_char)) {
       cur_token.kind = donsus_token_kind::INT;

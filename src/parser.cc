@@ -579,6 +579,7 @@ auto Parser::expr_val() -> parse_result {
   case donsus_token_kind::IDENTIFIER:
   case donsus_token_kind::FLOAT:
   case donsus_token_kind::STRING:
+  case donsus_token_kind::OTHERWISE_KW:
   case donsus_token_kind::UNDEFINED: {
     return create_expr_w_value(cur_token);
   }

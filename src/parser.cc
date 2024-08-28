@@ -72,64 +72,52 @@ auto Parser::parse() -> end_result {
       tree->add_node(result);
     }
 
-    if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
-        peek().kind == donsus_token_kind::INSTANCE_KW) {
+    else if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
+             peek().kind == donsus_token_kind::INSTANCE_KW) {
       parse_result result = instance();
       tree->add_node(result);
-    }
-    if (cur_token.kind == donsus_token_kind::AT) {
+    } else if (cur_token.kind == donsus_token_kind::AT) {
       parse_result result = language_extension();
       tree->add_node(result);
-    }
-    if (cur_token.kind == donsus_token_kind::TYPECLASS_KW) {
+    } else if (cur_token.kind == donsus_token_kind::TYPECLASS_KW) {
       parse_result result = typeclass();
       tree->add_node(result);
-    }
-    if (cur_token.kind == donsus_token_kind::ALIAS_KW) {
+    } else if (cur_token.kind == donsus_token_kind::ALIAS_KW) {
       parse_result result = alias();
       parser_except(donsus_token_kind::SEMICOLON);
       tree->add_node(result);
-    }
-    if (cur_token.kind == donsus_token_kind::IDENTIFIER) {
-      if (peek().kind == donsus_token_kind::LPAR) {
-        parse_result result = function_call();
-        parser_except(donsus_token_kind::SEMICOLON);
-        tree->add_node(result);
-      }
-      if (peek().kind == donsus_token_kind::COLON &&
-          peek(2).kind == donsus_token_kind::COLON) {
-        parse_result result = generics_decl();
-        tree->add_node(result);
-      } else if (peek().kind == donsus_token_kind::COLON &&
-                 peek(3).kind != donsus_token_kind::LSQB) {
-        parse_result result = variable_def();
-        parser_except(donsus_token_kind::SEMICOLON);
-        tree->add_node(result);
-      } else if (is_assignment(peek().kind)) {
-        parse_result result = assignments();
-        parser_except(donsus_token_kind::SEMICOLON);
-        tree->add_node(result);
-      } else if ((peek().kind == donsus_token_kind::COMM &&
-                  peek(2).kind == donsus_token_kind::IDENTIFIER)) {
-        parse_result ab = variable_multi_def();
-        token previous = cur_token;
-        parser_next();
-        // if the cur token is not semi colon put the error
-        // on the last part of the expression and not on the new line.
-        if (cur_token.kind != donsus_token_kind::SEMICOLON)
-          parser_except_current_token(ab, donsus_token_kind::SEMICOLON,
-                                      previous);
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               peek().kind == donsus_token_kind::DOUBLE_COLON) {
+      parse_result result = generics_decl();
+      tree->add_node(result);
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               peek().kind == donsus_token_kind::COLON &&
+               peek(3).kind != donsus_token_kind::LSQB) {
+      parse_result result = variable_def();
+      parser_except(donsus_token_kind::SEMICOLON);
+      tree->add_node(result);
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               is_assignment(peek().kind)) {
+      parse_result result = assignments();
+      parser_except(donsus_token_kind::SEMICOLON);
+      tree->add_node(result);
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               peek().kind == donsus_token_kind::COMM &&
+               peek(2).kind == donsus_token_kind::IDENTIFIER) {
+      parse_result ab = variable_multi_def();
+      token previous = cur_token;
+      parser_next();
+      if (cur_token.kind != donsus_token_kind::SEMICOLON)
+        parser_except_current_token(ab, donsus_token_kind::SEMICOLON, previous);
 
-        for (auto node : ab->get<donsus_ast::multi_var_def>().vars) {
-          tree->add_node(node);
-        }
-      } else if (peek(3).kind == donsus_token_kind::LSQB) {
-        parse_result result = array_def();
-        parser_except(donsus_token_kind::SEMICOLON);
-        tree->add_node(result);
-      } else {
-        // error here;
+      for (auto node : ab->get<donsus_ast::multi_var_def>().vars) {
+        tree->add_node(node);
       }
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               peek(3).kind == donsus_token_kind::LSQB) {
+      parse_result result = array_def();
+      parser_except(donsus_token_kind::SEMICOLON);
+      tree->add_node(result);
     } else if (cur_token.kind == donsus_token_kind::FUNCTION_DEFINITION_KW) {
       parse_result result = function_def();
 
@@ -164,7 +152,14 @@ auto Parser::parse() -> end_result {
     else if (cur_token.kind == donsus_token_kind::CLASS_KW) {
       parse_result result = class_def();
       tree->add_node(result);
+    } else {
+      if (cur_token.kind != donsus_token_kind::NEWLINE) {
+        parse_result result = expr();
+        parser_except(donsus_token_kind::SEMICOLON);
+        tree->add_node(result);
+      }
     }
+
     // end/classdecl statement
     parser_next();
   }
@@ -243,6 +238,9 @@ auto Parser::variable_def() -> parse_result {
     }
     if (value == "mut") {
       s = set_specifiers(definition, s, donsus_ast::specifiers_::mut);
+    }
+    if (value == "private") {
+      s = set_specifiers(definition, s, donsus_ast::specifiers_::private_);
     }
     parser_next();
   }
@@ -581,6 +579,10 @@ auto Parser::expr_val() -> parse_result {
   case donsus_token_kind::STRING:
   case donsus_token_kind::OTHERWISE_KW:
   case donsus_token_kind::UNDEFINED: {
+    if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+        peek().kind == donsus_token_kind::LPAR) {
+      return function_call();
+    }
     return create_expr_w_value(cur_token);
   }
   default: {
@@ -654,7 +656,7 @@ auto Parser::variable_multi_def() -> parse_result {
   multi_def->first_token_in_ast = cur_token;
 
   Tomi::Vector<parse_result> a;
-  donsus_ast::specifiers_ s;
+  donsus_ast::specifiers_ s{};
   token first_token_for_multiple = cur_token;
   while (is_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
@@ -855,13 +857,13 @@ auto Parser::function_def() -> parse_result {
   body_def.return_type = return_from_func();
   if (peek().kind == donsus_token_kind::SEMICOLON) {
     body_def.function_type = donsus_ast::FunctionType::DECL;
+    parser_next();
     return definition;
   }
   body_def.function_type = donsus_ast::FunctionType::DEF;
 
   parser_except(donsus_token_kind::LBRACE);
   body_def.body = statements();
-
   parser_except_current(definition, donsus_token_kind::RBRACE);
   return definition;
 }
@@ -876,75 +878,59 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
 
       parse_result result = variable_def();
       parser_except(donsus_token_kind::SEMICOLON);
-      tree->add_node(result);
-    }
-    if (cur_token.kind == donsus_token_kind::RETURN_KW) {
+      body.push_back(result);
+    } else if (cur_token.kind == donsus_token_kind::RETURN_KW) {
       parse_result result = return_statement();
       parser_except(donsus_token_kind::SEMICOLON);
       body.push_back(result);
-    }
-    if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
-        peek().kind == donsus_token_kind::INSTANCE_KW) {
+    } else if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
+               peek().kind == donsus_token_kind::INSTANCE_KW) {
       parse_result result = instance();
       body.push_back(result);
-    }
-    if (cur_token.kind == donsus_token_kind::AT) {
+    } else if (cur_token.kind == donsus_token_kind::AT) {
       parse_result result = language_extension();
       body.push_back(result);
-    }
-    if (cur_token.kind == donsus_token_kind::TYPECLASS_KW) {
+    } else if (cur_token.kind == donsus_token_kind::TYPECLASS_KW) {
       parse_result result = typeclass();
       body.push_back(result);
-    }
-    if (cur_token.kind == donsus_token_kind::ALIAS_KW) {
+    } else if (cur_token.kind == donsus_token_kind::ALIAS_KW) {
       parse_result result = alias();
       parser_except(donsus_token_kind::SEMICOLON);
       body.push_back(result);
-    }
-    if (cur_token.kind == donsus_token_kind::IDENTIFIER) {
-      if (peek().kind == donsus_token_kind::LPAR) {
-        parse_result result = function_call();
-        body.push_back(result);
-        parser_except(donsus_token_kind::SEMICOLON);
-      }
-      if (peek().kind == donsus_token_kind::COLON &&
-          peek(2).kind == donsus_token_kind::COLON) {
-        parse_result result = generics_decl();
-        body.push_back(result);
-      } else if (peek().kind == donsus_token_kind::COLON &&
-                 peek(3).kind != donsus_token_kind::LSQB) {
-        parse_result result = variable_def();
-        parser_except(donsus_token_kind::SEMICOLON);
-        body.push_back(result);
-      } else if (is_assignment(peek().kind)) {
-        parse_result result = assignments();
-        parser_except(donsus_token_kind::SEMICOLON);
-        body.push_back(result);
-      } else if ((peek().kind == donsus_token_kind::COMM &&
-                  peek(2).kind == donsus_token_kind::IDENTIFIER)) {
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               peek().kind == donsus_token_kind::DOUBLE_COLON) {
+      parse_result result = generics_decl();
+      body.push_back(result);
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               peek().kind == donsus_token_kind::COLON &&
+               peek(3).kind != donsus_token_kind::LSQB) {
+      parse_result result = variable_def();
+      parser_except(donsus_token_kind::SEMICOLON);
+      body.push_back(result);
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               is_assignment(peek().kind)) {
+      parse_result result = assignments();
+      parser_except(donsus_token_kind::SEMICOLON);
+      body.push_back(result);
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               peek().kind == donsus_token_kind::COMM &&
+               peek(2).kind == donsus_token_kind::IDENTIFIER) {
+      parse_result ab = variable_multi_def();
+      token previous = cur_token;
+      parser_next();
+      if (cur_token.kind != donsus_token_kind::SEMICOLON)
+        parser_except_current_token(ab, donsus_token_kind::SEMICOLON, previous);
 
-        parse_result ab = variable_multi_def();
-        token previous = cur_token;
-        parser_next();
-        // if the cur token is not semi colon put the error
-        // on the last part of the expression and not on the new line.
-        if (cur_token.kind != donsus_token_kind::SEMICOLON)
-          parser_except_current_token(ab, donsus_token_kind::SEMICOLON,
-                                      previous);
-
-        for (auto node : ab->get<donsus_ast::multi_var_def>().vars) {
-          body.push_back(node);
-        }
-      } else if (peek(3).kind == donsus_token_kind::LSQB) {
-        parse_result result = array_def();
-        parser_except(donsus_token_kind::SEMICOLON);
-        body.push_back(result);
-      } else {
-        // error here;
+      for (auto node : ab->get<donsus_ast::multi_var_def>().vars) {
+        body.push_back(node);
       }
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               peek(3).kind == donsus_token_kind::LSQB) {
+      parse_result result = array_def();
+      parser_except(donsus_token_kind::SEMICOLON);
+      body.push_back(result);
     } else if (cur_token.kind == donsus_token_kind::FUNCTION_DEFINITION_KW) {
       parse_result result = function_def();
-
       body.push_back(result);
     }
     // end/declaration statement
@@ -972,6 +958,17 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
     else if (cur_token.kind == donsus_token_kind::CLASS_KW) {
       parse_result result = class_def();
       body.push_back(result);
+    } else {
+      /*
+       If cur_token is a newline or cur_token is the beginning of a statement
+       block don't start an expression.
+       * */
+      if (cur_token.kind != donsus_token_kind::NEWLINE &&
+          cur_token.kind != donsus_token_kind::LBRACE) {
+        parse_result result = expr();
+        parser_except(donsus_token_kind::SEMICOLON);
+        body.push_back(result);
+      }
     }
     parser_next();
   }
@@ -1677,7 +1674,7 @@ auto Parser::class_def() -> parse_result {
                  "Class name must be specified after class kw");
 
   body_def.name = identifier();
-
+  parser_next();
   while (is_class_specifier(cur_token.kind)) {
     auto value = lexeme_value(cur_token, file.source);
     if (value == "abstract") {
@@ -1692,7 +1689,6 @@ auto Parser::class_def() -> parse_result {
   }
 
   body_def.specifiers = s;
-  parser_next();
 
   if (cur_token.kind == donsus_token_kind::COLON &&
       peek().kind == donsus_token_kind::LBRACE) {
@@ -1776,7 +1772,7 @@ auto Parser::set_specifiers(parse_result node, donsus_ast::specifiers_ s,
   if (donsus_ast::to_bool(s & v)) {
     syntax_error(node, cur_token,
                  std::string(donsus_ast::specifiers_utils::type_name(v)) +
-                     "is already present!");
+                     " is already present!");
   }
   return static_cast<donsus_ast::specifiers_>(s | v);
 }
@@ -1788,7 +1784,7 @@ auto Parser::set_class_specifiers(parse_result node,
   if (donsus_ast::to_bool(s & v)) {
     syntax_error(node, cur_token,
                  std::string(donsus_ast::specifiers_class_utils::type_name(v)) +
-                     "is already present!");
+                     " is already present!");
   }
   return static_cast<donsus_ast::specifiers_class_>(s | v);
 }

@@ -502,7 +502,7 @@ enum class generics_type {
 };
 
 struct generics_decl {
-  generics_type type_of_decl;
+  generics_type type_of_decl{};
   utility::handle<donsus_ast::node> name;
   Tomi::Vector<utility::handle<donsus_ast::node>> constraints;
   Tomi::Vector<utility::handle<donsus_ast::node>> params;

@@ -561,9 +561,9 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
   case type::RETURN_STATEMENT: {
     print_type(ast_node->type, indent_level);
     if (!ast_node->get<donsus_ast::return_statement>().body) {
-      print_with_newline("children: {}", indent_level);
+      print_with_newline("body: {}", indent_level);
     } else {
-      print_with_newline("children: ", indent_level);
+      print_with_newline("body: ", indent_level);
       print_ast_node(ast_node->get<donsus_ast::return_statement>().body,
                      indent_level + 1, source);
     }

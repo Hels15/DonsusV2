@@ -91,12 +91,28 @@ TEST(Expr, Arithmetic) {
   EXPECT_EQ(file.error_count, 0);
 }
 
-/*
 // precedence showcase
 TEST(Expr, BitwisePrecedence){
+  std::string a = R"(
+    a: int = a == b & c;
+  )";
+  AstFile file;
+  file.source = a;
+  Parser parser = Du_Parse(a, file);
+  Parser::end_result result = parser.parse();
 
+  auto var_def = result->get_nodes()[0];
+  auto main_type = result->get_nodes()[0]->type;
+
+  EXPECT_EQ(lexeme_value(var_def->children[0]->get<donsus_ast::expression>().value, a), "==");
+  EXPECT_EQ(lexeme_value(var_def->children[0]->children[1]->get<donsus_ast::expression>().value, a), "&");
+
+  EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::VARIABLE_DEFINITION);
+  EXPECT_EQ(file.error_count, 0);
 }
+/*
 
 TEST(Expr, Comparison){
 
-}*/
+}
+*/

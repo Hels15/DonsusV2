@@ -40,9 +40,17 @@ void Parser::print_token() {
 token Parser::peek(int loop) {
   donsus_lexer save = lexer;
   token result_main;
-  for (int i = 0; i < loop; i++) {
+
+  // skipping through newline
+  int token_count = 0;
+  while (token_count < loop) {
     result_main = donsus_lexer_next(*this);
+
+    if (result_main.kind != donsus_token_kind::NEWLINE) {
+      token_count++;
+    }
   }
+
   lexer = save;
   return result_main;
 }
@@ -136,6 +144,7 @@ auto Parser::parse() -> end_result {
     } else if (cur_token.kind == donsus_token_kind::CASE_KW) {
       parse_result result = case_expr();
       parser_except(donsus_token_kind::SEMICOLON);
+      // reset context
       tree->add_node(result);
     }
     // end/ selection statement
@@ -406,6 +415,8 @@ auto Parser::bool_and_expr() -> parse_result {
 }
 auto Parser::compare_expr() -> parse_result {
   parse_result node = arithmetic_expr();
+  std::cout << "cur_token for compare: " << cur_token.type_name() << "\n";
+  std::cout << "peek: " << peek().type_name() << "\n";
 
   while (is_compare_op(peek().kind)) {
     parser_next();
@@ -1075,54 +1086,103 @@ auto Parser::create_generics_decl() -> parse_result {
 }
 // Support for multiple constraints
 auto Parser::generics_decl() -> parse_result {
-  parse_result decl_statement = create_generics_decl();
-  decl_statement->first_token_in_ast = cur_token;
-  auto &body_decl = decl_statement->get<donsus_ast::generics_decl>();
-  parser_except_current(decl_statement, donsus_token_kind::IDENTIFIER);
-  body_decl.name = identifier();
-  parser_next();
-  switch (cur_token.kind) {
+  // second try
+  /*  parse_result decl_statement = create_generics_decl();
+    decl_statement->first_token_in_ast = cur_token;
+    auto &body_decl = decl_statement->get<donsus_ast::generics_decl>();
+    parser_except_current(decl_statement, donsus_token_kind::IDENTIFIER);
+    body_decl.name = identifier();
 
-  case donsus_token_kind::DOUBLE_COLON: {
-    body_decl.type_of_decl = donsus_ast::generics_type::AD_HOC;
-    if (peek().kind == donsus_token_kind::IMPLIES) {
-      syntax_error(decl_statement, cur_token, "Constraint left empty");
+    parser_next(); // to double colon
+
+    auto is_function_or_class_kw = [](donsus_token_kind kind) {
+      return kind == donsus_token_kind::FUNCTION_DEFINITION_KW ||
+             kind == donsus_token_kind::CLASS_KW;
+    };
+
+    if (peek().kind == donsus_token_kind::IDENTIFIER &&
+        is_function_or_class_kw(peek(2).kind)) {
+      parser_except(donsus_token_kind::IDENTIFIER);
+      body_decl.params.push_back(identifier());
+      body_decl.type_of_decl = donsus_ast::generics_type::PARAMETRIC;
       parser_next();
-      break;
+      return decl_statement;
     }
-    parser_next();
-    if (cur_token.kind == donsus_token_kind::LPAR) {
-      while (cur_token.kind != donsus_token_kind::RPAR) {
-        body_decl.constraints.push_back(constraint());
-        parser_except(donsus_token_kind::COMM);
+
+    if (peek().kind == donsus_token_kind::IDENTIFIER &&
+        peek(2).kind == donsus_token_kind::ARROW) {
+      parser_except(donsus_token_kind::IDENTIFIER);
+      body_decl.params.push_back(identifier());
+      body_decl.type_of_decl = donsus_ast::generics_type::PARAMETRIC;
+      while (!is_function_or_class_kw(cur_token.kind)) {
+        parser_except(donsus_token_kind::ARROW);
+        body_decl.params.push_back(identifier());
       }
-      break;
+      return decl_statement;
     }
 
-    body_decl.constraints.push_back(constraint());
+    if (peek().kind == donsus_token_kind::IDENTIFIER) {
+      parser_next();
+      parser_except_current(decl_statement, donsus_token_kind::IDENTIFIER);
+      body_decl.type_of_decl = donsus_ast::generics_type::AD_HOC;
+      body_decl.constraint = constraint();
+    }
     parser_except_current(decl_statement, donsus_token_kind::IMPLIES);
-    break;
-  }
-  case donsus_token_kind::ARROW:
-    break;
-  default:
-    syntax_error(decl_statement, cur_token,
-                 lexeme_value(cur_token, file.source) +
-                     "should be followed by -> or ::");
-  }
-  parser_next();
+    if (peek().kind == donsus_token_kind::IDENTIFIER &&
+        peek(2).kind == donsus_token_kind::ARROW) {
+      parser_except(donsus_token_kind::IDENTIFIER);
+      body_decl.params.push_back(identifier());
+      while (!is_function_or_class_kw(cur_token.kind)) {
+        parser_except(donsus_token_kind::ARROW);
+        body_decl.params.push_back(identifier());
+      }
+      return decl_statement;
+    }*/
 
-  if (cur_token.kind != donsus_token_kind::ARROW)
-    syntax_error(decl_statement, cur_token,
-                 lexeme_value(cur_token, file.source) +
-                     "must be followed by ->");
+  /*  switch (cur_token.kind) {
 
-  while (cur_token.kind != donsus_token_kind::NEWLINE) {
-    body_decl.params.push_back(identifier());
+    case donsus_token_kind::DOUBLE_COLON: {
+      body_decl.type_of_decl = donsus_ast::generics_type::PARAMETRIC;
+      peek();
+      if (peek().kind == donsus_token_kind::IMPLIES) {
+        syntax_error(decl_statement, cur_token, "Constraint left empty");
+        parser_next();
+        break;
+      }
+      parser_next();
+      if (cur_token.kind == donsus_token_kind::LPAR) {
+        while (cur_token.kind != donsus_token_kind::RPAR) {
+          body_decl.constraints.push_back(constraint());
+          parser_except(donsus_token_kind::COMM);
+        }
+        break;
+      }
+
+      body_decl.constraints.push_back(constraint());
+      parser_except_current(decl_statement, donsus_token_kind::IMPLIES);
+      break;
+    }
+    case donsus_token_kind::ARROW:
+      break;
+    default:
+      syntax_error(decl_statement, cur_token,
+                   lexeme_value(cur_token, file.source) +
+                       "should be followed by -> or ::");
+    }
     parser_next();
-    parser_except_current(decl_statement, donsus_token_kind::ARROW);
-  }
-  return decl_statement;
+
+    if (cur_token.kind != donsus_token_kind::ARROW)
+      syntax_error(decl_statement, cur_token,
+                   lexeme_value(cur_token, file.source) +
+                       "must be followed by ->");
+
+    while (cur_token.kind != donsus_token_kind::NEWLINE) {
+      body_decl.params.push_back(identifier());
+      parser_next();
+      parser_except_current(decl_statement, donsus_token_kind::ARROW);
+    }
+    return decl_statement;*/
+  /*  return decl_statement;*/
 }
 
 auto Parser::create_array() -> parse_result {
@@ -1269,11 +1329,12 @@ auto Parser::if_statement() -> parse_result {
     body_if.if_var_decls = if_var_decls();
   }
   parser_next();
-  while (cur_token.kind != donsus_token_kind::RPAR) {
-    parse_result condition_expression = expr();
-    body_if.condition = condition_expression;
-  }
+  parse_result condition_expression = expr();
+  body_if.condition = condition_expression;
   parser_next();
+  parser_except_current(statement, donsus_token_kind::RPAR);
+  parser_next();
+
   switch (cur_token.kind) {
   case donsus_token_kind::LBRACE:
     break;
@@ -1281,14 +1342,25 @@ auto Parser::if_statement() -> parse_result {
     syntax_error(statement, cur_token,
                  "Block must be specified for if statement");
   }
-  body_if.body = statements();
+  // jump to the body
   parser_next();
-  while (cur_token.kind == donsus_token_kind::ELSE_KW &&
-         peek().kind == donsus_token_kind::IF_KW) {
+  body_if.body = statements();
+
+  // here because I have to advance even if I don't have an else keyword would
+  // result in errors when dealing with multiple if statement, otherwise somehow
+  // I can't get into it.
+  std::cout << "cur_token" << cur_token.type_name() << "\n";
+  std::cout << "peek()" << peek().type_name() << "\n";
+  std::cout << "peek(2)" << peek(2).type_name() << "\n";
+
+  while (peek().kind == donsus_token_kind::ELSE_KW &&
+         peek(2).kind == donsus_token_kind::IF_KW) {
+    parser_next();
     body_if.alternate.push_back(else_if_statement());
     parser_next();
   }
-  while (cur_token.kind == donsus_token_kind::ELSE_KW) {
+  while (peek().kind == donsus_token_kind::ELSE_KW) {
+    parser_next();
     body_if.alternate.push_back(else_statement());
     parser_next();
   }
@@ -1331,11 +1403,12 @@ auto Parser::else_if_statement() -> parse_result {
     body_else_if.if_var_decls = if_var_decls();
   }
   parser_next();
-  while (cur_token.kind != donsus_token_kind::RPAR) {
-    parse_result condition_expression = expr();
-    body_else_if.condition = condition_expression;
-  }
+  parse_result condition_expression = expr();
+  body_else_if.condition = condition_expression;
   parser_next();
+  parser_except_current(else_if_statement, donsus_token_kind::RPAR);
+  parser_next();
+
   switch (cur_token.kind) {
   case donsus_token_kind::LBRACE:
     break;
@@ -1398,14 +1471,6 @@ auto Parser::pattern() -> parse_result {
   pattern_statement->first_token_in_ast = cur_token;
   auto &body_pattern = pattern_statement->get<donsus_ast::pattern>();
 
-  body_pattern.type = (cur_token.kind == donsus_token_kind::PIPE)
-                          ? donsus_ast::PatternType::CONDITIONAL
-                          : donsus_ast::PatternType::UNCONDITIONAL;
-
-  if (cur_token.kind == donsus_token_kind::PIPE) {
-    parser_next();
-  }
-
   switch (cur_token.kind) {
   case donsus_token_kind::ARROW:
     syntax_error(pattern_statement, cur_token, "Guard must be provided");
@@ -1415,20 +1480,23 @@ auto Parser::pattern() -> parse_result {
     break;
   }
 
-  // Todo: Here it is a newline as well
   body_pattern.guard = expr();
-  // Todo: Here it is newline and not arrow
+
   parser_except(donsus_token_kind::ARROW);
   parser_next();
+  // get to string here
   switch (cur_token.kind) {
-  case donsus_token_kind::PIPE:
+  case donsus_token_kind::COMM:
     syntax_error(pattern_statement, cur_token,
                  "Expression must be provided for a pattern");
     break;
   default:
     break;
   }
+  // after expression is parsed down why is it an int?
   body_pattern.result_expression = expr();
+  std::cout << "after result expression token:" << cur_token.type_name();
+  // how is it an integer here
   return pattern_statement;
 }
 
@@ -1441,6 +1509,8 @@ auto Parser::patterns() -> Tomi::Vector<utility::handle<donsus_ast::node>> {
   while (peek().kind != donsus_token_kind::SEMICOLON) {
     patterns_a.push_back(pattern());
     if (peek().kind != donsus_token_kind::SEMICOLON)
+      parser_next();
+    if (cur_token.kind == donsus_token_kind::COMM)
       parser_next();
   }
   return patterns_a;
@@ -1631,9 +1701,13 @@ auto Parser::constraint() -> parse_result {
   default:
     break;
   }
-  while (cur_token.kind != donsus_token_kind::COMM &&
-         cur_token.kind != donsus_token_kind::IMPLIES) {
+  while (cur_token.kind != donsus_token_kind::IMPLIES) {
     body_constraint.type_variables.push_back(identifier());
+    if (peek().kind != donsus_token_kind::IMPLIES) {
+      parser_except(donsus_token_kind::COMM);
+      continue;
+    }
+    parser_next();
   }
   return constraint_statement;
 }

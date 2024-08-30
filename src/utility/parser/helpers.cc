@@ -17,8 +17,7 @@ bool is_compare_op(donsus_token_kind kind) {
   return (kind == donsus_token_kind::LESS ||
           kind == donsus_token_kind::GREATER ||
           kind == donsus_token_kind::LESS_EQUAL ||
-          kind == donsus_token_kind::GREATER_EQUAL ||
-          kind == donsus_token_kind::DOUBLE_EQUAL);
+          kind == donsus_token_kind::GREATER_EQUAL ||kind == donsus_token_kind::DOUBLE_EQUAL);
 }
 bool is_specifier(donsus_token_kind kind) {
   return (kind == donsus_token_kind::COMPTIME_KW ||

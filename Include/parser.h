@@ -19,6 +19,10 @@
 
 class Parser;
 
+/*enum class Context {
+  NoContext,
+  Case // pattern matching
+};*/
 class ParserError {
 public:
   void print_meta_syntax(token err_on_token, const std::string &message,
@@ -297,6 +301,7 @@ public:
 private:
   ParserError error;
   AstFile &file;
+  /*  Context context{};*/
 };
 
 #endif // PARSER_H

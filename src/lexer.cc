@@ -13,7 +13,6 @@ std::map<std::string, donsus_token_kind> KEYWORDS{
     {"elif", donsus_token_kind::ELIF_KW},
     {"else", donsus_token_kind::ELSE_KW},
     {"return", donsus_token_kind::RETURN_KW},
-    {"printf", donsus_token_kind::PRINT_KW},
     {"true", donsus_token_kind::TRUE_KW},
     {"false", donsus_token_kind::FALSE_KW},
     {"while", donsus_token_kind::WHILE_KW},

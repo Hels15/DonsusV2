@@ -5,8 +5,8 @@
 TEST(Case, CaseUnconditionalWString) {
   std::string a = R"(
   a:auto = case x of
-  1 -> "one"
-  2 -> "two"
+  1 -> "one",
+  2 -> "two",
   _ -> "Other";
 )";
   AstFile file;
@@ -34,7 +34,7 @@ TEST(Case, CaseUnconditionalWString) {
 
   // pattern1
   auto pattern_1 = case_def.patterns[0]->get<donsus_ast::pattern>();
-  EXPECT_EQ(pattern_1.type, donsus_ast::PatternType::UNCONDITIONAL);
+
   auto pattern_1_guard = pattern_1.guard;
   auto pattern_1_result_expr = pattern_1.result_expression;
 
@@ -46,7 +46,7 @@ TEST(Case, CaseUnconditionalWString) {
             "one");
   // pattern2
   auto pattern_2 = case_def.patterns[1]->get<donsus_ast::pattern>();
-  EXPECT_EQ(pattern_2.type, donsus_ast::PatternType::UNCONDITIONAL);
+
   auto pattern_2_guard = pattern_2.guard;
   auto pattern_2_result_expr = pattern_2.result_expression;
 
@@ -59,7 +59,7 @@ TEST(Case, CaseUnconditionalWString) {
 
   // pattern3
   auto pattern_3 = case_def.patterns[2]->get<donsus_ast::pattern>();
-  EXPECT_EQ(pattern_3.type, donsus_ast::PatternType::UNCONDITIONAL);
+
   auto pattern_3_guard = pattern_3.guard;
   auto pattern_3_result_expr = pattern_3.result_expression;
 
@@ -80,9 +80,9 @@ TEST(Case, CaseUnconditionalWString) {
 TEST(Case, ConditionalWString) {
   std::string a = R"(
     f: auto = case x of
-        | y > 0 -> "Positive"
-        | y < 0  -> "Negative"
-        | otherwise -> "Zero";
+        y > 0 -> "Positive",
+        y < 0  -> "Negative",
+        otherwise -> "Zero";
 
   )";
   AstFile file;
@@ -110,7 +110,7 @@ TEST(Case, ConditionalWString) {
 
   // pattern1
   auto pattern_1 = case_def.patterns[0]->get<donsus_ast::pattern>();
-  EXPECT_EQ(pattern_1.type, donsus_ast::PatternType::CONDITIONAL);
+
   auto pattern_1_guard = pattern_1.guard;
   auto pattern_1_result_expr = pattern_1.result_expression;
 
@@ -124,7 +124,7 @@ TEST(Case, ConditionalWString) {
 
   // pattern2
   auto pattern_2 = case_def.patterns[1]->get<donsus_ast::pattern>();
-  EXPECT_EQ(pattern_2.type, donsus_ast::PatternType::CONDITIONAL);
+
   auto pattern_2_guard = pattern_2.guard;
   auto pattern_2_result_expr = pattern_2.result_expression;
 
@@ -138,7 +138,7 @@ TEST(Case, ConditionalWString) {
 
   // pattern3
   auto pattern_3 = case_def.patterns[2]->get<donsus_ast::pattern>();
-  EXPECT_EQ(pattern_3.type, donsus_ast::PatternType::CONDITIONAL);
+
   auto pattern_3_guard = pattern_3.guard;
   auto pattern_3_result_expr = pattern_3.result_expression;
 

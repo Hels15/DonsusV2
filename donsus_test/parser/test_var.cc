@@ -1,7 +1,7 @@
 #include "parser.h"
-#include <iostream>
 #include "print_ast.h"
 #include <gtest/gtest.h>
+#include <iostream>
 
 TEST(Vardef, VarDefWithLiteral) {
   std::string a = R"(
@@ -13,14 +13,12 @@ TEST(Vardef, VarDefWithLiteral) {
   Parser::end_result result = parser.parse();
 
   auto var_def = result->get_nodes()[0];
-  std::cout << "got here";
   auto main_type = result->get_nodes()[0]->type;
 
   EXPECT_EQ(var_def->get<donsus_ast::variable_def>()
                 .identifier_name->get<donsus_ast::identifier>()
                 .identifier_name,
             "a");
-
 
   EXPECT_EQ(var_def->get<donsus_ast::variable_def>()
                 .identifier_type->get<donsus_ast::identifier>()

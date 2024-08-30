@@ -155,8 +155,16 @@ inline void print_function_def(donsus_ast::function_def &f_def,
                      indent_level);
 }
 
-inline void print_statement(donsus_ast::if_statement &statement,
-                            int indent_level, std::string &source) {
+inline void print_if_statement(donsus_ast::if_statement &statement,
+                               int indent_level, std::string &source) {
+  print_with_newline("If Var Decls: ", indent_level);
+  for (auto node : statement.if_var_decls) {
+    print_ast_node(node, indent_level + 1, source);
+  }
+  if (statement.condition) {
+    print_with_newline("condition: ", indent_level);
+  }
+  print_ast_node(statement.condition, indent_level, source);
   print_with_newline("body: ", indent_level);
   for (auto node : statement.body) {
     print_ast_node(node, indent_level + 1, source);
@@ -169,8 +177,23 @@ inline void print_statement(donsus_ast::if_statement &statement,
       print_ast_node(node, indent_level + 1, source);
     }
   }
-};
+}
 
+inline void print_else_if_statement(donsus_ast::else_if_statement &statement,
+                                    int indent_level, std::string &source) {
+  if (statement.condition) {
+    print_with_newline("condition: ", indent_level);
+  }
+  print_with_newline("If Var Decls: ", indent_level);
+  for (auto node : statement.if_var_decls) {
+    print_ast_node(node, indent_level + 1, source);
+  }
+  print_ast_node(statement.condition, indent_level, source);
+  print_with_newline("body: ", indent_level);
+  for (auto node : statement.body) {
+    print_ast_node(node, indent_level + 1, source);
+  }
+}
 inline void print_else_statement(donsus_ast::else_statement &statement,
                                  int indent_level, std::string &source) {
   print_with_newline("body: ", indent_level);
@@ -419,19 +442,14 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
 
   case type::IF_STATEMENT: {
     print_type(ast_node->type, indent_level);
-    if (ast_node->children.empty()) {
-      print_with_newline("condition: {}", indent_level);
-    } else {
-      print_with_newline("condition: ", indent_level);
-      for (auto children : ast_node->children) {
-        print_ast_node(children, indent_level + 1, source);
-        print_with_newline(" ", indent_level);
-      }
-    }
-
-    print_statement(ast_node->get<donsus_ast::if_statement>(), indent_level,
-                    source);
-
+    print_if_statement(ast_node->get<donsus_ast::if_statement>(),
+                       indent_level + 1, source);
+    break;
+  }
+  case type::ELSE_IF_STATEMENT: {
+    print_type(ast_node->type, indent_level);
+    print_else_if_statement(ast_node->get<donsus_ast::else_if_statement>(),
+                            indent_level + 1, source);
     break;
   }
 
@@ -492,17 +510,7 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
   case type::PATTERN: {
     print_type(ast_node->type, indent_level);
     print_with_newline("TYPE: ", indent_level + 1);
-    switch (ast_node->get<donsus_ast::pattern>().type) {
-    case donsus_ast::PatternType::CONDITIONAL:
-      print_with_newline("CONDITIONAL", indent_level + 2);
-      break;
-    case donsus_ast::PatternType::UNCONDITIONAL:
-      print_with_newline("UNCONDITIONAL", indent_level + 2);
-      break;
-    case donsus_ast::PatternType::Unknown:
-      print_with_newline("UNKNOWN", indent_level + 2);
-      break;
-    }
+
     print_with_newline("GUARD: ", indent_level + 1);
     print_ast_node(ast_node->get<donsus_ast::pattern>().guard, indent_level + 2,
                    source);

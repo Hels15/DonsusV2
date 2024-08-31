@@ -75,6 +75,14 @@ inline void print_array_body(donsus_ast::array array_def, int indent_level,
     print_ast_node(n, indent_level, source);
   }
 }
+inline void print_indices_expression(donsus_ast::indices indices,
+                                     int indent_level, std::string &source) {
+  print_with_newline("name: ", indent_level + 1);
+  print_ast_node(indices.name, indent_level + 2, source);
+
+  print_with_newline("index: ", indent_level + 1);
+  print_ast_node(indices.index, indent_level + 2, source);
+}
 inline void print_string_expression(donsus_ast::string_expr &string_expr,
                                     int indent_level, std::string &source) {
   print_with_newline("kind: " + std::string(string_expr.value.type_name()),
@@ -382,6 +390,12 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
         print_with_newline(" ", indent_level);
       }
     }
+    break;
+  }
+  case type::INDICES: {
+    print_type(ast_node->type, indent_level);
+    print_indices_expression(ast_node->get<donsus_ast::indices>(), indent_level,
+                             source);
     break;
   }
 

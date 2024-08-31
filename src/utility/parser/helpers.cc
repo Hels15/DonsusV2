@@ -5,7 +5,7 @@ bool is_assignment(donsus_token_kind kind) {
           kind == donsus_token_kind::MINUS_EQUAL ||
           kind == donsus_token_kind::SLASH_EQUAL ||
           kind == donsus_token_kind::STAR_EQUAL ||
-          kind == donsus_token_kind::EQUAL || kind == donsus_token_kind::LSQB ||
+          kind == donsus_token_kind::EQUAL ||
           kind == donsus_token_kind::AMPERSAND_EQUAL ||
           kind == donsus_token_kind::PIPE_EQUAL ||
           kind == donsus_token_kind::CARET_EQUAL ||
@@ -17,7 +17,8 @@ bool is_compare_op(donsus_token_kind kind) {
   return (kind == donsus_token_kind::LESS ||
           kind == donsus_token_kind::GREATER ||
           kind == donsus_token_kind::LESS_EQUAL ||
-          kind == donsus_token_kind::GREATER_EQUAL ||kind == donsus_token_kind::DOUBLE_EQUAL);
+          kind == donsus_token_kind::GREATER_EQUAL ||
+          kind == donsus_token_kind::DOUBLE_EQUAL);
 }
 bool is_specifier(donsus_token_kind kind) {
   return (kind == donsus_token_kind::COMPTIME_KW ||

@@ -31,6 +31,7 @@ add_executable(donsus_test
         parser/test_expr.cc
         parser/test_generics.cc
         parser/test_if_statement.cc
+        parser/test_indices.cc
 
 )
 

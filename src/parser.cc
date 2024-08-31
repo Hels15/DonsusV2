@@ -151,6 +151,11 @@ auto Parser::parse() -> end_result {
       parse_result result = array_def();
       parser_except(donsus_token_kind::SEMICOLON);
       tree->add_node(result);
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               peek().kind == donsus_token_kind::LSQB) {
+      parse_result result = indices();
+      parser_except(donsus_token_kind::SEMICOLON);
+      tree->add_node(result);
     } else if (cur_token.kind == donsus_token_kind::FUNCTION_DEFINITION_KW) {
       parse_result result = function_def();
 
@@ -617,6 +622,10 @@ auto Parser::expr_val() -> parse_result {
         peek().kind == donsus_token_kind::LPAR) {
       return function_call();
     }
+    if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+        peek().kind == donsus_token_kind::LSQB) {
+      return indices();
+    }
     return create_expr_w_value(cur_token);
   }
   default: {
@@ -1021,6 +1030,11 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
     } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
                peek(3).kind == donsus_token_kind::LSQB) {
       parse_result result = array_def();
+      parser_except(donsus_token_kind::SEMICOLON);
+      body.push_back(result);
+    } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
+               peek().kind == donsus_token_kind::LSQB) {
+      parse_result result = indices();
       parser_except(donsus_token_kind::SEMICOLON);
       body.push_back(result);
     } else if (cur_token.kind == donsus_token_kind::FUNCTION_DEFINITION_KW) {
@@ -1761,7 +1775,6 @@ auto Parser::indices() -> parse_result {
   if (cur_token.kind == donsus_token_kind::RSQB) {
     syntax_error(indices_expr, cur_token, "Index must be specified after [");
   }
-  parser_next();
   body.index = expr();
   parser_except(donsus_token_kind::RSQB);
   return indices_expr;

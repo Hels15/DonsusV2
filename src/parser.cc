@@ -76,8 +76,21 @@ auto Parser::parse() -> end_result {
         is_specifier(peek().kind)) {
 
       parse_result result = variable_def();
-      parser_except(donsus_token_kind::SEMICOLON);
-      tree->add_node(result);
+      // multiple definitions
+      if (peek().kind == donsus_token_kind::COMM) {
+        parser_except(donsus_token_kind::COMM);
+        parser_next();
+        Tomi::Vector<parse_result> vars = variable_multi_def_multi_value(
+            result->get<donsus_ast::variable_def>());
+        tree->add_node(result);
+        for (auto var : vars) {
+          tree->add_node(var);
+        }
+        parser_except(donsus_token_kind::SEMICOLON);
+      } else {
+        tree->add_node(result);
+        parser_except(donsus_token_kind::SEMICOLON);
+      }
     }
 
     else if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
@@ -102,8 +115,20 @@ auto Parser::parse() -> end_result {
                peek().kind == donsus_token_kind::COLON &&
                peek(3).kind != donsus_token_kind::LSQB) {
       parse_result result = variable_def();
-      parser_except(donsus_token_kind::SEMICOLON);
-      tree->add_node(result);
+      if (peek().kind == donsus_token_kind::COMM) {
+        parser_except(donsus_token_kind::COMM);
+        parser_next();
+        Tomi::Vector<parse_result> vars = variable_multi_def_multi_value(
+            result->get<donsus_ast::variable_def>());
+        tree->add_node(result);
+        for (auto var : vars) {
+          tree->add_node(var);
+        }
+        parser_except(donsus_token_kind::SEMICOLON);
+      } else {
+        tree->add_node(result);
+        parser_except(donsus_token_kind::SEMICOLON);
+      }
     } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
                is_assignment(peek().kind)) {
       parse_result result = assignments();
@@ -315,14 +340,6 @@ auto Parser::variable_def() -> parse_result {
   parser_next();
   parse_result expression = expr();
   definition->children.push_back(expression);
-  if (peek().kind == donsus_token_kind::COMM) {
-    parser_except(donsus_token_kind::COMM);
-    parser_next();
-    Tomi::Vector<parse_result> vars = variable_multi_def_multi_value(body);
-    for (auto var : vars) {
-      tree->add_node(var);
-    }
-  }
   return definition;
 }
 
@@ -929,8 +946,21 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
         is_specifier(peek().kind)) {
 
       parse_result result = variable_def();
-      parser_except(donsus_token_kind::SEMICOLON);
-      body.push_back(result);
+      // multiple definitions
+      if (peek().kind == donsus_token_kind::COMM) {
+        parser_except(donsus_token_kind::COMM);
+        parser_next();
+        Tomi::Vector<parse_result> vars = variable_multi_def_multi_value(
+            result->get<donsus_ast::variable_def>());
+        body.push_back(result);
+        for (auto var : vars) {
+          tree->add_node(var);
+        }
+        parser_except(donsus_token_kind::SEMICOLON);
+      } else {
+        body.push_back(result);
+        parser_except(donsus_token_kind::SEMICOLON);
+      }
     } else if (cur_token.kind == donsus_token_kind::RETURN_KW) {
       parse_result result = return_statement();
       parser_except(donsus_token_kind::SEMICOLON);
@@ -957,8 +987,20 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
                peek().kind == donsus_token_kind::COLON &&
                peek(3).kind != donsus_token_kind::LSQB) {
       parse_result result = variable_def();
-      parser_except(donsus_token_kind::SEMICOLON);
-      body.push_back(result);
+      if (peek().kind == donsus_token_kind::COMM) {
+        parser_except(donsus_token_kind::COMM);
+        parser_next();
+        Tomi::Vector<parse_result> vars = variable_multi_def_multi_value(
+            result->get<donsus_ast::variable_def>());
+        tree->add_node(result);
+        for (auto var : vars) {
+          tree->add_node(var);
+        }
+        parser_except(donsus_token_kind::SEMICOLON);
+      } else {
+        body.push_back(result);
+        parser_except(donsus_token_kind::SEMICOLON);
+      }
     } else if (cur_token.kind == donsus_token_kind::IDENTIFIER &&
                is_assignment(peek().kind)) {
       parse_result result = assignments();
@@ -1410,13 +1452,20 @@ auto Parser::if_var_decls() -> Tomi::Vector<parse_result> {
   Tomi::Vector<parse_result> a;
   parser_except_current(tree->get_current_node(),
                         donsus_token_kind::IDENTIFIER);
-  while (cur_token.kind != donsus_token_kind::SEMICOLON) {
-    a.push_back(variable_def());
+  parse_result result = variable_def();
+  if (peek().kind == donsus_token_kind::COMM) {
+    parser_except(donsus_token_kind::COMM);
     parser_next();
-    if (cur_token.kind == donsus_token_kind::COMM) {
-      parser_next();
+    Tomi::Vector<parse_result> vars =
+        variable_multi_def_multi_value(result->get<donsus_ast::variable_def>());
+    a.push_back(result);
+    for (auto var : vars) {
+      a.push_back(var);
     }
+  } else {
+    a.push_back(result);
   }
+  parser_except(donsus_token_kind::SEMICOLON);
   return a;
 }
 auto Parser::create_else_if_statement() -> parse_result {

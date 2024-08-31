@@ -88,13 +88,13 @@ TEST(MultiVarDef, MultiVarDefMultiValue) {
   EXPECT_EQ(multi_var_def_1->get<donsus_ast::variable_def>()
                 .identifier_name->get<donsus_ast::identifier>()
                 .identifier_name,
-            "b");
+            "a");
 
   // second var
   EXPECT_EQ(multi_var_def_2->get<donsus_ast::variable_def>()
                 .identifier_name->get<donsus_ast::identifier>()
                 .identifier_name,
-            "a");
+            "b");
 
   EXPECT_EQ(main_type_1.type,
             donsus_ast::donsus_node_type::VARIABLE_DEFINITION);

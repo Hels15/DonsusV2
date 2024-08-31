@@ -220,7 +220,7 @@ TEST(ElseStatement, Else) {
   EXPECT_EQ(file.error_count, 0);
 }
 
-/*// Todo: test this out
+// Todo: test this out
 
 TEST(IfStatement, IfVarDecls) {
   std::string a = R"(
@@ -258,13 +258,9 @@ TEST(IfStatement, IfVarDecls) {
 
   EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::IF_STATEMENT);
   EXPECT_EQ(file.error_count, 0);
-}*/
+}
 
-/*TEST(IfStatement, MultipleIfVarDecls) {
-  // Todo: Multiple types here?
-  // TOdo: need to allow a: int = 12, b = 12;
-  // first
-
+TEST(IfStatement, MultipleIfVarDecls) {
   std::string a = R"(
     if(a: int = Func1(), b = Func2(); a > b) {
   printf("a is greater than b");
@@ -277,6 +273,7 @@ TEST(IfStatement, IfVarDecls) {
 
   auto if_def = result->get_nodes()[0];
   auto main_type = result->get_nodes()[0]->type;
+
   EXPECT_EQ(if_def->get<donsus_ast::if_statement>()
                 .if_var_decls[0]
                 ->get<donsus_ast::variable_def>()
@@ -308,7 +305,6 @@ TEST(IfStatement, IfVarDecls) {
   EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::IF_STATEMENT);
   EXPECT_EQ(file.error_count, 0);
 }
-*/
 TEST(IfStatement, MultipleAlternative) {
   std::string a = R"(
     if(a > 1) {

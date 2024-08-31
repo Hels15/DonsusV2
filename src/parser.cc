@@ -315,6 +315,14 @@ auto Parser::variable_def() -> parse_result {
   parser_next();
   parse_result expression = expr();
   definition->children.push_back(expression);
+  if (peek().kind == donsus_token_kind::COMM) {
+    parser_except(donsus_token_kind::COMM);
+    parser_next();
+    Tomi::Vector<parse_result> vars = variable_multi_def_multi_value(body);
+    for (auto var : vars) {
+      tree->add_node(var);
+    }
+  }
   return definition;
 }
 
@@ -415,8 +423,6 @@ auto Parser::bool_and_expr() -> parse_result {
 }
 auto Parser::compare_expr() -> parse_result {
   parse_result node = arithmetic_expr();
-  std::cout << "cur_token for compare: " << cur_token.type_name() << "\n";
-  std::cout << "peek: " << peek().type_name() << "\n";
 
   while (is_compare_op(peek().kind)) {
     parser_next();
@@ -657,11 +663,46 @@ auto Parser::assignments() -> parse_result {
   return assignment;
 }
 
+auto Parser::create_variable_multi_def_multi_value() -> parse_result {
+  return tree->create_node<donsus_ast::multi_var_multi_def>(
+      donsus_ast::donsus_node_type::MULTI_VAR_DEF_MUTLI_VALUE);
+}
+/*
+ *  a: int = 12, b = 10;
+ * */
+auto Parser::variable_multi_def_multi_value(donsus_ast::variable_def &first_var)
+    -> Tomi::Vector<parse_result> {
+  Tomi::Vector<parse_result> a;
+
+  while (peek().kind != donsus_token_kind::SEMICOLON) {
+    parse_result var = create_variable_def();
+    parser_except_current(tree->get_current_node(),
+                          donsus_token_kind::IDENTIFIER);
+    var->first_token_in_ast = cur_token;
+    auto &body = var->get<donsus_ast::variable_def>();
+    body.identifier_name = identifier();
+    body.specifiers = first_var.specifiers;
+    body.identifier_type = first_var.identifier_type;
+    parser_except(donsus_token_kind::EQUAL);
+    // jump to expression
+    parser_next();
+    var->children.push_back(expr());
+    a.push_back(var);
+
+    if (peek().kind == donsus_token_kind::COMM) {
+      parser_next();
+      parser_next();
+    }
+  }
+  return a;
+}
 auto Parser::create_variable_multi_def() -> parse_result {
   return tree->create_node<donsus_ast::multi_var_def>(
       donsus_ast::donsus_node_type::MULTI_VAR_DEF);
 }
-
+/*
+ * a, b: int = 12;
+ * */
 auto Parser::variable_multi_def() -> parse_result {
   parse_result multi_def = create_variable_multi_def();
   multi_def->first_token_in_ast = cur_token;
@@ -971,8 +1012,8 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
       body.push_back(result);
     } else {
       /*
-       If cur_token is a newline or cur_token is the beginning of a statement
-       block don't start an expression.
+       If cur_token is a newline or cur_token is the beginning of a
+       statement block don't start an expression.
        * */
       if (cur_token.kind != donsus_token_kind::NEWLINE &&
           cur_token.kind != donsus_token_kind::LBRACE) {
@@ -1317,7 +1358,8 @@ auto Parser::if_statement() -> parse_result {
   statement->first_token_in_ast = cur_token;
   auto &body_if = statement->get<donsus_ast::if_statement>();
   parser_except_current(statement, donsus_token_kind::IF_KW);
-  parser_next();
+  parser_except(donsus_token_kind::LPAR);
+
   switch (cur_token.kind) {
   case donsus_token_kind::LPAR:
     break;
@@ -1326,6 +1368,7 @@ auto Parser::if_statement() -> parse_result {
   }
   if (peek().kind == donsus_token_kind::IDENTIFIER &&
       peek(2).kind == donsus_token_kind::COLON) {
+    parser_except(donsus_token_kind::IDENTIFIER);
     body_if.if_var_decls = if_var_decls();
   }
   parser_next();
@@ -1346,18 +1389,15 @@ auto Parser::if_statement() -> parse_result {
   parser_next();
   body_if.body = statements();
 
-  // here because I have to advance even if I don't have an else keyword would
-  // result in errors when dealing with multiple if statement, otherwise somehow
-  // I can't get into it.
-  std::cout << "cur_token" << cur_token.type_name() << "\n";
-  std::cout << "peek()" << peek().type_name() << "\n";
-  std::cout << "peek(2)" << peek(2).type_name() << "\n";
+  // here because I have to advance even if I don't have an else keyword
+  // would result in errors when dealing with multiple if statement,
+  // otherwise somehow I can't get into it.
 
   while (peek().kind == donsus_token_kind::ELSE_KW &&
          peek(2).kind == donsus_token_kind::IF_KW) {
     parser_next();
     body_if.alternate.push_back(else_if_statement());
-    parser_next();
+    std::cout << "in else-if: peek()" << peek().type_name() << "\n";
   }
   while (peek().kind == donsus_token_kind::ELSE_KW) {
     parser_next();
@@ -1372,8 +1412,10 @@ auto Parser::if_var_decls() -> Tomi::Vector<parse_result> {
                         donsus_token_kind::IDENTIFIER);
   while (cur_token.kind != donsus_token_kind::SEMICOLON) {
     a.push_back(variable_def());
-    parser_except(donsus_token_kind::COMM);
     parser_next();
+    if (cur_token.kind == donsus_token_kind::COMM) {
+      parser_next();
+    }
   }
   return a;
 }
@@ -1495,7 +1537,6 @@ auto Parser::pattern() -> parse_result {
   }
   // after expression is parsed down why is it an int?
   body_pattern.result_expression = expr();
-  std::cout << "after result expression token:" << cur_token.type_name();
   // how is it an integer here
   return pattern_statement;
 }

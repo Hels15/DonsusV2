@@ -127,6 +127,10 @@ public:
   auto create_variable_multi_def() -> parse_result;
   auto variable_multi_def() -> parse_result;
 
+  auto create_variable_multi_def_multi_value() -> parse_result;
+  auto variable_multi_def_multi_value(donsus_ast::variable_def &first_var)
+      -> Tomi::Vector<parse_result>;
+
   auto create_array_def() -> parse_result;
   auto array_def() -> parse_result;
 

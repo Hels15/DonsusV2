@@ -70,7 +70,8 @@ namespace donsus_ast {
   X(INDICES, "INDICES")                                                        \
   X(MULTI_VAR_DEF, "MULTI_VAR_DEF")                                            \
   X(ARRAY, "ARRAY")                                                            \
-  X(CHAR_EXPR, "CHAR_EXPR")
+  X(CHAR_EXPR, "CHAR_EXPR")                                                    \
+  X(MULTI_VAR_DEF_MUTLI_VALUE, "MULTI_VAR_DEF_MULTI_VALUE")
 
 struct donsus_node_type {
   enum underlying : int {
@@ -250,8 +251,11 @@ struct specifiers_class_utils {
 };
 
 struct node;
+
 struct variable_def {
   // value stored in children
+  // might just create field for value instead
+  // of children
   specifiers_ specifiers{};
   utility::handle<donsus_ast::node> identifier_type;
   utility::handle<donsus_ast::node> identifier_name;
@@ -259,6 +263,9 @@ struct variable_def {
 
 // Just for reporting more precise error messages
 struct multi_var_def {
+  Tomi::Vector<utility::handle<donsus_ast::node>> vars;
+};
+struct multi_var_multi_def {
   Tomi::Vector<utility::handle<donsus_ast::node>> vars;
 };
 

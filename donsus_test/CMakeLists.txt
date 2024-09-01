@@ -32,7 +32,8 @@ add_executable(donsus_test
         parser/test_generics.cc
         parser/test_if_statement.cc
         parser/test_indices.cc
-
+        parser/test_instance.cc
+        parser/test_language_extension.cc
 )
 
 

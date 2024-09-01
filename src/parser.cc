@@ -93,12 +93,12 @@ auto Parser::parse() -> end_result {
       }
     }
 
-    else if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
-             peek().kind == donsus_token_kind::INSTANCE_KW) {
+    else if (cur_token.kind == donsus_token_kind::INSTANCE_KW) {
       parse_result result = instance();
       tree->add_node(result);
     } else if (cur_token.kind == donsus_token_kind::AT) {
       parse_result result = language_extension();
+      parser_except(donsus_token_kind::SEMICOLON);
       tree->add_node(result);
     } else if (cur_token.kind == donsus_token_kind::TYPECLASS_KW) {
       parse_result result = typeclass();
@@ -240,10 +240,11 @@ auto Parser::tuple() -> parse_result {
   while (cur_token.kind != donsus_token_kind::RPAR) {
     body.items.push_back(expr());
     if (peek().kind == donsus_token_kind::COMM) {
+      parser_except(donsus_token_kind::COMM);
       parser_next();
       continue;
     }
-    break;
+    parser_next();
   }
   return tuple;
 }
@@ -974,12 +975,12 @@ auto Parser::statements() -> Tomi::Vector<parse_result> {
       parse_result result = return_statement();
       parser_except(donsus_token_kind::SEMICOLON);
       body.push_back(result);
-    } else if (cur_token.kind == donsus_token_kind::INSTANCE_KW &&
-               peek().kind == donsus_token_kind::INSTANCE_KW) {
+    } else if (cur_token.kind == donsus_token_kind::INSTANCE_KW) {
       parse_result result = instance();
       body.push_back(result);
     } else if (cur_token.kind == donsus_token_kind::AT) {
       parse_result result = language_extension();
+      parser_except(donsus_token_kind::SEMICOLON);
       body.push_back(result);
     } else if (cur_token.kind == donsus_token_kind::TYPECLASS_KW) {
       parse_result result = typeclass();
@@ -1089,18 +1090,18 @@ auto Parser::create_instance() -> parse_result {
 auto Parser::instance() -> parse_result {
   parse_result instance = create_instance();
   instance->first_token_in_ast = cur_token;
-  auto &body = instance->get<donsus_ast::instance>();
+  auto &body_ = instance->get<donsus_ast::instance>();
 
   parser_except_current(instance, donsus_token_kind::INSTANCE_KW);
   parser_except(donsus_token_kind::IDENTIFIER);
 
-  body.identifier = identifier();
+  body_.identifier = identifier();
   parser_next();
-  body.type = type();
-  parser_except(donsus_token_kind::LPAR);
+  body_.type = type();
+  parser_except(donsus_token_kind::LBRACE);
 
-  instance->children = statements();
-  parser_except_current(instance, donsus_token_kind::RPAR);
+  body_.body = statements();
+  parser_except_current(instance, donsus_token_kind::RBRACE);
   return instance;
 }
 auto Parser::create_language_extension() -> parse_result {
@@ -1110,12 +1111,13 @@ auto Parser::create_language_extension() -> parse_result {
 
 auto Parser::language_extension() -> parse_result {
   parse_result language_extension = create_language_extension();
+  auto &body = language_extension->get<donsus_ast::language_extension>();
+
   language_extension->first_token_in_ast = cur_token;
   parser_except_current(language_extension, donsus_token_kind::AT);
-
   parser_except(donsus_token_kind::LPAR);
-  language_extension->children.push_back(tuple());
-  parser_except(donsus_token_kind::SEMICOLON);
+  body.extensions = tuple();
+
   return language_extension;
 }
 auto Parser::create_typeclass() -> parse_result {

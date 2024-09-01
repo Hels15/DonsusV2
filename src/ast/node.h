@@ -490,10 +490,13 @@ struct reference {
   utility::handle<donsus_ast::node> referent;
 };
 
-struct language_extension {};
+struct language_extension {
+  utility::handle<donsus_ast::node> extensions;
+};
 struct instance {
   utility::handle<donsus_ast::node> identifier;
   utility::handle<donsus_ast::node> type;
+  Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };
 // func :: Num X => X
 // decl only contains parameters, it does exclude the last return

@@ -186,7 +186,31 @@ inline void print_if_statement(donsus_ast::if_statement &statement,
     }
   }
 }
-
+inline void print_tuple(donsus_ast::tuple &tuple, int indent_level,
+                        std::string &source) {
+  print_with_newline("Items:", indent_level);
+  for (auto item : tuple.items) {
+    print_ast_node(item, indent_level + 1, source);
+    print_with_newline("\n", indent_level);
+  }
+}
+inline void print_instance_statement(donsus_ast::instance &instance,
+                                     int indent_level, std::string &source) {
+  print_with_newline("identifier: ", indent_level + 1);
+  print_ast_node(instance.identifier, indent_level, source);
+  print_with_newline("type: ", indent_level + 1);
+  print_ast_node(instance.type, indent_level, source);
+  print_with_newline("body: ", indent_level + 1);
+  for (auto node : instance.body) {
+    print_ast_node(node, indent_level + 1, source);
+  }
+}
+inline void
+print_language_extension(donsus_ast::language_extension &language_extension,
+                         int indent_level, std::string &source) {
+  print_with_newline("Extensions:", indent_level + 1);
+  print_ast_node(language_extension.extensions, indent_level, source);
+}
 inline void print_else_if_statement(donsus_ast::else_if_statement &statement,
                                     int indent_level, std::string &source) {
   if (statement.condition) {
@@ -356,7 +380,12 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
                   source);
     break;
   }
-
+  case type::INSTANCE: {
+    print_type(ast_node->type, indent_level);
+    print_instance_statement(ast_node->get<donsus_ast::instance>(),
+                             indent_level, source);
+    break;
+  }
   case type::PRINT_EXPRESSION: {
     print_type(ast_node->type, indent_level);
     indent_level++;
@@ -364,7 +393,12 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
     print_ast_node(ast_node->children[0], indent_level + 1, source);
     break;
   }
-
+  case type::LANGUAGE_EXTENSION: {
+    print_type(ast_node->type, indent_level);
+    print_language_extension(ast_node->get<donsus_ast::language_extension>(),
+                             indent_level, source);
+    break;
+  }
   case type::ASSIGNMENT: {
     print_type(ast_node->type, indent_level);
     indent_level++;
@@ -374,6 +408,11 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
     for (auto children_expr : ast_node->children) {
       print_ast_node(children_expr, indent_level + 2, source);
     }
+    break;
+  }
+  case type::TUPLE: {
+    print_type(ast_node->type, indent_level);
+    print_tuple(ast_node->get<donsus_ast::tuple>(), indent_level, source);
     break;
   }
   case type::INTEGER_EXPRESSION: {

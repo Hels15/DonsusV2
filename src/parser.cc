@@ -1637,6 +1637,7 @@ auto Parser::for_loop() -> parse_result {
     body_for.type_of_loop = donsus_ast::loop_type::RANGE_BASED;
     ;
     body_for.iterator = range_expression();
+    parser_except(donsus_token_kind::LBRACE);
     break;
   }
   case donsus_token_kind::IDENTIFIER: {
@@ -1652,6 +1653,7 @@ auto Parser::for_loop() -> parse_result {
       parser_next();
       body_for.iterator = expr();
       parser_except(donsus_token_kind::LBRACE);
+      break;
     }
   }
   case donsus_token_kind::LPAR: {

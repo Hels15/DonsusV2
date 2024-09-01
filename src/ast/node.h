@@ -275,9 +275,9 @@ struct range_expr {
   utility::handle<donsus_ast::node> end;
 };
 
-enum class loop_type { TRADITIONAL, RANGE_BASED };
+enum class loop_type { Unknown, TRADITIONAL, RANGE_BASED };
 struct for_loop {
-  loop_type type_of_loop;
+  loop_type type_of_loop{};
   // RANGE_BASED
   // if loop_variable not set explicitly, thus its a nullptr
   // loop_variable will be created explicitly
@@ -293,10 +293,10 @@ struct for_loop {
   // TRADITIONAL
   utility::handle<donsus_ast::node> condition;
 };
-enum class while_type { TRADITIONAL, DO_BASED };
+enum class while_type { Unknown, TRADITIONAL, DO_BASED };
 
 struct while_loop {
-  while_type type_of_loop;
+  while_type type_of_loop{};
   utility::handle<donsus_ast::node> condition;
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };

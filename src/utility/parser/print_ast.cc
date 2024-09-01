@@ -186,6 +186,38 @@ inline void print_if_statement(donsus_ast::if_statement &statement,
     }
   }
 }
+
+inline void print_loop(donsus_ast::for_loop &loop, int indent_level,
+                       std::string &source) {
+  print_with_newline("loop type:", indent_level);
+  switch (loop.type_of_loop) {
+  case donsus_ast::loop_type::TRADITIONAL: {
+    print_with_newline("init_statement: ", indent_level);
+    print_ast_node(loop.init_statement, indent_level, source);
+    print_with_newline("condition: ", indent_level);
+    print_ast_node(loop.condition, indent_level, source);
+    print_with_newline("increment_expr: ", indent_level);
+    print_ast_node(loop.increment_expr, indent_level, source);
+    for (auto node : loop.body) {
+      print_ast_node(node, indent_level + 1, source);
+    }
+    break;
+  }
+  case donsus_ast::loop_type::RANGE_BASED: {
+    print_with_newline("loop_variable: " + loop.loop_variable, indent_level);
+    print_with_newline("iterator: ", indent_level);
+    print_ast_node(loop.iterator, indent_level + 1, source);
+    print_with_newline("body: ", indent_level);
+    for (auto node : loop.body) {
+      print_ast_node(node, indent_level + 1, source);
+    }
+    break;
+  }
+  case donsus_ast::loop_type::Unknown: {
+    print_with_newline("UNKNOWN", indent_level);
+  }
+  }
+}
 inline void print_tuple(donsus_ast::tuple &tuple, int indent_level,
                         std::string &source) {
   print_with_newline("Items:", indent_level);
@@ -532,17 +564,8 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
   }
 
   case type::FOR_LOOP: {
-    print_type(ast_node->type, indent_level);
-    print_with_newline("loop_variable: " +
-                           ast_node->get<donsus_ast::for_loop>().loop_variable,
-                       indent_level);
-    print_with_newline("iterator: ", indent_level);
-    print_ast_node(ast_node->get<donsus_ast::for_loop>().iterator,
-                   indent_level + 1, source);
-    print_with_newline("body: ", indent_level);
-    for (auto node : ast_node->get<donsus_ast::for_loop>().body) {
-      print_ast_node(node, indent_level + 1, source);
-    }
+    print_type(ast_node->type, indent_level + 1);
+    print_loop(ast_node->get<donsus_ast::for_loop>(), indent_level, source);
     break;
   }
 

@@ -231,11 +231,12 @@ auto Parser::return_from_func() -> parse_result {
   parse_result empty;
   return empty;
 }
-
+// the caller should call this when cur_token = LPAR
 auto Parser::tuple() -> parse_result {
   parse_result tuple = create_tuple();
   tuple->first_token_in_ast = cur_token;
   auto &body = tuple->get<donsus_ast::tuple>();
+
   parser_next();
   while (cur_token.kind != donsus_token_kind::RPAR) {
     body.items.push_back(expr());
@@ -592,9 +593,13 @@ auto Parser::prefix_expr() -> parse_result {
 auto Parser::expr_val() -> parse_result {
   switch (cur_token.kind) {
   case donsus_token_kind::LPAR: {
+    if (peek(2).kind == donsus_token_kind::COMM)
+      return tuple();
     parser_next();
     parse_result node = expr();
+
     parser_next();
+
     if (cur_token.kind != donsus_token_kind::RPAR) {
       syntax_error(tree->get_current_node(), cur_token,
                    "Expected ')' after expression");
@@ -1888,7 +1893,11 @@ auto Parser::class_def() -> parse_result {
   return definition;
 }
 
-auto Parser::type() -> parse_result { return identifier(); }
+auto Parser::type() -> parse_result {
+  if (cur_token.kind == donsus_token_kind::LPAR)
+    return tuple();
+  return identifier();
+}
 
 auto Parser::create_identifier() -> parse_result {
   return tree->create_node<donsus_ast::identifier>(

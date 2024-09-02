@@ -117,7 +117,6 @@ TEST(ForLoop, Traditional) {
   EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::FOR_LOOP);
   EXPECT_EQ(file.error_count, 0);
 }
-/*
 
 TEST(WhileLoop, Normal) {
   std::string a = R"(
@@ -132,14 +131,25 @@ TEST(WhileLoop, Normal) {
 
   auto loop_def = result->get_nodes()[0];
   auto main_type = result->get_nodes()[0]->type;
+  auto loop_def_body = loop_def->get<donsus_ast::while_loop>();
 
-  EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::FOR_LOOP);
+  EXPECT_EQ(loop_def_body.type_of_loop, donsus_ast::while_type::TRADITIONAL);
+  EXPECT_EQ(
+      lexeme_value(loop_def_body.condition->get<donsus_ast::expression>().value,
+                   a),
+      "<");
+  EXPECT_EQ(loop_def_body.body.size(), 1);
+
+  EXPECT_EQ(loop_def_body.body[0]->type.type,
+            donsus_ast::donsus_node_type::ASSIGNMENT);
+
+  EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::WHILE_LOOP);
   EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(WhileLoop, DoBased) {
   std::string a = R"(
-    while n < 10 {
+    while n < 10 do{
     n += 1;
     }
 )";
@@ -151,7 +161,20 @@ TEST(WhileLoop, DoBased) {
   auto loop_def = result->get_nodes()[0];
   auto main_type = result->get_nodes()[0]->type;
 
-  EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::FOR_LOOP);
+  auto loop_def_body = loop_def->get<donsus_ast::while_loop>();
+
+  EXPECT_EQ(loop_def_body.type_of_loop, donsus_ast::while_type::DO_BASED);
+
+  EXPECT_EQ(
+      lexeme_value(loop_def_body.condition->get<donsus_ast::expression>().value,
+                   a),
+      "<");
+
+  EXPECT_EQ(loop_def_body.body.size(), 1);
+
+  EXPECT_EQ(loop_def_body.body[0]->type.type,
+            donsus_ast::donsus_node_type::ASSIGNMENT);
+
+  EXPECT_EQ(main_type.type, donsus_ast::donsus_node_type::WHILE_LOOP);
   EXPECT_EQ(file.error_count, 0);
 }
-*/

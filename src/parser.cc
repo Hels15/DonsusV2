@@ -1689,7 +1689,7 @@ auto Parser::while_loop() -> parse_result {
   parse_result while_statement = create_while_loop();
   while_statement->first_token_in_ast = cur_token;
   auto &body_while = while_statement->get<donsus_ast::while_loop>();
-  parser_except(donsus_token_kind::WHILE_KW);
+  parser_except_current(while_statement, donsus_token_kind::WHILE_KW);
   parser_next();
 
   switch (cur_token.kind) {

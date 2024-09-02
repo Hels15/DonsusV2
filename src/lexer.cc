@@ -1052,8 +1052,11 @@ token donsus_lexer_next(Parser &parser) {
 
       // float part
       if (parser.lexer.cur_char == '.' && peek_for_char(parser) != '.') {
+        cur_token.length++;
+        eat(parser);
         cur_token.kind = donsus_token_kind::FLOAT;
-        cur_token.length = 0;
+        std::string value =
+            next_number(parser, cur_token, parser.lexer.cur_pos);
 
         cur_token.line = parser.lexer.cur_line;
       }

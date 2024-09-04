@@ -495,7 +495,7 @@ struct language_extension {
   utility::handle<donsus_ast::node> extensions;
 };
 struct instance {
-  utility::handle<donsus_ast::node> identifier;
+  utility::handle<donsus_ast::node> identifier_name;
   utility::handle<donsus_ast::node> type;
   Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };

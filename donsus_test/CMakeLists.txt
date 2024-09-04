@@ -39,6 +39,7 @@ add_executable(donsus_test
         parser/test_range_expression.cc
         parser/test_tuple.cc
         parser/test_float.cc
+        parser/test_typeclass.cc
 )
 
 

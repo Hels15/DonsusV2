@@ -20,7 +20,7 @@ instance Test MyClass{
   auto main_type = result->get_nodes()[0]->type;
 
   EXPECT_EQ(instance_def->get<donsus_ast::instance>()
-                .identifier->get<donsus_ast::identifier>()
+                .identifier_name->get<donsus_ast::identifier>()
                 .identifier_name,
             "Test");
 

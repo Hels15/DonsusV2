@@ -1100,7 +1100,7 @@ auto Parser::instance() -> parse_result {
   parser_except_current(instance, donsus_token_kind::INSTANCE_KW);
   parser_except(donsus_token_kind::IDENTIFIER);
 
-  body_.identifier = identifier();
+  body_.identifier_name = identifier();
   parser_next();
   body_.type = type();
   parser_except(donsus_token_kind::LBRACE);

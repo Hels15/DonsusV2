@@ -248,8 +248,8 @@ inline void print_tuple(donsus_ast::tuple &tuple, int indent_level,
 }
 inline void print_instance_statement(donsus_ast::instance &instance,
                                      int indent_level, std::string &source) {
-  print_with_newline("identifier: ", indent_level + 1);
-  print_ast_node(instance.identifier, indent_level, source);
+  print_with_newline("identifier_name: ", indent_level + 1);
+  print_ast_node(instance.identifier_name, indent_level, source);
   print_with_newline("type: ", indent_level + 1);
   print_ast_node(instance.type, indent_level, source);
   print_with_newline("body: ", indent_level + 1);

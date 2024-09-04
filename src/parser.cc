@@ -1143,7 +1143,9 @@ auto Parser::typeclass() -> parse_result {
     parser_except(donsus_token_kind::LESS);
     body.template_decl = template_decl();
   }
-
+  parser_except(donsus_token_kind::LBRACE);
+  parser_next();
+  body.body = statements();
   return typeclass;
 }
 
@@ -1160,7 +1162,12 @@ auto Parser::template_decl() -> parse_result {
   parser_except_current(template_decl, donsus_token_kind::IDENTIFIER);
   while (cur_token.kind != donsus_token_kind::GREATER) {
     body.types.push_back(identifier());
-    parser_except(donsus_token_kind::COMM);
+    if (peek().kind == donsus_token_kind::COMM) {
+      parser_except(donsus_token_kind::COMM);
+      parser_next();
+      continue;
+    }
+    parser_next();
   }
   return template_decl;
 }

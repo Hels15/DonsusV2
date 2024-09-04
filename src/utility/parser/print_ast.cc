@@ -186,7 +186,27 @@ inline void print_if_statement(donsus_ast::if_statement &statement,
     }
   }
 }
+inline void print_typeclass(donsus_ast::typeclass &typeclass, int indent_level,
+                            std::string &source) {
+  print_with_newline("identifier name: ", indent_level);
+  print_ast_node(typeclass.identifier_name, indent_level + 1, source);
 
+  print_ast_node(typeclass.template_decl, indent_level + 1, source);
+
+  print_with_newline("body: ", indent_level);
+  for (auto item : typeclass.body) {
+    print_ast_node(item, indent_level + 1, source);
+  }
+}
+
+inline void print_template_decl(donsus_ast::template_decl &template_decl,
+                                int indent_level, std::string &source) {
+  print_with_newline("template decl: ", indent_level);
+  print_with_newline("types: ", indent_level);
+  for (auto node : template_decl.types) {
+    print_ast_node(node, indent_level + 1, source);
+  }
+}
 inline void print_loop(donsus_ast::for_loop &loop, int indent_level,
                        std::string &source) {
   print_with_newline("loop type:", indent_level);
@@ -630,7 +650,18 @@ inline void print_ast_node(utility::handle<donsus_ast::node> ast_node,
 
     break;
   }
-
+  case type::TYPECLASS: {
+    print_type(ast_node->type, indent_level);
+    print_typeclass(ast_node->get<donsus_ast::typeclass>(), indent_level,
+                    source);
+    break;
+  }
+  case type::TEMPLATE_DECL: {
+    print_type(ast_node->type, indent_level);
+    print_template_decl(ast_node->get<donsus_ast::template_decl>(),
+                        indent_level, source);
+    break;
+  }
   case type::ARRAY_ACCESS: {
     print_type(ast_node->type, indent_level);
     print_with_newline(

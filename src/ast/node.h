@@ -464,6 +464,7 @@ struct typeclass {
   utility::handle<donsus_ast::node> identifier_name;
   // Todo: this should be optional
   utility::handle<donsus_ast::node> template_decl;
+  Tomi::Vector<utility::handle<donsus_ast::node>> body;
 };
 struct final {};
 

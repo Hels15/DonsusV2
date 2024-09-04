@@ -1894,8 +1894,12 @@ auto Parser::class_def() -> parse_result {
 }
 
 auto Parser::type() -> parse_result {
-  if (cur_token.kind == donsus_token_kind::LPAR)
+  if (cur_token.kind == donsus_token_kind::LPAR &&
+      peek(2).kind == donsus_token_kind::COMM) {
     return tuple();
+  }
+  if (cur_token.kind == donsus_token_kind::LPAR)
+    return expr();
   return identifier();
 }
 

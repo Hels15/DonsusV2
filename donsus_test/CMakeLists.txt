@@ -41,6 +41,7 @@ add_executable(donsus_test
         parser/test_float.cc
         parser/test_typeclass.cc
         parser/test_bitwise.cc
+        parser/test_as.cc
 )
 
 

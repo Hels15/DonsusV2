@@ -133,6 +133,11 @@ struct token {
   // absolute offset
   unsigned int offset{};
 
+  bool operator==(const token &other) const noexcept {
+    return (kind == other.kind && length == other.length &&
+            line == other.line && column == other.column &&
+            offset == other.offset);
+  }
   const char *type_name() const;
   static const char *type_name(donsus_token_kind kind);
 };

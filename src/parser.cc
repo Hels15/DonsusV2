@@ -24,6 +24,9 @@ token Parser::parser_next() {
   return cur_token;
 }
 
+auto Parser::get_error_stream() -> std::string {
+  return error.output_stream.toString();
+}
 void Parser::print_token() {
   while (cur_token.kind != donsus_token_kind::END) {
     std::cout << "Kind: " << cur_token.type_name() << "\n";
@@ -227,7 +230,7 @@ auto Parser::return_from_func() -> parse_result {
   }
   syntax_error(tree->get_current_node(), cur_token,
                "Return type: " + std::string(cur_token.type_name()) +
-                   "is not valid");
+                   " is not valid");
   parse_result empty;
   return empty;
 }
@@ -1467,7 +1470,6 @@ auto Parser::if_statement() -> parse_result {
          peek(2).kind == donsus_token_kind::IF_KW) {
     parser_next();
     body_if.alternate.push_back(else_if_statement());
-    std::cout << "in else-if: peek()" << peek().type_name() << "\n";
   }
   while (peek().kind == donsus_token_kind::ELSE_KW) {
     parser_next();
@@ -2013,24 +2015,39 @@ void Parser::parser_except_current_token(Parser::parse_result node,
  * If nullptr is passed in, show_error_on_line doesn't apply
  * */
 void Parser::syntax_error(Parser::parse_result optional_node,
-                          token err_on_token, const std::string &message) {
+                          token err_on_token, const std::string &message,
+                          Error::type error_type) {
   error.print_meta_syntax(err_on_token, message, file.absolute_path);
   if (!optional_node) {
     file.error_count += 1;
     error.error_out_coloured("", rang::fg::reset);
+    std::cout << error.output_stream.toString();
     return;
   }
 
   error.show_error_on_line(optional_node->first_token_in_ast, err_on_token,
                            file.source);
+  std::cout << error.output_stream.toString();
   // reset
   error.error_out_coloured("", rang::fg::reset);
   file.error_count += 1;
+  Error::pos pos_l;
+  pos_l.column = cur_token.column;
+  pos_l.line = cur_token.line;
+  pos_l.token_on = cur_token;
+
+  create_error(error_type, message, pos_l);
+}
+
+void Parser::create_error(Error::type error_type, const std::string &message,
+                          Error::pos position) {
+  errors.emplace_back(error_type, message, position);
 }
 
 void ParserError::error_out_coloured(const std::string &message,
                                      rang::fg colour) {
-  std::cerr << rang::style::bold << colour << message << rang::style::reset
+  // need overload in the future
+  std::cout << rang::style::bold << colour << message << rang::style::reset
             << rang::fg::reset;
 }
 
@@ -2044,13 +2061,13 @@ void ParserError::print_meta_syntax(token err_on_token,
     error_out_coloured(message_c, rang::fg::green);
     error_out_coloured(" SYNTAX ERROR: ", rang::fg::red);
     error_out_coloured(message, rang::fg::reset);
-    std::cout << "\n";
+    output_stream << "\n";
   } else {
-    std::cout << full_path;
-    std::cout << " SYNTAX ERROR: ";
-    std::cout << message_c;
-    std::cout << message;
-    std::cout << "\n";
+    output_stream << full_path;
+    output_stream << " SYNTAX ERROR: ";
+    output_stream << message_c;
+    output_stream << message;
+    output_stream << "\n";
   }
 }
 
@@ -2063,7 +2080,7 @@ void ParserError::show_error_on_line(token first_token, token cur_token,
   error_out_coloured("\n", rang::fg::reset);
   unsigned int indent = -1;
   for (unsigned int i = 0; i < (cur_token.column + indent); i++) {
-    std::cout << " ";
+    output_stream << " ";
   }
 
   error_out_coloured("^", rang::fg::green);

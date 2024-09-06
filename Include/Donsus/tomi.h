@@ -383,6 +383,34 @@ private:
   Type *array;
 };
 
+// Copyable string stream
+class StringBuilder {
+private:
+  Tomi::Vector<char> buffer;
+
+public:
+  StringBuilder &operator<<(const char *str) {
+    while (*str) {
+      buffer.push_back(*str++);
+    }
+    return *this;
+  }
+  StringBuilder &operator<<(const std::string &str) {
+    for (char c : str) {
+      buffer.push_back(c);
+    }
+    return *this;
+  }
+  StringBuilder &operator<<(int num) { return *this << std::to_string(num); }
+  StringBuilder &operator<<(char c) {
+    buffer.push_back(c);
+    return *this;
+  }
+  std::string toString() const {
+    return std::string(buffer.begin(), buffer.end());
+  }
+  void clear() { buffer.clear(); }
+};
 template <typename T, class Container = Vector<T>> class Stack {
 public:
   Stack() : stack(Container()) {}

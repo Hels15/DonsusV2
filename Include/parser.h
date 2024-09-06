@@ -23,8 +23,30 @@ class Parser;
   NoContext,
   Case // pattern matching
 };*/
+struct Error {
+  enum class type { MissingToken, Return };
+
+  struct pos {
+    unsigned int column;
+    token token_on;
+    unsigned int line;
+    bool operator==(const pos &other) const noexcept {
+      return (column == other.column && token_on == other.token_on &&
+              line == other.line);
+    }
+  };
+  Error() = default;
+  Error(type CType, const std::string &CMessage, Error::pos Cposition)
+      : ErrorType(CType), message(CMessage), ErrorPos(Cposition) {}
+
+  type ErrorType{};
+  std::string message;
+  pos ErrorPos;
+};
 class ParserError {
 public:
+  Tomi::StringBuilder output_stream;
+
   void print_meta_syntax(token err_on_token, const std::string &message,
                          const std::string &full_path);
   void error_out_coloured(const std::string &message, rang::fg colour);
@@ -102,6 +124,7 @@ public:
 
   auto expr() -> parse_result;
 
+  auto get_error_stream() -> std::string;
   auto bool_or_expr() -> parse_result;
   auto bool_and_expr() -> parse_result;
   auto compare_expr() -> parse_result;
@@ -285,13 +308,18 @@ public:
 
   // errors
   void syntax_error(Parser::parse_result node, token err_on_token,
-                    const std::string &message);
+                    const std::string &message,
+                    Error::type error_type = Error::type::MissingToken);
 
   void parser_except(donsus_token_kind type);
   void parser_except_current(parse_result node, donsus_token_kind type);
 
   void parser_except_current_token(parse_result node, donsus_token_kind type,
                                    token token_);
+
+  void create_error(Error::type error_type, const std::string &message,
+                    Error::pos position);
+
   // helpers
   auto param_list() -> Tomi::Vector<parse_result>;
   auto return_from_func() -> parse_result;
@@ -301,6 +329,9 @@ public:
   auto set_class_specifiers(parse_result node, donsus_ast::specifiers_class_ s,
                             donsus_ast::specifiers_class_ v)
       -> donsus_ast::specifiers_class_;
+
+public:
+  Tomi::Vector<Error> errors;
 
 private:
   ParserError error;

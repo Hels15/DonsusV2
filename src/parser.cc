@@ -1,6 +1,6 @@
 #include "../Include/parser.h"
 #include "../Include/Donsus/tomi.h"
-#include "../src/ast/node.h"
+#include "../Include/ast/nodes/node.h"
 #include "../src/utility/parser/helpers.h"
 #include "../src/utility/parser/print_ast.h"
 

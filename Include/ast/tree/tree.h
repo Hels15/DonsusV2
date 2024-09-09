@@ -1,9 +1,9 @@
 #ifndef TREE_H
 #define TREE_H
+#include "../../../src/utility/handle.h"
+#include "../../../src/utility/memory_alloc.h"
 #include "../Include/Donsus/tomi.h"
-#include "../utility/handle.h"
-#include "../utility/memory_alloc.h"
-#include "node.h"
+#include "../Include/ast/nodes/node.h"
 
 namespace donsus_ast {
 class tree {

@@ -5,10 +5,10 @@
 #include "../Include/Donsus/terminal_coloured.h"
 #include "../Include/Donsus/tomi.h"
 #include "../Include/token.h"
-#include "../src/ast/node.h"
-#include "../src/ast/tree.h"
 #include "../src/utility/exception.h"
 #include "../src/utility/handle.h"
+#include "ast/nodes/node.h"
+#include "ast/tree/tree.h"
 
 #include <cstdint>
 #include <iostream>

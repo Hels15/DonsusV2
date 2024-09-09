@@ -35,8 +35,8 @@ add_library(donsus_lib STATIC
         src/parser.cc
 
         # AST
-        src/ast/node.cc
-        src/ast/tree.cc
+        src/ast/nodes/node.cc
+        src/ast/tree/tree.cc
 
         # utility
         src/utility/memory_alloc.cc

@@ -1,4 +1,4 @@
-#include "node.h"
+#include "../../../Include/ast/nodes/node.h"
 
 donsus_ast::donsus_node_type::donsus_node_type(
     donsus_ast::donsus_node_type::underlying type)

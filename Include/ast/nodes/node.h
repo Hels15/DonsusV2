@@ -1,11 +1,11 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include "../../Include/token.h"
+#include "../../../src/utility/handle.h"
+#include "../../../src/utility/property.h"
+#include "../../token.h"
 #include "../Include/Donsus/tomi.h"
 #include "../Include/Internal/type.h"
-#include "../utility/handle.h"
-#include "../utility/property.h"
 
 #include <cstdint>
 #include <string>

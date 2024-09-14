@@ -308,6 +308,7 @@ struct integer_expr {
 struct float_expr {
   token value;
 };
+
 struct indices {
   utility::handle<donsus_ast::node> name;
   utility::handle<donsus_ast::node> index;
@@ -522,7 +523,27 @@ struct constraint {
   Tomi::Vector<utility::handle<donsus_ast::node>> type_variables;
 };
 
-struct node : utility::property<> {
+class node : utility::property<> {
+public:
+  int nid;
+  Tomi::Vector<node> inputs;
+  Tomi::Vector<node> outputs;
+  static int UNIQUE_ID = 1;
+
+  virtual std::string label();
+  std::string uniqueName();
+  std::string glabel();
+
+  utility::handle<node> in(int i);
+  int nIns();
+
+  utility::handle<node> out(int i);
+  int nOuts();
+
+  bool isUnused();
+  bool isCFG();
+
+
   Tomi::Vector<utility::handle<donsus_ast::node>> children;
   donsus_node_type type;
   token first_token_in_ast;
